@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.database import Base, engine
-from app.routers import auth
+from app.routers import auth, skills
 
 import app.models  # noqa: F401
 
@@ -23,6 +23,7 @@ app.add_middleware(
 )
 
 app.include_router(auth.router, prefix="/api")
+app.include_router(skills.router, prefix="/api")
 
 
 @app.get("/")

@@ -1,0 +1,52 @@
+{
+  "categories": [
+    {
+      "name": "Programlama Dilleri",
+      "skills": ["Python", "Java", "JavaScript", "TypeScript", "C#", "C++", "C", "Go", "Rust", "PHP", "Ruby", "Kotlin", "Swift", "Dart", "R", "Scala"]
+    },
+    {
+      "name": "Frontend",
+      "skills": ["React", "Vue.js", "Angular", "Next.js", "Svelte", "HTML", "CSS", "Tailwind CSS", "Bootstrap", "Redux", "Vite", "Webpack"]
+    },
+    {
+      "name": "Backend",
+      "skills": ["Node.js", "Express.js", "FastAPI", "Django", "Flask", "Spring Boot", "ASP.NET Core", "Laravel", "Ruby on Rails", "NestJS", "GraphQL", "REST API", "gRPC"]
+    },
+    {
+      "name": "Veritabanı",
+      "skills": ["PostgreSQL", "MySQL", "MongoDB", "SQLite", "Redis", "Elasticsearch", "Oracle", "Microsoft SQL Server", "Cassandra", "Firebase", "Supabase"]
+    },
+    {
+      "name": "DevOps ve Bulut",
+      "skills": ["Docker", "Kubernetes", "AWS", "Azure", "Google Cloud", "Jenkins", "GitLab CI", "GitHub Actions", "Terraform", "Ansible", "Nginx", "Linux", "Prometheus", "Grafana"]
+    },
+    {
+      "name": "Mobil",
+      "skills": ["React Native", "Flutter", "Android", "iOS", ".NET MAUI", "Ionic", "Jetpack Compose", "SwiftUI"]
+    },
+    {
+      "name": "Veri Bilimi ve Makine Öğrenmesi",
+      "skills": ["Pandas", "NumPy", "Scikit-learn", "TensorFlow", "PyTorch", "Keras", "Apache Spark", "Tableau", "Power BI", "Matplotlib", "OpenCV", "NLP", "Makine Öğrenmesi", "Derin Öğrenme", "MLOps"]
+    },
+    {
+      "name": "Yapay Zeka ve LLM",
+      "skills": ["LangChain", "Hugging Face", "RAG", "Vektör Veritabanı", "Prompt Engineering", "OpenAI API", "Transformers", "Fine-tuning", "LlamaIndex"]
+    },
+    {
+      "name": "Veri Mühendisliği",
+      "skills": ["Apache Kafka", "Apache Airflow", "dbt", "ETL", "Data Warehouse", "Snowflake", "Databricks"]
+    },
+    {
+      "name": "Siber Güvenlik",
+      "skills": ["OWASP", "Penetrasyon Testi", "Kriptografi", "Ağ Güvenliği", "Wireshark", "Burp Suite", "SIEM", "Güvenlik Denetimi"]
+    },
+    {
+      "name": "Test ve Kalite",
+      "skills": ["Jest", "Pytest", "JUnit", "Selenium", "Cypress", "Playwright", "Postman", "TDD", "Unit Testing"]
+    },
+    {
+      "name": "Araçlar ve Yöntemler",
+      "skills": ["Git", "Jira", "Agile", "Scrum", "Kanban", "Figma", "Microservices", "Design Patterns", "SOLID", "Clean Code", "System Design", "CI/CD"]
+    }
+  ]
+}
