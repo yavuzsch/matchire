@@ -1,14 +1,16 @@
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.common import EducationLevel, TechField
+
 
 class ResumeCreate(BaseModel):
     phone: str | None = None
     skills: list[str] = Field(default_factory=list)
     experience_years: int = 0
 
-    education_level: str | None = None
+    education_level: EducationLevel | None = None
     university: str | None = None
-    field: str | None = None
+    field: TechField | None = None
 
     projects: str | None = None
     certifications: str | None = None
@@ -23,9 +25,9 @@ class ResumeOut(BaseModel):
     phone: str | None
     skills: list[str]
     experience_years: int
-    education_level: str | None
+    education_level: EducationLevel | None
     university: str | None
-    field: str | None
+    field: TechField | None
     projects: str | None
     certifications: str | None
     languages: dict[str, str]

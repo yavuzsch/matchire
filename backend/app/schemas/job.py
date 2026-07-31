@@ -1,5 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.common import EducationLevel, TechField
+
 
 class JobCreate(BaseModel):
     title: str
@@ -13,8 +15,8 @@ class JobCreate(BaseModel):
     skill_weights: dict[str, int] = Field(default_factory=dict)
 
     experience_years: int = 0
-    education_level: str | None = None
-    field: str | None = None
+    education_level: EducationLevel | None = None
+    field: TechField | None = None
 
 
 class JobPublic(BaseModel):
@@ -26,8 +28,8 @@ class JobPublic(BaseModel):
     location: str | None
     description: str | None
     experience_years: int
-    education_level: str | None
-    field: str | None
+    education_level: EducationLevel | None
+    field: TechField | None
 
 
 class JobFull(BaseModel):
@@ -44,5 +46,5 @@ class JobFull(BaseModel):
     optional_skills: list[str]
     skill_weights: dict[str, int]
     experience_years: int
-    education_level: str | None
-    field: str | None
+    education_level: EducationLevel | None
+    field: TechField | None
