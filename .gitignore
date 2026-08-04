@@ -1,17 +1,32 @@
 # Python
 __pycache__/
 *.pyc
+*.pyo
 venv/
-.env
+.venv/
+*.egg-info/
 
 # Node
 node_modules/
 dist/
+dist-ssr/
 .vite/
+*.local
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-error.log*
 
 # Editors
 .vscode/
 .idea/
+*.swp
 
 # OS
 .DS_Store
