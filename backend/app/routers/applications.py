@@ -5,6 +5,7 @@ from app.core.database import get_db
 from app.core.deps import require_candidate, require_employer
 from app.models import Application, Job, Resume, User
 from app.schemas.application import ApplicationCreate, ApplicationOut, CandidateRow
+from app.services.matching_service import calculate_compatibility, find_missing_mandatory_skills
 
 router = APIRouter(prefix="/applications", tags=["applications"])
 
@@ -43,7 +44,14 @@ def create_application(
             detail="Bu ilana zaten başvurdunuz",
         )
 
-    compatibility_score = 50.0
+    missing_skills = find_missing_mandatory_skills(job, resume)
+    if missing_skills:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Zorunlu beceriler eksik: " + ", ".join(missing_skills),
+        )
+
+    compatibility_score = calculate_compatibility(job, resume)
 
     application = Application(
         job_id=job.id,
