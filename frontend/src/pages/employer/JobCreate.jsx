@@ -2,25 +2,7 @@ import { useState } from "react"
 
 import { post } from "../../api/client"
 import SkillSelect from "../../components/SkillSelect"
-
-const EDUCATION_LEVELS = [
-  { value: "high_school", label: "Lise" },
-  { value: "associate", label: "Ön Lisans" },
-  { value: "bachelor", label: "Lisans" },
-  { value: "master", label: "Yüksek Lisans" },
-  { value: "doctorate", label: "Doktora" },
-]
-
-const FIELDS = [
-  { value: "software_development", label: "Yazılım Geliştirme" },
-  { value: "data_science", label: "Veri Bilimi" },
-  { value: "artificial_intelligence", label: "Yapay Zeka" },
-  { value: "cyber_security", label: "Siber Güvenlik" },
-  { value: "mobile_development", label: "Mobil Geliştirme" },
-  { value: "data_engineering", label: "Veri Mühendisliği" },
-  { value: "devops", label: "DevOps" },
-  { value: "quality_assurance", label: "Test ve Kalite" },
-]
+import { t, EDUCATION_LEVELS, FIELDS } from "../../i18n"
 
 const inputClass =
   "w-full rounded bg-slate-700 px-3 py-2 text-white placeholder-slate-400"
@@ -87,7 +69,7 @@ export default function JobCreate() {
         education_level: educationLevel,
         field,
       })
-      setMessage("İlan oluşturuldu")
+      setMessage(t.job.created)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -97,7 +79,7 @@ export default function JobCreate() {
 
   return (
     <div className="mx-auto max-w-2xl p-8">
-      <h1 className="mb-6 text-2xl font-bold text-white">Yeni İlan</h1>
+      <h1 className="mb-6 text-2xl font-bold text-white">{t.job.title}</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && <p className="text-sm text-red-400">{error}</p>}
@@ -107,7 +89,7 @@ export default function JobCreate() {
           type="text"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="İlan başlığı"
+          placeholder={t.job.jobTitle}
           required
           className={inputClass}
         />
@@ -116,7 +98,7 @@ export default function JobCreate() {
           type="text"
           value={companyName}
           onChange={(e) => setCompanyName(e.target.value)}
-          placeholder="Şirket adı"
+          placeholder={t.job.companyName}
           required
           className={inputClass}
         />
@@ -125,26 +107,26 @@ export default function JobCreate() {
           type="text"
           value={location}
           onChange={(e) => setLocation(e.target.value)}
-          placeholder="Konum"
+          placeholder={t.job.location}
           className={inputClass}
         />
 
         <textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
-          placeholder="Pozisyon açıklaması"
+          placeholder={t.job.description}
           rows="3"
           className={inputClass}
         />
 
         <div>
-          <p className="mb-2 text-sm text-slate-300">Aranan beceriler</p>
+          <p className="mb-2 text-sm text-slate-300">{t.job.requiredSkills}</p>
           <SkillSelect selected={requiredSkills} onChange={handleSkillsChange} />
         </div>
 
         {requiredSkills.length > 0 && (
           <div className="space-y-2 rounded bg-slate-800 p-3">
-            <p className="text-sm text-slate-300">Önem derecesi ve zorunluluk</p>
+            <p className="text-sm text-slate-300">{t.job.weightAndMandatory}</p>
             {requiredSkills.map((skill) => (
               <div key={skill} className="flex items-center gap-3">
                 <span className="w-40 text-sm text-white">{skill}</span>
@@ -154,9 +136,9 @@ export default function JobCreate() {
                   onChange={(e) => setWeight(skill, e.target.value)}
                   className="rounded bg-slate-700 px-2 py-1 text-sm text-white"
                 >
-                  <option value="1">Düşük</option>
-                  <option value="2">Orta</option>
-                  <option value="3">Yüksek</option>
+                  <option value="1">{t.job.weightLow}</option>
+                  <option value="2">{t.job.weightMedium}</option>
+                  <option value="3">{t.job.weightHigh}</option>
                 </select>
 
                 <label className="flex items-center gap-1 text-sm text-slate-300">
@@ -165,7 +147,7 @@ export default function JobCreate() {
                     checked={mandatorySkills.includes(skill)}
                     onChange={() => toggleMandatory(skill)}
                   />
-                  Zorunlu
+                  {t.job.mandatory}
                 </label>
               </div>
             ))}
@@ -177,7 +159,7 @@ export default function JobCreate() {
           min="0"
           value={experienceYears}
           onChange={(e) => setExperienceYears(e.target.value)}
-          placeholder="Deneyim (yıl)"
+          placeholder={t.resume.experienceYears}
           className={inputClass}
         />
 
@@ -186,9 +168,9 @@ export default function JobCreate() {
           onChange={(e) => setEducationLevel(e.target.value)}
           className={inputClass}
         >
-          {EDUCATION_LEVELS.map((level) => (
-            <option key={level.value} value={level.value}>
-              {level.label}
+          {EDUCATION_LEVELS.map((value) => (
+            <option key={value} value={value}>
+              {t.educationLevels[value]}
             </option>
           ))}
         </select>
@@ -198,9 +180,9 @@ export default function JobCreate() {
           onChange={(e) => setField(e.target.value)}
           className={inputClass}
         >
-          {FIELDS.map((item) => (
-            <option key={item.value} value={item.value}>
-              {item.label}
+          {FIELDS.map((value) => (
+            <option key={value} value={value}>
+              {t.fields[value]}
             </option>
           ))}
         </select>
@@ -210,7 +192,7 @@ export default function JobCreate() {
           disabled={loading}
           className="rounded bg-blue-600 px-6 py-2 font-medium text-white disabled:opacity-50"
         >
-          {loading ? "Oluşturuluyor..." : "İlanı Oluştur"}
+          {loading ? t.job.submitting : t.job.submit}
         </button>
       </form>
     </div>

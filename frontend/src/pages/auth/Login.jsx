@@ -2,6 +2,7 @@ import { useState } from "react"
 import { useNavigate, Link } from "react-router-dom"
 
 import { get, post, setToken } from "../../api/client"
+import { t } from "../../i18n"
 
 export default function Login() {
   const navigate = useNavigate()
@@ -36,7 +37,7 @@ export default function Login() {
         onSubmit={handleSubmit}
         className="w-full max-w-sm space-y-4 rounded-lg bg-slate-800 p-8"
       >
-        <h1 className="text-2xl font-bold text-white">Giriş Yap</h1>
+        <h1 className="text-2xl font-bold text-white">{t.auth.login}</h1>
 
         {error && <p className="text-sm text-red-400">{error}</p>}
 
@@ -44,7 +45,7 @@ export default function Login() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="E-posta"
+          placeholder={t.auth.email}
           required
           className="w-full rounded bg-slate-700 px-3 py-2 text-white placeholder-slate-400"
         />
@@ -53,7 +54,7 @@ export default function Login() {
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          placeholder="Şifre"
+          placeholder={t.auth.password}
           required
           className="w-full rounded bg-slate-700 px-3 py-2 text-white placeholder-slate-400"
         />
@@ -63,13 +64,13 @@ export default function Login() {
           disabled={loading}
           className="w-full rounded bg-blue-600 py-2 font-medium text-white disabled:opacity-50"
         >
-          {loading ? "Giriş yapılıyor..." : "Giriş Yap"}
+          {loading ? t.auth.loggingIn : t.auth.login}
         </button>
 
         <p className="text-sm text-slate-400">
-          Hesabınız yok mu?{" "}
+          {t.auth.noAccount}{" "}
           <Link to="/register" className="text-blue-400">
-            Kayıt olun
+            {t.auth.goRegister}
           </Link>
         </p>
       </form>
