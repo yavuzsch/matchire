@@ -4,9 +4,17 @@ import ProtectedRoute from "./components/ProtectedRoute"
 import Login from "./pages/auth/Login"
 import Register from "./pages/auth/Register"
 import ResumeForm from "./pages/candidate/ResumeForm"
+import JobCreate from "./pages/employer/JobCreate"
 
 function EmployerHome() {
-  return <div className="p-8 text-white">İşveren paneli</div>
+  return (
+    <div className="p-8 text-white">
+      <h1 className="mb-4 text-xl font-bold">İşveren paneli</h1>
+      <a href="/employer/jobs/new" className="text-blue-400">
+        Yeni ilan
+      </a>
+    </div>
+  )
 }
 
 function CandidateHome() {
@@ -33,6 +41,15 @@ export default function App() {
             element={
               <ProtectedRoute role="employer">
                 <EmployerHome />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/employer/jobs/new"
+            element={
+              <ProtectedRoute role="employer">
+                <JobCreate />
               </ProtectedRoute>
             }
           />
