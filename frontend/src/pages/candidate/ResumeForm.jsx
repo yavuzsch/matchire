@@ -2,25 +2,7 @@ import { useEffect, useState } from "react"
 
 import { get, post, put } from "../../api/client"
 import SkillSelect from "../../components/SkillSelect"
-
-const EDUCATION_LEVELS = [
-  { value: "high_school", label: "Lise" },
-  { value: "associate", label: "Ön Lisans" },
-  { value: "bachelor", label: "Lisans" },
-  { value: "master", label: "Yüksek Lisans" },
-  { value: "doctorate", label: "Doktora" },
-]
-
-const FIELDS = [
-  { value: "software_development", label: "Yazılım Geliştirme" },
-  { value: "data_science", label: "Veri Bilimi" },
-  { value: "artificial_intelligence", label: "Yapay Zeka" },
-  { value: "cyber_security", label: "Siber Güvenlik" },
-  { value: "mobile_development", label: "Mobil Geliştirme" },
-  { value: "data_engineering", label: "Veri Mühendisliği" },
-  { value: "devops", label: "DevOps" },
-  { value: "quality_assurance", label: "Test ve Kalite" },
-]
+import { t, EDUCATION_LEVELS, FIELDS } from "../../i18n"
 
 const inputClass =
   "w-full rounded bg-slate-700 px-3 py-2 text-white placeholder-slate-400"
@@ -81,7 +63,7 @@ export default function ResumeForm() {
         await post("/resumes", body)
         setExists(true)
       }
-      setMessage("Özgeçmiş kaydedildi")
+      setMessage(t.resume.saved)
     } catch (err) {
       setError(err.message)
     } finally {
@@ -91,7 +73,7 @@ export default function ResumeForm() {
 
   return (
     <div className="mx-auto max-w-2xl p-8">
-      <h1 className="mb-6 text-2xl font-bold text-white">Özgeçmişim</h1>
+      <h1 className="mb-6 text-2xl font-bold text-white">{t.resume.title}</h1>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && <p className="text-sm text-red-400">{error}</p>}
@@ -101,12 +83,12 @@ export default function ResumeForm() {
           type="text"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          placeholder="Telefon"
+          placeholder={t.resume.phone}
           className={inputClass}
         />
 
         <div>
-          <p className="mb-2 text-sm text-slate-300">Beceriler</p>
+          <p className="mb-2 text-sm text-slate-300">{t.resume.skills}</p>
           <SkillSelect selected={skills} onChange={setSkills} />
         </div>
 
@@ -115,7 +97,7 @@ export default function ResumeForm() {
           min="0"
           value={experienceYears}
           onChange={(e) => setExperienceYears(e.target.value)}
-          placeholder="Deneyim (yıl)"
+          placeholder={t.resume.experienceYears}
           className={inputClass}
         />
 
@@ -124,9 +106,9 @@ export default function ResumeForm() {
           onChange={(e) => setEducationLevel(e.target.value)}
           className={inputClass}
         >
-          {EDUCATION_LEVELS.map((level) => (
-            <option key={level.value} value={level.value}>
-              {level.label}
+          {EDUCATION_LEVELS.map((value) => (
+            <option key={value} value={value}>
+              {t.educationLevels[value]}
             </option>
           ))}
         </select>
@@ -135,7 +117,7 @@ export default function ResumeForm() {
           type="text"
           value={university}
           onChange={(e) => setUniversity(e.target.value)}
-          placeholder="Üniversite"
+          placeholder={t.resume.university}
           className={inputClass}
         />
 
@@ -144,9 +126,9 @@ export default function ResumeForm() {
           onChange={(e) => setField(e.target.value)}
           className={inputClass}
         >
-          {FIELDS.map((item) => (
-            <option key={item.value} value={item.value}>
-              {item.label}
+          {FIELDS.map((value) => (
+            <option key={value} value={value}>
+              {t.fields[value]}
             </option>
           ))}
         </select>
@@ -154,7 +136,7 @@ export default function ResumeForm() {
         <textarea
           value={projects}
           onChange={(e) => setProjects(e.target.value)}
-          placeholder="Projeler"
+          placeholder={t.resume.projects}
           rows="3"
           className={inputClass}
         />
@@ -162,7 +144,7 @@ export default function ResumeForm() {
         <textarea
           value={certifications}
           onChange={(e) => setCertifications(e.target.value)}
-          placeholder="Sertifikalar"
+          placeholder={t.resume.certifications}
           rows="2"
           className={inputClass}
         />
@@ -172,7 +154,7 @@ export default function ResumeForm() {
           disabled={loading}
           className="rounded bg-blue-600 px-6 py-2 font-medium text-white disabled:opacity-50"
         >
-          {loading ? "Kaydediliyor..." : "Kaydet"}
+          {loading ? t.common.saving : t.common.save}
         </button>
       </form>
     </div>

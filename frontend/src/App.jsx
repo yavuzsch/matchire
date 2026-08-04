@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 
 import ProtectedRoute from "./components/ProtectedRoute"
+import { t } from "./i18n"
 import Login from "./pages/auth/Login"
 import Register from "./pages/auth/Register"
 import ResumeForm from "./pages/candidate/ResumeForm"
@@ -9,9 +10,9 @@ import JobCreate from "./pages/employer/JobCreate"
 function EmployerHome() {
   return (
     <div className="p-8 text-white">
-      <h1 className="mb-4 text-xl font-bold">İşveren paneli</h1>
+      <h1 className="mb-4 text-xl font-bold">{t.home.employerPanel}</h1>
       <a href="/employer/jobs/new" className="text-blue-400">
-        Yeni ilan
+        {t.home.newJob}
       </a>
     </div>
   )
@@ -20,9 +21,9 @@ function EmployerHome() {
 function CandidateHome() {
   return (
     <div className="p-8 text-white">
-      <h1 className="mb-4 text-xl font-bold">Aday paneli</h1>
+      <h1 className="mb-4 text-xl font-bold">{t.home.candidatePanel}</h1>
       <a href="/candidate/resume" className="text-blue-400">
-        Özgeçmişim
+        {t.home.myResume}
       </a>
     </div>
   )
