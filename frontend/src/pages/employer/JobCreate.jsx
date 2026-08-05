@@ -71,7 +71,7 @@ export default function JobCreate() {
       })
       setMessage(t.job.created)
     } catch (err) {
-      setError(err.message)
+      setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
     } finally {
       setLoading(false)
     }

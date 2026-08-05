@@ -65,7 +65,7 @@ export default function ResumeForm() {
       }
       setMessage(t.resume.saved)
     } catch (err) {
-      setError(err.message)
+      setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
     } finally {
       setLoading(false)
     }
