@@ -3,6 +3,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
 from sqlalchemy.orm import Session
 
+from app.core import errors
 from app.core.config import settings
 from app.core.database import get_db
 from app.models import User, UserRole
@@ -18,7 +19,7 @@ def get_current_user(
 
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Kimlik doğrulanamadı",
+        detail={"code": errors.NOT_AUTHENTICATED},
         headers={"WWW-Authenticate": "Bearer"},
     )
 
@@ -43,7 +44,7 @@ def require_employer(current_user: User = Depends(get_current_user)) -> User:
     if current_user.role != UserRole.EMPLOYER:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bu işlem için işveren yetkisi gerekiyor",
+            detail={"code": errors.EMPLOYER_ROLE_REQUIRED},
         )
     return current_user
 
@@ -52,6 +53,6 @@ def require_candidate(current_user: User = Depends(get_current_user)) -> User:
     if current_user.role != UserRole.CANDIDATE:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bu işlem için aday yetkisi gerekiyor",
+            detail={"code": errors.CANDIDATE_ROLE_REQUIRED},
         )
     return current_user

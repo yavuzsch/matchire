@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.core import errors
 from app.core.database import get_db
 from app.core.deps import get_current_user, require_employer
 from app.models import Job, User, UserRole
@@ -50,7 +51,7 @@ def get_job(
     if job is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="İlan bulunamadı",
+            detail={"code": errors.JOB_NOT_FOUND},
         )
 
     if current_user.role == UserRole.EMPLOYER and job.employer_id == current_user.id:

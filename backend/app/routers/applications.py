@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.core import errors
 from app.core.database import get_db
 from app.core.deps import require_candidate, require_employer
 from app.models import Application, Job, Resume, User
@@ -20,14 +21,14 @@ def create_application(
     if job is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="İlan bulunamadı",
+            detail={"code": errors.JOB_NOT_FOUND},
         )
 
     resume = db.query(Resume).filter(Resume.candidate_id == current_user.id).first()
     if resume is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Başvuru yapmadan önce özgeçmişinizi oluşturmalısınız",
+            detail={"code": errors.RESUME_REQUIRED},
         )
 
     existing = (
@@ -41,14 +42,14 @@ def create_application(
     if existing:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Bu ilana zaten başvurdunuz",
+            detail={"code": errors.ALREADY_APPLIED},
         )
 
     missing_skills = find_missing_mandatory_skills(job, resume)
     if missing_skills:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Zorunlu beceriler eksik: " + ", ".join(missing_skills),
+            detail={"code": errors.MISSING_MANDATORY_SKILLS, "skills": missing_skills},
         )
 
     compatibility_score = calculate_compatibility(job, resume)
@@ -89,13 +90,13 @@ def list_job_applications(
     if job is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="İlan bulunamadı",
+            detail={"code": errors.JOB_NOT_FOUND},
         )
 
     if job.employer_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bu ilanı görüntüleme yetkiniz yok",
+            detail={"code": errors.JOB_ACCESS_DENIED},
         )
 
     rows = (
