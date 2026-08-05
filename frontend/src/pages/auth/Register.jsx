@@ -31,7 +31,7 @@ export default function Register() {
 
       navigate(role === "employer" ? "/employer" : "/candidate")
     } catch (err) {
-      setError(err.message)
+      setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
     } finally {
       setLoading(false)
     }

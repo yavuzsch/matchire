@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 
 import { get } from "../api/client"
+import { t } from "../i18n"
 
 export default function SkillSelect({ selected, onChange }) {
   const [categories, setCategories] = useState([])
@@ -20,9 +21,9 @@ export default function SkillSelect({ selected, onChange }) {
   return (
     <div className="max-h-64 space-y-3 overflow-y-auto rounded bg-slate-700 p-3">
       {categories.map((category) => (
-        <div key={category.name}>
+        <div key={category.key}>
           <p className="mb-1 text-xs font-medium text-slate-400">
-            {category.name}
+            {t.skillCategories[category.key]}
           </p>
           <div className="flex flex-wrap gap-1">
             {category.skills.map((skill) => (
