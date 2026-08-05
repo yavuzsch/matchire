@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.core import errors
 from app.core.database import get_db
 from app.core.deps import require_candidate
 from app.models import Resume, User
@@ -19,7 +20,7 @@ def create_resume(
     if existing:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Zaten bir özgeçmişiniz var, güncelleme yapabilirsiniz",
+            detail={"code": errors.RESUME_ALREADY_EXISTS},
         )
 
     resume = Resume(candidate_id=current_user.id, **body.model_dump())
@@ -38,7 +39,7 @@ def get_my_resume(
     if resume is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Henüz özgeçmiş oluşturmadınız",
+            detail={"code": errors.RESUME_NOT_FOUND},
         )
     return resume
 
@@ -53,7 +54,7 @@ def update_my_resume(
     if resume is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Henüz özgeçmiş oluşturmadınız",
+            detail={"code": errors.RESUME_NOT_FOUND},
         )
 
     for key, value in body.model_dump().items():

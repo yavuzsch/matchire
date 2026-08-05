@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from app.core import errors
 from app.core.database import get_db
 from app.core.deps import get_current_user
 from app.core.security import hash_password, verify_password, create_access_token
@@ -16,7 +17,7 @@ def register(body: UserRegister, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Bu e-posta adresi zaten kayıtlı",
+            detail={"code": errors.EMAIL_ALREADY_REGISTERED},
         )
 
     user = User(
@@ -39,7 +40,7 @@ def login(body: UserLogin, db: Session = Depends(get_db)):
     if not user or not verify_password(body.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="E-posta veya şifre hatalı",
+            detail={"code": errors.INVALID_CREDENTIALS},
         )
 
     token = create_access_token({"sub": str(user.id), "role": user.role.value})
