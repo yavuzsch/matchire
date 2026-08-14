@@ -6,6 +6,7 @@ import Login from "./pages/auth/Login"
 import Register from "./pages/auth/Register"
 import ResumeForm from "./pages/candidate/ResumeForm"
 import JobCreate from "./pages/employer/JobCreate"
+import JobBrowse from "./pages/candidate/JobBrowse"
 
 function EmployerHome() {
   return (
@@ -22,9 +23,14 @@ function CandidateHome() {
   return (
     <div className="p-8 text-white">
       <h1 className="mb-4 text-xl font-bold">{t.home.candidatePanel}</h1>
-      <a href="/candidate/resume" className="text-blue-400">
-        {t.home.myResume}
-      </a>
+      <div className="flex gap-4">
+        <a href="/candidate/resume" className="text-blue-400">
+          {t.home.myResume}
+        </a>
+        <a href="/candidate/jobs" className="text-blue-400">
+          {t.jobBrowse.title}
+        </a>
+      </div>
     </div>
   )
 }
@@ -69,6 +75,15 @@ export default function App() {
             element={
               <ProtectedRoute role="candidate">
                 <ResumeForm />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/candidate/jobs"
+            element={
+              <ProtectedRoute role="candidate">
+                <JobBrowse />
               </ProtectedRoute>
             }
           />

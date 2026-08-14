@@ -56,6 +56,15 @@ export default {
     created: "İlan oluşturuldu",
   },
 
+  jobBrowse: {
+    title: "İlanlar",
+    empty: "Henüz ilan yok",
+    experienceRequired: "yıl deneyim",
+    apply: "Başvur",
+    applying: "Gönderiliyor...",
+    applied: "Başvuru alındı",
+  },
+
   educationLevels: {
     high_school: "Lise",
     associate: "Ön Lisans",
