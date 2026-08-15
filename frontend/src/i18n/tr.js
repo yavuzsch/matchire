@@ -71,6 +71,7 @@ export default {
     empty: "Henüz ilan oluşturmadınız",
     manageQuestions: "Mülakat soruları",
     slots: "kişilik mülakat kontenjanı",
+    viewCandidates: "Adaylar",
   },
 
   questions: {
@@ -84,6 +85,21 @@ export default {
     saved: "Seçim kaydedildi",
     selectedCount: "seçili",
     back: "İlanlarıma dön",
+  },
+
+  candidates: {
+    title: "Adaylar",
+    back: "İlanlarıma dön",
+    empty: "Bu ilana henüz başvuru yok",
+    compatibility: "Uyumluluk",
+    interview: "Mülakat",
+    total: "Toplam",
+    showAnswers: "Cevapları göster",
+    hideAnswers: "Cevapları gizle",
+    noAnswers: "Aday henüz mülakatı cevaplamadı",
+    correct: "Doğru",
+    incorrect: "Yanlış",
+    eligible: "Mülakata uygun",
   },
 
   interview: {
@@ -143,6 +159,11 @@ export default {
     RESUME_REQUIRED: "Başvuru yapmadan önce özgeçmişinizi oluşturmalısınız",
     ALREADY_APPLIED: "Bu ilana zaten başvurdunuz",
     MISSING_MANDATORY_SKILLS: "Zorunlu beceriler eksik",
+    INTERVIEW_NOT_ELIGIBLE: "Bu ilan için mülakat hakkınız yok",
+    QUESTION_NOT_FOUND: "Soru bulunamadı",
+    ALREADY_ANSWERED: "Bu soruyu zaten cevapladınız",
+    NO_QUESTIONS_SELECTED: "İşveren henüz mülakat sorularını seçmedi",
+    APPLICATION_NOT_FOUND: "Başvuru bulunamadı",
     LLM_UNAVAILABLE: "Yapay zeka servisi şu anda yoğun, lütfen biraz sonra tekrar deneyin",
     UNKNOWN_ERROR: "Bir hata oluştu",
   },
