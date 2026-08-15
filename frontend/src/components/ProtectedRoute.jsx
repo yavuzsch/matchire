@@ -9,7 +9,12 @@ export default function ProtectedRoute({ role, children }) {
   }
 
   if (role && userRole !== role) {
-    return <Navigate to="/" replace />
+    return (
+      <Navigate
+        to={userRole === "employer" ? "/employer/jobs" : "/candidate/jobs"}
+        replace
+      />
+    )
   }
 
   return children

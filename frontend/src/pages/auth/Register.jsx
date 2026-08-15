@@ -29,7 +29,7 @@ export default function Register() {
       setToken(data.access_token)
       localStorage.setItem("role", role)
 
-      navigate(role === "employer" ? "/employer" : "/candidate")
+      navigate(me.role === "employer" ? "/employer/jobs" : "/candidate/jobs")
     } catch (err) {
       setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
     } finally {
