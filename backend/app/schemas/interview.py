@@ -36,6 +36,13 @@ class AnswerOut(BaseModel):
     score: float
 
 
+class AnswerReview(BaseModel):
+    question_text: str
+    answer_text: str
+    is_correct: bool | None
+    score: float
+
+
 class InterviewResult(BaseModel):
     application_id: int
     interview_score: float

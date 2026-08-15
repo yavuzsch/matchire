@@ -7,6 +7,7 @@ from app.core.deps import require_candidate, require_employer
 from app.models import Application, InterviewAnswer, InterviewQuestion, Job, User
 from app.schemas.interview import (
     AnswerOut,
+    AnswerReview,
     AnswerSubmit,
     InterviewResult,
     QuestionForCandidate,
@@ -53,6 +54,8 @@ def create_questions(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail={"code": errors.LLM_UNAVAILABLE},
         )
+
+    db.query(InterviewQuestion).filter(InterviewQuestion.job_id == job.id).delete()
 
     questions = [
         InterviewQuestion(job_id=job.id, question_text=text) for text in generated
@@ -181,6 +184,40 @@ def list_answers(
         .filter(InterviewAnswer.application_id == application.id)
         .all()
     )
+
+
+@router.get("/applications/{application_id}/review", response_model=list[AnswerReview])
+def review_answers(
+    application_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_employer),
+):
+    application = db.query(Application).filter(Application.id == application_id).first()
+    if application is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": errors.APPLICATION_NOT_FOUND},
+        )
+
+    get_owned_job(db, application.job_id, current_user)
+
+    rows = (
+        db.query(InterviewAnswer, InterviewQuestion)
+        .join(InterviewQuestion, InterviewAnswer.question_id == InterviewQuestion.id)
+        .filter(InterviewAnswer.application_id == application.id)
+        .order_by(InterviewQuestion.id)
+        .all()
+    )
+
+    return [
+        AnswerReview(
+            question_text=question.question_text,
+            answer_text=answer.answer_text,
+            is_correct=answer.is_correct,
+            score=answer.score,
+        )
+        for answer, question in rows
+    ]
 
 
 @router.post("/applications/{application_id}/answers", response_model=AnswerOut)
