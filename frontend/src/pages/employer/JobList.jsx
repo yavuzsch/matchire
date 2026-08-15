@@ -29,12 +29,20 @@ export default function JobList() {
               {job.interview_slots} {t.jobList.slots}
             </p>
 
-            <Link
-              to={`/employer/jobs/${job.id}/questions`}
-              className="mt-3 inline-block text-sm text-blue-400"
-            >
-              {t.jobList.manageQuestions}
-            </Link>
+            <div className="mt-3 flex gap-4">
+              <Link
+                to={`/employer/jobs/${job.id}/questions`}
+                className="text-sm text-blue-400"
+              >
+                {t.jobList.manageQuestions}
+              </Link>
+              <Link
+                to={`/employer/jobs/${job.id}/candidates`}
+                className="text-sm text-blue-400"
+              >
+                {t.jobList.viewCandidates}
+              </Link>
+            </div>
           </div>
         ))}
       </div>

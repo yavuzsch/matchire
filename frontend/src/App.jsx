@@ -10,6 +10,7 @@ import JobBrowse from "./pages/candidate/JobBrowse"
 import JobList from "./pages/employer/JobList"
 import QuestionManage from "./pages/employer/QuestionManage"
 import InterviewTake from "./pages/candidate/InterviewTake"
+import CandidateList from "./pages/employer/CandidateList"
 
 function EmployerHome() {
   return (
@@ -83,6 +84,15 @@ export default function App() {
             element={
               <ProtectedRoute role="employer">
                 <QuestionManage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/employer/jobs/:jobId/candidates"
+            element={
+              <ProtectedRoute role="employer">
+                <CandidateList />
               </ProtectedRoute>
             }
           />
