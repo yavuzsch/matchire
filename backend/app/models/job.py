@@ -24,5 +24,6 @@ class Job(Base):
     education_level = Column(String)
     field = Column(String)
     language = Column(String, default="tr")
+    interview_slots = Column(Integer, default=5)
 
     employer = relationship("User")

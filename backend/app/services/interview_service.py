@@ -1,0 +1,18 @@
+from sqlalchemy.orm import Session
+
+from app.models import Application, Job
+
+
+def get_eligible_application_ids(db: Session, job: Job) -> list[int]:
+    applications = (
+        db.query(Application)
+        .filter(Application.job_id == job.id)
+        .order_by(Application.compatibility_score.desc())
+        .limit(job.interview_slots or 0)
+        .all()
+    )
+    return [application.id for application in applications]
+
+
+def is_eligible(db: Session, job: Job, application: Application) -> bool:
+    return application.id in get_eligible_application_ids(db, job)

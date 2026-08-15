@@ -18,6 +18,7 @@ class JobCreate(BaseModel):
     education_level: EducationLevel | None = None
     field: TechField | None = None
     language: Language = "tr"
+    interview_slots: int = 5
 
 
 class JobPublic(BaseModel):
@@ -51,3 +52,4 @@ class JobFull(BaseModel):
     education_level: EducationLevel | None
     field: TechField | None
     language: Language
+    interview_slots: int
