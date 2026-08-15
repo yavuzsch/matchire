@@ -66,6 +66,36 @@ export default {
     applied: "Başvuru alındı",
   },
 
+  jobList: {
+    title: "İlanlarım",
+    empty: "Henüz ilan oluşturmadınız",
+    manageQuestions: "Mülakat soruları",
+    slots: "kişilik mülakat kontenjanı",
+  },
+
+  questions: {
+    title: "Mülakat Soruları",
+    generate: "Soru üret",
+    generating: "Üretiliyor...",
+    regenerate: "Yeniden üret",
+    noQuestions: "Bu ilan için henüz soru üretilmedi",
+    selectHint: "Mülakatta sorulacak soruları işaretleyin",
+    save: "Seçimi kaydet",
+    saved: "Seçim kaydedildi",
+    selectedCount: "seçili",
+    back: "İlanlarıma dön",
+  },
+
+  interview: {
+    title: "Mülakat",
+    start: "Mülakata gir",
+    submit: "Cevabı gönder",
+    submitting: "Değerlendiriliyor...",
+    answered: "Cevaplandı",
+    completed: "Mülakat tamamlandı",
+    answerPlaceholder: "Cevabınızı yazın",
+  },
+
   educationLevels: {
     high_school: "Lise",
     associate: "Ön Lisans",

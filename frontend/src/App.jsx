@@ -7,14 +7,22 @@ import Register from "./pages/auth/Register"
 import ResumeForm from "./pages/candidate/ResumeForm"
 import JobCreate from "./pages/employer/JobCreate"
 import JobBrowse from "./pages/candidate/JobBrowse"
+import JobList from "./pages/employer/JobList"
+import QuestionManage from "./pages/employer/QuestionManage"
+import InterviewTake from "./pages/candidate/InterviewTake"
 
 function EmployerHome() {
   return (
     <div className="p-8 text-white">
       <h1 className="mb-4 text-xl font-bold">{t.home.employerPanel}</h1>
-      <a href="/employer/jobs/new" className="text-blue-400">
-        {t.home.newJob}
-      </a>
+      <div className="flex gap-4">
+        <a href="/employer/jobs/new" className="text-blue-400">
+          {t.home.newJob}
+        </a>
+        <a href="/employer/jobs" className="text-blue-400">
+          {t.jobList.title}
+        </a>
+      </div>
     </div>
   )
 }
@@ -62,6 +70,24 @@ export default function App() {
           />
 
           <Route
+            path="/employer/jobs"
+            element={
+              <ProtectedRoute role="employer">
+                <JobList />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/employer/jobs/:jobId/questions"
+            element={
+              <ProtectedRoute role="employer">
+                <QuestionManage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/candidate"
             element={
               <ProtectedRoute role="candidate">
@@ -84,6 +110,15 @@ export default function App() {
             element={
               <ProtectedRoute role="candidate">
                 <JobBrowse />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/candidate/interviews/:applicationId"
+            element={
+              <ProtectedRoute role="candidate">
+                <InterviewTake />
               </ProtectedRoute>
             }
           />
