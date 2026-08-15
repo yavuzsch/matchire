@@ -18,6 +18,7 @@ export default function JobCreate() {
   const [skillWeights, setSkillWeights] = useState({})
 
   const [experienceYears, setExperienceYears] = useState(0)
+  const [interviewSlots, setInterviewSlots] = useState(5)
   const [educationLevel, setEducationLevel] = useState("bachelor")
   const [field, setField] = useState("software_development")
 
@@ -68,6 +69,7 @@ export default function JobCreate() {
         experience_years: Number(experienceYears),
         education_level: educationLevel,
         field,
+        interview_slots: Number(interviewSlots),
       })
       setMessage(t.job.created)
     } catch (err) {
@@ -160,6 +162,15 @@ export default function JobCreate() {
           value={experienceYears}
           onChange={(e) => setExperienceYears(e.target.value)}
           placeholder={t.resume.experienceYears}
+          className={inputClass}
+        />
+
+        <input
+          type="number"
+          min="1"
+          value={interviewSlots}
+          onChange={(e) => setInterviewSlots(e.target.value)}
+          placeholder={t.job.interviewSlots}
           className={inputClass}
         />
 
