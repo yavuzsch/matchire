@@ -23,7 +23,7 @@ export default function Login() {
       const me = await get("/auth/me")
       localStorage.setItem("role", me.role)
 
-      navigate(me.role === "employer" ? "/employer" : "/candidate")
+      navigate(me.role === "employer" ? "/employer/jobs" : "/candidate/jobs")
     } catch (err) {
       setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
     } finally {

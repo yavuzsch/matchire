@@ -21,11 +21,13 @@ export default {
     goLogin: "Giriş yapın",
   },
 
-  home: {
-    employerPanel: "İşveren paneli",
-    candidatePanel: "Aday paneli",
+  menu: {
+    brand: "Matchire",
     newJob: "Yeni ilan",
+    myJobs: "İlanlarım",
+    jobs: "İlanlar",
     myResume: "Özgeçmişim",
+    logout: "Çıkış",
   },
 
   resume: {
