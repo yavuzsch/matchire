@@ -54,6 +54,7 @@ export default {
     submit: "İlanı Oluştur",
     submitting: "Oluşturuluyor...",
     created: "İlan oluşturuldu",
+    interviewSlots: "Mülakata çağrılacak aday sayısı",
   },
 
   jobBrowse: {
