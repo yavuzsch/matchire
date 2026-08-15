@@ -156,6 +156,33 @@ def list_interview_questions(
     return questions
 
 
+@router.get("/applications/{application_id}/answers", response_model=list[AnswerOut])
+def list_answers(
+    application_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_candidate),
+):
+    application = (
+        db.query(Application)
+        .filter(
+            Application.id == application_id,
+            Application.candidate_id == current_user.id,
+        )
+        .first()
+    )
+    if application is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": errors.APPLICATION_NOT_FOUND},
+        )
+
+    return (
+        db.query(InterviewAnswer)
+        .filter(InterviewAnswer.application_id == application.id)
+        .all()
+    )
+
+
 @router.post("/applications/{application_id}/answers", response_model=AnswerOut)
 def submit_answer(
     application_id: int,
@@ -260,6 +287,10 @@ def update_interview_score(db: Session, application: Application, job: Job) -> N
 
     total = sum(answer.score for answer in answers)
     application.interview_score = round(total / selected_count, 2)
-    application.total_score = round(
-        (application.compatibility_score + application.interview_score) / 2, 2
-    )
+
+    if answers:
+        application.total_score = round(
+            (application.compatibility_score + application.interview_score) / 2, 2
+        )
+    else:
+        application.total_score = application.compatibility_score
