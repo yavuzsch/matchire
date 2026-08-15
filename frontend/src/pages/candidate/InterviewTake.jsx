@@ -17,6 +17,10 @@ export default function InterviewTake() {
     get(`/interviews/applications/${applicationId}/questions`)
       .then(setQuestions)
       .catch((err) => setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR))
+
+    get(`/interviews/applications/${applicationId}/answers`)
+      .then((data) => setAnsweredIds(data.map((item) => item.question_id)))
+      .catch(() => setAnsweredIds([]))
   }, [applicationId])
 
   function setAnswer(questionId, text) {
