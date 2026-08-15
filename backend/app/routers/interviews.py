@@ -15,6 +15,7 @@ from app.schemas.interview import (
 )
 from app.services.evaluation_service import evaluate_answer
 from app.services.interview_service import is_eligible
+from app.services.llm_client import LLMUnavailableError
 from app.services.question_service import generate_questions
 
 router = APIRouter(prefix="/interviews", tags=["interviews"])
@@ -45,9 +46,16 @@ def create_questions(
 ):
     job = get_owned_job(db, job_id, current_user)
 
+    try:
+        generated = generate_questions(job)
+    except LLMUnavailableError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={"code": errors.LLM_UNAVAILABLE},
+        )
+
     questions = [
-        InterviewQuestion(job_id=job.id, question_text=text)
-        for text in generate_questions(job)
+        InterviewQuestion(job_id=job.id, question_text=text) for text in generated
     ]
 
     db.add_all(questions)
@@ -206,7 +214,13 @@ def submit_answer(
             detail={"code": errors.ALREADY_ANSWERED},
         )
 
-    is_correct, score = evaluate_answer(question, body.answer_text, job.language)
+    try:
+        is_correct, score = evaluate_answer(question, body.answer_text, job.language)
+    except LLMUnavailableError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={"code": errors.LLM_UNAVAILABLE},
+        )
 
     answer = InterviewAnswer(
         application_id=application.id,
