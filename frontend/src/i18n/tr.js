@@ -143,6 +143,7 @@ export default {
     RESUME_REQUIRED: "Başvuru yapmadan önce özgeçmişinizi oluşturmalısınız",
     ALREADY_APPLIED: "Bu ilana zaten başvurdunuz",
     MISSING_MANDATORY_SKILLS: "Zorunlu beceriler eksik",
+    LLM_UNAVAILABLE: "Yapay zeka servisi şu anda yoğun, lütfen biraz sonra tekrar deneyin",
     UNKNOWN_ERROR: "Bir hata oluştu",
   },
 }
