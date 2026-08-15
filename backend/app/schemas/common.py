@@ -18,3 +18,5 @@ TechField = Literal[
     "devops",
     "quality_assurance",
 ]
+
+Language = Literal["tr"]
