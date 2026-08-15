@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.schemas.common import EducationLevel, TechField
+from app.schemas.common import EducationLevel, TechField, Language
 
 
 class JobCreate(BaseModel):
@@ -17,6 +17,8 @@ class JobCreate(BaseModel):
     experience_years: int = 0
     education_level: EducationLevel | None = None
     field: TechField | None = None
+    language: Language = "tr"
+    interview_slots: int = 5
 
 
 class JobPublic(BaseModel):
@@ -30,6 +32,7 @@ class JobPublic(BaseModel):
     experience_years: int
     education_level: EducationLevel | None
     field: TechField | None
+    language: Language
 
 
 class JobFull(BaseModel):
@@ -48,3 +51,5 @@ class JobFull(BaseModel):
     experience_years: int
     education_level: EducationLevel | None
     field: TechField | None
+    language: Language
+    interview_slots: int

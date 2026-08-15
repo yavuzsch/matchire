@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.database import Base, engine
-from app.routers import auth, skills, jobs, resumes, applications
+from app.routers import auth, skills, jobs, resumes, applications, interviews
 
 import app.models  # noqa: F401
 
@@ -27,6 +27,7 @@ app.include_router(skills.router, prefix="/api")
 app.include_router(jobs.router, prefix="/api")
 app.include_router(resumes.router, prefix="/api")
 app.include_router(applications.router, prefix="/api")
+app.include_router(interviews.router, prefix="/api")
 
 
 @app.get("/")
