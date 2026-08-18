@@ -11,6 +11,7 @@ EDUCATION_LEVELS = {
 SKILL_WEIGHT = 0.5
 EXPERIENCE_WEIGHT = 0.3
 EDUCATION_WEIGHT = 0.2
+FIELD_MISMATCH_PENALTY = 0.7
 
 
 def normalize(value: str | None) -> str:
@@ -67,7 +68,12 @@ def score_education(job: Job, resume: Resume) -> float:
     if candidate is None:
         return 0.0
 
-    return min(candidate / required, 1.0) * 100.0
+    score = min(candidate / required, 1.0) * 100.0
+
+    if job.field and resume.field and job.field != resume.field:
+        score *= FIELD_MISMATCH_PENALTY
+
+    return score
 
 
 def calculate_compatibility(job: Job, resume: Resume) -> float:

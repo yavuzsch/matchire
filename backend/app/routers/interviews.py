@@ -303,6 +303,51 @@ def submit_answer(
     return answer
 
 
+@router.get("/applications/{application_id}/result", response_model=InterviewResult)
+def get_interview_result(
+    application_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_candidate),
+):
+    application = (
+        db.query(Application)
+        .filter(
+            Application.id == application_id,
+            Application.candidate_id == current_user.id,
+        )
+        .first()
+    )
+    if application is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": errors.APPLICATION_NOT_FOUND},
+        )
+
+    job = db.query(Job).filter(Job.id == application.job_id).first()
+
+    total_questions = (
+        db.query(InterviewQuestion)
+        .filter(
+            InterviewQuestion.job_id == job.id,
+            InterviewQuestion.is_selected.is_(True),
+        )
+        .count()
+    )
+
+    answered_count = (
+        db.query(InterviewAnswer)
+        .filter(InterviewAnswer.application_id == application.id)
+        .count()
+    )
+
+    return InterviewResult(
+        application_id=application.id,
+        total_questions=total_questions,
+        answered_count=answered_count,
+        completed=total_questions > 0 and answered_count >= total_questions,
+    )
+
+
 def update_interview_score(db: Session, application: Application, job: Job) -> None:
     selected_count = (
         db.query(InterviewQuestion)
