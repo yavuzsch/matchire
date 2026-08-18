@@ -12,11 +12,18 @@ export default function InterviewTake() {
   const [answeredIds, setAnsweredIds] = useState([])
   const [pendingId, setPendingId] = useState(null)
   const [error, setError] = useState(null)
+  const [notReady, setNotReady] = useState(false)
 
   useEffect(() => {
     get(`/interviews/applications/${applicationId}/questions`)
       .then(setQuestions)
-      .catch((err) => setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR))
+      .catch((err) => {
+        if (err.code === "NO_QUESTIONS_SELECTED") {
+          setNotReady(true)
+        } else {
+          setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
+        }
+      })
 
     get(`/interviews/applications/${applicationId}/answers`)
       .then((data) => setAnsweredIds(data.map((item) => item.question_id)))
@@ -46,11 +53,27 @@ export default function InterviewTake() {
 
   const completed = questions.length > 0 && answeredIds.length === questions.length
 
+  if (notReady) {
+    return (
+      <div className="mx-auto max-w-3xl p-8">
+        <h1 className="mb-6 text-2xl font-bold text-white">{t.interview.title}</h1>
+        <p className="text-slate-400">{t.interview.notReady}</p>
+      </div>
+    )
+  }
+
   return (
     <div className="mx-auto max-w-3xl p-8">
       <h1 className="mb-6 text-2xl font-bold text-white">{t.interview.title}</h1>
 
       {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
+
+      {questions.length > 0 && (
+        <p className="mb-4 text-sm text-slate-400">
+          {answeredIds.length}/{questions.length} {t.interview.progress}
+        </p>
+      )}
+
       {completed && (
         <p className="mb-4 text-sm text-green-400">{t.interview.completed}</p>
       )}

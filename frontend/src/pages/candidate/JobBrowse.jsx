@@ -70,12 +70,14 @@ export default function JobBrowse() {
                     <span className="text-sm text-green-400">
                       {t.jobBrowse.applied}
                     </span>
-                    <Link
-                      to={`/candidate/interviews/${application.id}`}
-                      className="text-sm text-blue-400"
-                    >
-                      {t.interview.start}
-                    </Link>
+                    {application.interview_eligible && (
+                      <Link
+                        to={`/candidate/interviews/${application.id}`}
+                        className="text-sm text-blue-400"
+                      >
+                        {t.interview.start}
+                      </Link>
+                    )}
                   </div>
                 ) : (
                   <button
