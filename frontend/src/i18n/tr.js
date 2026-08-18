@@ -74,6 +74,9 @@ export default {
     manageQuestions: "Mülakat soruları",
     slots: "kişilik mülakat kontenjanı",
     viewCandidates: "Adaylar",
+    delete: "Sil",
+    deleteConfirm: "Bu ilanı silmek istediğinize emin misiniz?",
+    deleted: "İlan silindi",
   },
 
   questions: {
@@ -112,6 +115,8 @@ export default {
     answered: "Cevaplandı",
     completed: "Mülakat tamamlandı",
     answerPlaceholder: "Cevabınızı yazın",
+    notReady: "İşveren henüz mülakat sorularını hazırlamadı. Lütfen daha sonra tekrar deneyin.",
+    progress: "cevaplandı",
   },
 
   educationLevels: {

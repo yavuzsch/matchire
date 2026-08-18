@@ -1,20 +1,36 @@
 import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
-import { get } from "../../api/client"
+import { del, get } from "../../api/client"
 import { t } from "../../i18n"
 
 export default function JobList() {
   const [jobs, setJobs] = useState([])
+  const [message, setMessage] = useState(null)
 
   useEffect(() => {
     get("/jobs/mine").then(setJobs).catch(() => setJobs([]))
   }, [])
 
+  async function handleDelete(jobId) {
+    if (!window.confirm(t.jobList.deleteConfirm)) {
+      return
+    }
+
+    try {
+      await del(`/jobs/${jobId}`)
+      setJobs(jobs.filter((job) => job.id !== jobId))
+      setMessage(t.jobList.deleted)
+    } catch (err) {
+      setMessage(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
+    }
+  }
+
   return (
     <div className="mx-auto max-w-3xl p-8">
       <h1 className="mb-6 text-2xl font-bold text-white">{t.jobList.title}</h1>
 
+      {message && <p className="mb-4 text-sm text-green-400">{message}</p>}
       {jobs.length === 0 && <p className="text-slate-400">{t.jobList.empty}</p>}
 
       <div className="space-y-3">
@@ -29,7 +45,7 @@ export default function JobList() {
               {job.interview_slots} {t.jobList.slots}
             </p>
 
-            <div className="mt-3 flex gap-4">
+            <div className="mt-3 flex items-center gap-4">
               <Link
                 to={`/employer/jobs/${job.id}/questions`}
                 className="text-sm text-blue-400"
@@ -42,6 +58,13 @@ export default function JobList() {
               >
                 {t.jobList.viewCandidates}
               </Link>
+              <button
+                type="button"
+                onClick={() => handleDelete(job.id)}
+                className="text-sm text-red-400"
+              >
+                {t.jobList.delete}
+              </button>
             </div>
           </div>
         ))}

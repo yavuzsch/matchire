@@ -29,7 +29,7 @@ export default function Register() {
       setToken(data.access_token)
       localStorage.setItem("role", role)
 
-      navigate(me.role === "employer" ? "/employer/jobs" : "/candidate/jobs")
+      navigate(role === "employer" ? "/employer/jobs" : "/candidate/jobs")
     } catch (err) {
       setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
     } finally {
@@ -71,6 +71,7 @@ export default function Register() {
           onChange={(e) => setPassword(e.target.value)}
           placeholder={t.auth.password}
           required
+          minLength={8}
           className="w-full rounded bg-slate-700 px-3 py-2 text-white placeholder-slate-400"
         />
 

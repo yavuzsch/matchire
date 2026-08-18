@@ -52,3 +52,7 @@ export function post(path, body) {
 export function put(path, body) {
   return request(path, { method: "PUT", body: JSON.stringify(body) })
 }
+
+export function del(path) {
+  return request(path, { method: "DELETE" })
+}
