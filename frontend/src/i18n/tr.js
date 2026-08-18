@@ -53,10 +53,11 @@ export default {
     weightLow: "Düşük",
     weightMedium: "Orta",
     weightHigh: "Yüksek",
+    optionalSkills: "Ek beceriler (avantaj sağlar, zorunlu değil)",
+    interviewSlots: "Mülakata çağrılacak aday sayısı",
     submit: "İlanı Oluştur",
     submitting: "Oluşturuluyor...",
     created: "İlan oluşturuldu",
-    interviewSlots: "Mülakata çağrılacak aday sayısı",
   },
 
   jobBrowse: {
@@ -72,8 +73,8 @@ export default {
     title: "İlanlarım",
     empty: "Henüz ilan oluşturmadınız",
     manageQuestions: "Mülakat soruları",
-    slots: "kişilik mülakat kontenjanı",
     viewCandidates: "Adaylar",
+    slots: "kişilik mülakat kontenjanı",
     delete: "Sil",
     deleteConfirm: "Bu ilanı silmek istediğinize emin misiniz?",
     deleted: "İlan silindi",
@@ -81,15 +82,15 @@ export default {
 
   questions: {
     title: "Mülakat Soruları",
+    back: "İlanlarıma dön",
     generate: "Soru üret",
     generating: "Üretiliyor...",
     regenerate: "Yeniden üret",
     noQuestions: "Bu ilan için henüz soru üretilmedi",
     selectHint: "Mülakatta sorulacak soruları işaretleyin",
+    selectedCount: "seçili",
     save: "Seçimi kaydet",
     saved: "Seçim kaydedildi",
-    selectedCount: "seçili",
-    back: "İlanlarıma dön",
   },
 
   candidates: {
@@ -99,24 +100,24 @@ export default {
     compatibility: "Uyumluluk",
     interview: "Mülakat",
     total: "Toplam",
+    eligible: "Mülakata uygun",
     showAnswers: "Cevapları göster",
     hideAnswers: "Cevapları gizle",
     noAnswers: "Aday henüz mülakatı cevaplamadı",
     correct: "Doğru",
     incorrect: "Yanlış",
-    eligible: "Mülakata uygun",
   },
 
   interview: {
     title: "Mülakat",
     start: "Mülakata gir",
+    notReady: "İşveren henüz mülakat sorularını hazırlamadı. Lütfen daha sonra tekrar deneyin.",
+    progress: "cevaplandı",
+    answerPlaceholder: "Cevabınızı yazın",
     submit: "Cevabı gönder",
     submitting: "Değerlendiriliyor...",
     answered: "Cevaplandı",
     completed: "Mülakat tamamlandı",
-    answerPlaceholder: "Cevabınızı yazın",
-    notReady: "İşveren henüz mülakat sorularını hazırlamadı. Lütfen daha sonra tekrar deneyin.",
-    progress: "cevaplandı",
   },
 
   educationLevels: {
