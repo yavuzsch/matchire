@@ -17,6 +17,7 @@ class ApplicationOut(BaseModel):
     interview_score: float
     total_score: float
     status: ApplicationStatus
+    interview_eligible: bool = False
 
 
 class CandidateRow(BaseModel):

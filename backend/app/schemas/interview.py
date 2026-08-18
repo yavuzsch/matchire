@@ -45,6 +45,6 @@ class AnswerReview(BaseModel):
 
 class InterviewResult(BaseModel):
     application_id: int
-    interview_score: float
-    total_score: float
+    total_questions: int
     answered_count: int
+    completed: bool

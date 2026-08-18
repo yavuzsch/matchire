@@ -58,3 +58,26 @@ def get_job(
         return JobFull.model_validate(job)
 
     return JobPublic.model_validate(job)
+
+
+@router.delete("/{job_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_job(
+    job_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_employer),
+):
+    job = db.query(Job).filter(Job.id == job_id).first()
+    if job is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": errors.JOB_NOT_FOUND},
+        )
+
+    if job.employer_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={"code": errors.JOB_ACCESS_DENIED},
+        )
+
+    db.delete(job)
+    db.commit()
