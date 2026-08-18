@@ -12,6 +12,8 @@ SKILL_WEIGHT = 0.5
 EXPERIENCE_WEIGHT = 0.3
 EDUCATION_WEIGHT = 0.2
 FIELD_MISMATCH_PENALTY = 0.7
+OPTIONAL_BONUS = 2
+MAX_OPTIONAL_BONUS = 10
 
 
 def normalize(value: str | None) -> str:
@@ -59,6 +61,15 @@ def score_experience(job: Job, resume: Resume) -> float:
     return min(candidate / required, 1.0) * 100.0
 
 
+def score_optional(job: Job, resume: Resume) -> float:
+    optional = normalize_all(job.optional_skills)
+    if not optional:
+        return 0.0
+
+    matched = len(optional & normalize_all(resume.skills))
+    return min(matched * OPTIONAL_BONUS, MAX_OPTIONAL_BONUS)
+
+
 def score_education(job: Job, resume: Resume) -> float:
     required = EDUCATION_LEVELS.get(job.education_level)
     if required is None:
@@ -81,5 +92,6 @@ def calculate_compatibility(job: Job, resume: Resume) -> float:
         score_skills(job, resume) * SKILL_WEIGHT
         + score_experience(job, resume) * EXPERIENCE_WEIGHT
         + score_education(job, resume) * EDUCATION_WEIGHT
+        + score_optional(job, resume)
     )
-    return round(total, 2)
+    return round(min(total, 100.0), 2)
