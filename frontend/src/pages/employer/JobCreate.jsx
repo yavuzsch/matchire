@@ -16,6 +16,7 @@ export default function JobCreate() {
   const [requiredSkills, setRequiredSkills] = useState([])
   const [mandatorySkills, setMandatorySkills] = useState([])
   const [skillWeights, setSkillWeights] = useState({})
+  const [optionalSkills, setOptionalSkills] = useState([])
 
   const [experienceYears, setExperienceYears] = useState(0)
   const [interviewSlots, setInterviewSlots] = useState(5)
@@ -36,6 +37,7 @@ export default function JobCreate() {
     setSkillWeights(weights)
 
     setMandatorySkills(mandatorySkills.filter((skill) => skills.includes(skill)))
+    setOptionalSkills(optionalSkills.filter((skill) => !skills.includes(skill)))
   }
 
   function setWeight(skill, weight) {
@@ -48,6 +50,10 @@ export default function JobCreate() {
     } else {
       setMandatorySkills([...mandatorySkills, skill])
     }
+  }
+
+  function handleOptionalChange(skills) {
+    setOptionalSkills(skills.filter((skill) => !requiredSkills.includes(skill)))
   }
 
   async function handleSubmit(event) {
@@ -64,7 +70,7 @@ export default function JobCreate() {
         description,
         required_skills: requiredSkills,
         mandatory_skills: mandatorySkills,
-        optional_skills: [],
+        optional_skills: optionalSkills,
         skill_weights: skillWeights,
         experience_years: Number(experienceYears),
         education_level: educationLevel,
@@ -155,6 +161,11 @@ export default function JobCreate() {
             ))}
           </div>
         )}
+
+        <div>
+          <p className="mb-2 text-sm text-slate-300">{t.job.optionalSkills}</p>
+          <SkillSelect selected={optionalSkills} onChange={handleOptionalChange} />
+        </div>
 
         <input
           type="number"
