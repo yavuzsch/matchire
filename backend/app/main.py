@@ -7,7 +7,6 @@ from app.routers import auth, skills, jobs, resumes, applications, interviews
 
 import app.models  # noqa: F401
 
-Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Matchire API",
