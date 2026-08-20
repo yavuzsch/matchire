@@ -32,8 +32,6 @@ class AnswerOut(BaseModel):
     id: int
     question_id: int
     answer_text: str
-    is_correct: bool | None
-    score: float
 
 
 class AnswerReview(BaseModel):

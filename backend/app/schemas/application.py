@@ -13,9 +13,6 @@ class ApplicationOut(BaseModel):
     id: int
     job_id: int
     candidate_id: int
-    compatibility_score: float
-    interview_score: float
-    total_score: float
     status: ApplicationStatus
     interview_eligible: bool = False
 
