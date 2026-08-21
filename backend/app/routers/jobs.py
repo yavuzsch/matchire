@@ -25,7 +25,12 @@ def create_job(
 
 @router.get("", response_model=list[JobPublic])
 def list_jobs(db: Session = Depends(get_db)):
-    return db.query(Job).order_by(Job.id.desc()).all()
+    return (
+        db.query(Job)
+        .filter(Job.is_active.is_(True))
+        .order_by(Job.id.desc())
+        .all()
+    )
 
 
 @router.get("/mine", response_model=list[JobFull])
@@ -79,5 +84,5 @@ def delete_job(
             detail={"code": errors.JOB_ACCESS_DENIED},
         )
 
-    db.delete(job)
+    job.is_active = False
     db.commit()

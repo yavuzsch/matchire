@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, ARRAY, JSON
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, ARRAY, JSON, Boolean
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -25,5 +25,6 @@ class Job(Base):
     field = Column(String)
     language = Column(String, default="tr")
     interview_slots = Column(Integer, default=5)
+    is_active = Column(Boolean, nullable=False, default=True, server_default="true")
 
     employer = relationship("User")

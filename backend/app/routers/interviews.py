@@ -39,6 +39,20 @@ def get_owned_job(db: Session, job_id: int, employer: User) -> Job:
     return job
 
 
+def ensure_no_answers(db: Session, job: Job) -> None:
+    answered = (
+        db.query(InterviewAnswer)
+        .join(InterviewQuestion, InterviewAnswer.question_id == InterviewQuestion.id)
+        .filter(InterviewQuestion.job_id == job.id)
+        .first()
+    )
+    if answered:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"code": errors.INTERVIEW_ALREADY_STARTED},
+        )
+
+
 @router.post("/jobs/{job_id}/questions", response_model=list[QuestionOut])
 def create_questions(
     job_id: int,
@@ -46,6 +60,7 @@ def create_questions(
     current_user: User = Depends(require_employer),
 ):
     job = get_owned_job(db, job_id, current_user)
+    ensure_no_answers(db, job)
 
     try:
         generated = generate_questions(job)
@@ -96,6 +111,7 @@ def select_questions(
     current_user: User = Depends(require_employer),
 ):
     job = get_owned_job(db, job_id, current_user)
+    ensure_no_answers(db, job)
 
     questions = (
         db.query(InterviewQuestion)
