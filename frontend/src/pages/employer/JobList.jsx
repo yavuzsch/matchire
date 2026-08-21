@@ -12,15 +12,19 @@ export default function JobList() {
     get("/jobs/mine").then(setJobs).catch(() => setJobs([]))
   }, [])
 
-  async function handleDelete(jobId) {
-    if (!window.confirm(t.jobList.deleteConfirm)) {
+  async function handleArchive(jobId) {
+    if (!window.confirm(t.jobList.archiveConfirm)) {
       return
     }
 
     try {
       await del(`/jobs/${jobId}`)
-      setJobs(jobs.filter((job) => job.id !== jobId))
-      setMessage(t.jobList.deleted)
+      setJobs(
+        jobs.map((job) =>
+          job.id === jobId ? { ...job, is_active: false } : job
+        )
+      )
+      setMessage(t.jobList.archived)
     } catch (err) {
       setMessage(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
     }
@@ -35,8 +39,23 @@ export default function JobList() {
 
       <div className="space-y-3">
         {jobs.map((job) => (
-          <div key={job.id} className="rounded bg-slate-800 p-4">
-            <h2 className="font-medium text-white">{job.title}</h2>
+          <div
+            key={job.id}
+            className={
+              job.is_active
+                ? "rounded bg-slate-800 p-4"
+                : "rounded bg-slate-800 p-4 opacity-60"
+            }
+          >
+            <div className="flex items-start justify-between gap-3">
+              <h2 className="font-medium text-white">{job.title}</h2>
+              {!job.is_active && (
+                <span className="rounded bg-slate-700 px-2 py-1 text-xs text-slate-300">
+                  {t.jobList.inactive}
+                </span>
+              )}
+            </div>
+
             <p className="text-sm text-slate-400">
               {job.company_name}
               {job.location ? ` · ${job.location}` : ""}
@@ -58,13 +77,15 @@ export default function JobList() {
               >
                 {t.jobList.viewCandidates}
               </Link>
-              <button
-                type="button"
-                onClick={() => handleDelete(job.id)}
-                className="text-sm text-red-400"
-              >
-                {t.jobList.delete}
-              </button>
+              {job.is_active && (
+                <button
+                  type="button"
+                  onClick={() => handleArchive(job.id)}
+                  className="text-sm text-red-400"
+                >
+                  {t.jobList.archive}
+                </button>
+              )}
             </div>
           </div>
         ))}
