@@ -75,9 +75,10 @@ export default {
     manageQuestions: "Mülakat soruları",
     viewCandidates: "Adaylar",
     slots: "kişilik mülakat kontenjanı",
-    delete: "Sil",
-    deleteConfirm: "Bu ilanı silmek istediğinize emin misiniz?",
-    deleted: "İlan silindi",
+    archive: "Yayından kaldır",
+    archiveConfirm: "Bu ilanı yayından kaldırmak istediğinize emin misiniz? İlan adaylara görünmez, mevcut başvurular ve mülakat kayıtları korunur.",
+    archived: "İlan yayından kaldırıldı",
+    inactive: "Yayında değil",
   },
 
   questions: {
@@ -168,6 +169,7 @@ export default {
     ALREADY_APPLIED: "Bu ilana zaten başvurdunuz",
     MISSING_MANDATORY_SKILLS: "Zorunlu beceriler eksik",
     INTERVIEW_NOT_ELIGIBLE: "Bu ilan için mülakat hakkınız yok",
+    INTERVIEW_ALREADY_STARTED: "Mülakat başladığı için sorular değiştirilemez",
     QUESTION_NOT_FOUND: "Soru bulunamadı",
     ALREADY_ANSWERED: "Bu soruyu zaten cevapladınız",
     NO_QUESTIONS_SELECTED: "İşveren henüz mülakat sorularını seçmedi",
