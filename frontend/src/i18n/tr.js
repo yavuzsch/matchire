@@ -55,6 +55,7 @@ export default {
     weightHigh: "Yüksek",
     optionalSkills: "Ek beceriler (avantaj sağlar, zorunlu değil)",
     interviewSlots: "Mülakata çağrılacak aday sayısı",
+    interviewWeight: "Mülakatın toplam puana etkisi (%)",
     submit: "İlanı Oluştur",
     submitting: "Oluşturuluyor...",
     created: "İlan oluşturuldu",
@@ -67,6 +68,7 @@ export default {
     apply: "Başvur",
     applying: "Gönderiliyor...",
     applied: "Başvuru alındı",
+    inactive: "Bu ilan yayından kaldırıldı",
   },
 
   jobList: {
@@ -167,7 +169,7 @@ export default {
     RESUME_ALREADY_EXISTS: "Zaten bir özgeçmişiniz var, güncelleme yapabilirsiniz",
     RESUME_REQUIRED: "Başvuru yapmadan önce özgeçmişinizi oluşturmalısınız",
     ALREADY_APPLIED: "Bu ilana zaten başvurdunuz",
-    MISSING_MANDATORY_SKILLS: "Zorunlu beceriler eksik",
+    MISSING_MANDATORY_SKILLS: "Bu ilanın zorunlu gereksinimlerini karşılamıyorsunuz",
     INTERVIEW_NOT_ELIGIBLE: "Bu ilan için mülakat hakkınız yok",
     INTERVIEW_ALREADY_STARTED: "Mülakat başladığı için sorular değiştirilemez",
     QUESTION_NOT_FOUND: "Soru bulunamadı",
