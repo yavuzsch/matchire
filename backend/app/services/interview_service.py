@@ -15,6 +15,9 @@ def get_eligible_application_ids(db: Session, job: Job) -> list[int]:
 
 
 def is_eligible(db: Session, job: Job, application: Application) -> bool:
+    if job.is_closed:
+        return False
+
     if application.status in (ApplicationStatus.INTERVIEW, ApplicationStatus.COMPLETED):
         return True
 

@@ -1,3 +1,4 @@
+from datetime import datetime
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.schemas.common import EducationLevel, TechField, Language
@@ -41,6 +42,7 @@ class JobPublic(BaseModel):
     education_level: EducationLevel | None
     field: TechField | None
     language: Language
+    created_at: datetime
 
 
 class JobFull(BaseModel):
@@ -63,3 +65,10 @@ class JobFull(BaseModel):
     interview_slots: int
     interview_weight: int
     is_active: bool
+    is_closed: bool
+    created_at: datetime
+
+
+class JobStatusUpdate(BaseModel):
+    is_active: bool | None = None
+    is_closed: bool | None = None
