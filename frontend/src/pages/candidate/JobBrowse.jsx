@@ -19,6 +19,17 @@ export default function JobBrowse() {
     return applications.find((item) => item.job_id === jobId)
   }
 
+  const visibleJobs = [...jobs]
+
+  applications.forEach((application) => {
+    if (!application.job) {
+      return
+    }
+    if (!visibleJobs.some((job) => job.id === application.job_id)) {
+      visibleJobs.push(application.job)
+    }
+  })
+
   async function apply(jobId) {
     setError(null)
     setPendingId(jobId)
@@ -38,11 +49,14 @@ export default function JobBrowse() {
       <h1 className="mb-6 text-2xl font-bold text-white">{t.jobBrowse.title}</h1>
 
       {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
-      {jobs.length === 0 && <p className="text-slate-400">{t.jobBrowse.empty}</p>}
+      {visibleJobs.length === 0 && (
+        <p className="text-slate-400">{t.jobBrowse.empty}</p>
+      )}
 
       <div className="space-y-3">
-        {jobs.map((job) => {
+        {visibleJobs.map((job) => {
           const application = findApplication(job.id)
+          const isListed = jobs.some((item) => item.id === job.id)
 
           return (
             <div key={job.id} className="rounded bg-slate-800 p-4">
@@ -63,6 +77,12 @@ export default function JobBrowse() {
                   : ""}
                 {job.field ? ` · ${t.fields[job.field]}` : ""}
               </p>
+
+              {!isListed && (
+                <p className="mt-2 text-xs text-amber-400">
+                  {t.jobBrowse.inactive}
+                </p>
+              )}
 
               <div className="mt-3">
                 {application ? (
@@ -86,7 +106,9 @@ export default function JobBrowse() {
                     disabled={pendingId === job.id}
                     className="rounded bg-blue-600 px-4 py-1 text-sm text-white disabled:opacity-50"
                   >
-                    {pendingId === job.id ? t.jobBrowse.applying : t.jobBrowse.apply}
+                    {pendingId === job.id
+                      ? t.jobBrowse.applying
+                      : t.jobBrowse.apply}
                   </button>
                 )}
               </div>
