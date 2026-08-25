@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from app.schemas.common import EducationLevel, TechField, Language
 
@@ -19,6 +19,14 @@ class JobCreate(BaseModel):
     field: TechField | None = None
     language: Language = "tr"
     interview_slots: int = Field(default=5, ge=1)
+    interview_weight: int = Field(default=50, ge=20, le=80)
+
+    @model_validator(mode="after")
+    def check_skill_overlap(self):
+        overlap = set(self.optional_skills) & set(self.required_skills)
+        if overlap:
+            raise ValueError("optional skills cannot overlap with required skills")
+        return self
 
 
 class JobPublic(BaseModel):
@@ -53,4 +61,5 @@ class JobFull(BaseModel):
     field: TechField | None
     language: Language
     interview_slots: int
+    interview_weight: int
     is_active: bool

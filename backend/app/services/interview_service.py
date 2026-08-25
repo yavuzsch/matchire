@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from app.models import Application, Job
+from app.models import Application, ApplicationStatus, Job
 
 
 def get_eligible_application_ids(db: Session, job: Job) -> list[int]:
@@ -15,4 +15,7 @@ def get_eligible_application_ids(db: Session, job: Job) -> list[int]:
 
 
 def is_eligible(db: Session, job: Job, application: Application) -> bool:
+    if application.status in (ApplicationStatus.INTERVIEW, ApplicationStatus.COMPLETED):
+        return True
+
     return application.id in get_eligible_application_ids(db, job)

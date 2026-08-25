@@ -1,6 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 
 from app.models.application import ApplicationStatus
+from app.schemas.job import JobPublic
 
 
 class ApplicationCreate(BaseModel):
@@ -15,6 +16,7 @@ class ApplicationOut(BaseModel):
     candidate_id: int
     status: ApplicationStatus
     interview_eligible: bool = False
+    job: JobPublic | None = None
 
 
 class CandidateRow(BaseModel):
