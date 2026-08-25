@@ -50,7 +50,7 @@ def create_application(
     if missing_skills:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"code": errors.MISSING_MANDATORY_SKILLS, "skills": missing_skills},
+            detail={"code": errors.MISSING_MANDATORY_SKILLS},
         )
 
     compatibility_score = calculate_compatibility(job, resume)

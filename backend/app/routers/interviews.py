@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core import errors
 from app.core.database import get_db
 from app.core.deps import require_candidate, require_employer
-from app.models import Application, InterviewAnswer, InterviewQuestion, Job, User
+from app.models import Application, ApplicationStatus, InterviewAnswer, InterviewQuestion, Job, User
 from app.schemas.interview import (
     AnswerOut,
     AnswerReview,
@@ -312,6 +312,9 @@ def submit_answer(
     db.add(answer)
     db.flush()
 
+    if application.status == ApplicationStatus.PENDING:
+        application.status = ApplicationStatus.INTERVIEW
+
     update_interview_score(db, application, job)
     db.commit()
     db.refresh(answer)
@@ -374,21 +377,27 @@ def update_interview_score(db: Session, application: Application, job: Job) -> N
         .count()
     )
 
+    if selected_count == 0:
+        return
+
     answers = (
         db.query(InterviewAnswer)
         .filter(InterviewAnswer.application_id == application.id)
         .all()
     )
 
-    if selected_count == 0:
-        return
-
     total = sum(answer.score for answer in answers)
     application.interview_score = round(total / selected_count, 2)
 
-    if answers:
+    completed = len(answers) >= selected_count
+
+    if completed:
+        weight = job.interview_weight / 100
         application.total_score = round(
-            (application.compatibility_score + application.interview_score) / 2, 2
+            application.compatibility_score * (1 - weight)
+            + application.interview_score * weight,
+            2,
         )
+        application.status = ApplicationStatus.COMPLETED
     else:
         application.total_score = application.compatibility_score

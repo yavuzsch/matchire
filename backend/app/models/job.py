@@ -25,6 +25,7 @@ class Job(Base):
     field = Column(String)
     language = Column(String, default="tr")
     interview_slots = Column(Integer, default=5)
+    interview_weight = Column(Integer, nullable=False, default=50, server_default="50")
     is_active = Column(Boolean, nullable=False, default=True, server_default="true")
 
     employer = relationship("User")

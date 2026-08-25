@@ -14,6 +14,7 @@ EDUCATION_WEIGHT = 0.2
 FIELD_MISMATCH_PENALTY = 0.7
 OPTIONAL_BONUS = 2
 MAX_OPTIONAL_BONUS = 10
+BASE_SCALE = 0.9
 
 
 def normalize(value: str | None) -> str:
@@ -88,10 +89,11 @@ def score_education(job: Job, resume: Resume) -> float:
 
 
 def calculate_compatibility(job: Job, resume: Resume) -> float:
-    total = (
+    base = (
         score_skills(job, resume) * SKILL_WEIGHT
         + score_experience(job, resume) * EXPERIENCE_WEIGHT
         + score_education(job, resume) * EDUCATION_WEIGHT
-        + score_optional(job, resume)
     )
+
+    total = base * BASE_SCALE + score_optional(job, resume)
     return round(min(total, 100.0), 2)
