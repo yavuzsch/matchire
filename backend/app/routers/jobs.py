@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core import errors
 from app.core.database import get_db
 from app.core.deps import get_current_user, require_employer
-from app.models import Application, InterviewQuestion, Job, User, UserRole
+from app.models import Application, AssessmentQuestion, Job, User, UserRole
 from app.schemas.job import JobCreate, JobPublic, JobFull, JobStatusUpdate
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
@@ -119,7 +119,7 @@ def delete_job(
         db.query(Application).filter(Application.job_id == job.id).first()
     )
     has_questions = (
-        db.query(InterviewQuestion).filter(InterviewQuestion.job_id == job.id).first()
+        db.query(AssessmentQuestion).filter(AssessmentQuestion.job_id == job.id).first()
     )
 
     if has_applications or has_questions:

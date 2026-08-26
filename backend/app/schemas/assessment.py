@@ -41,7 +41,7 @@ class AnswerReview(BaseModel):
     score: float
 
 
-class InterviewResult(BaseModel):
+class AssessmentResult(BaseModel):
     application_id: int
     total_questions: int
     answered_count: int

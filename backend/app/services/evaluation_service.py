@@ -1,11 +1,11 @@
-from app.models import InterviewQuestion
+from app.models import AssessmentQuestion
 from app.prompts import get_prompts
 from app.services.llm_client import generate_json
 
 PASS_THRESHOLD = 50
 
 
-def build_prompt(question: InterviewQuestion, answer_text: str, language: str) -> str:
+def build_prompt(question: AssessmentQuestion, answer_text: str, language: str) -> str:
     prompts = get_prompts(language)
 
     return prompts.EVALUATION_TEMPLATE.format(
@@ -15,7 +15,7 @@ def build_prompt(question: InterviewQuestion, answer_text: str, language: str) -
 
 
 def evaluate_answer(
-    question: InterviewQuestion, answer_text: str, language: str
+    question: AssessmentQuestion, answer_text: str, language: str
 ) -> tuple[bool, float]:
     if not answer_text.strip():
         return False, 0.0

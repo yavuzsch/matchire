@@ -2,7 +2,7 @@ from app.models.user import User, UserRole
 from app.models.job import Job
 from app.models.resume import Resume
 from app.models.application import Application, ApplicationStatus
-from app.models.interview import InterviewQuestion, InterviewAnswer
+from app.models.assessment import AssessmentQuestion, AssessmentAnswer
 from app.models.skill import Skill, SkillAlias, UnknownSkill
 
 __all__ = [
@@ -12,8 +12,8 @@ __all__ = [
     "Resume",
     "Application",
     "ApplicationStatus",
-    "InterviewQuestion",
-    "InterviewAnswer",
+    "AssessmentQuestion",
+    "AssessmentAnswer",
     "Skill",
     "SkillAlias",
     "UnknownSkill",

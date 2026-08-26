@@ -8,7 +8,7 @@ from app.core.database import Base
 
 class ApplicationStatus(str, enum.Enum):
     PENDING = "pending"
-    INTERVIEW = "interview"
+    ASSESSMENT = "assessment"
     COMPLETED = "completed"
     REJECTED = "rejected"
 
@@ -22,7 +22,7 @@ class Application(Base):
     candidate_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
     compatibility_score = Column(Float, default=0.0)
-    interview_score = Column(Float, default=0.0)
+    assessment_score = Column(Float, default=0.0)
     total_score = Column(Float, default=0.0)
 
     status = Column(SAEnum(ApplicationStatus), default=ApplicationStatus.PENDING)
