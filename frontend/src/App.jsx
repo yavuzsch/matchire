@@ -4,7 +4,7 @@ import Layout from "./components/Layout"
 import ProtectedRoute from "./components/ProtectedRoute"
 import Login from "./pages/auth/Login"
 import Register from "./pages/auth/Register"
-import InterviewTake from "./pages/candidate/InterviewTake"
+import AssessmentTake from "./pages/candidate/AssessmentTake"
 import JobBrowse from "./pages/candidate/JobBrowse"
 import ResumeForm from "./pages/candidate/ResumeForm"
 import CandidateList from "./pages/employer/CandidateList"
@@ -53,8 +53,8 @@ export default function App() {
           element={<Protected role="candidate"><ResumeForm /></Protected>}
         />
         <Route
-          path="/candidate/interviews/:applicationId"
-          element={<Protected role="candidate"><InterviewTake /></Protected>}
+          path="/candidate/assessments/:applicationId"
+          element={<Protected role="candidate"><AssessmentTake /></Protected>}
         />
 
         <Route path="*" element={<Navigate to="/login" replace />} />

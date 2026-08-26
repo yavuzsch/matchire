@@ -21,7 +21,7 @@ export default function QuestionManage() {
   }
 
   useEffect(() => {
-    get(`/interviews/jobs/${jobId}/questions`)
+    get(`/assessments/jobs/${jobId}/questions`)
       .then(load)
       .catch(() => setQuestions([]))
   }, [jobId])
@@ -32,7 +32,7 @@ export default function QuestionManage() {
     setError(null)
 
     try {
-      load(await post(`/interviews/jobs/${jobId}/questions`, {}))
+      load(await post(`/assessments/jobs/${jobId}/questions`, {}))
     } catch (err) {
       setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
     } finally {
@@ -54,7 +54,7 @@ export default function QuestionManage() {
     setError(null)
 
     try {
-      load(await put(`/interviews/jobs/${jobId}/questions`, {
+      load(await put(`/assessments/jobs/${jobId}/questions`, {
         question_ids: checkedIds,
       }))
       setMessage(t.questions.saved)

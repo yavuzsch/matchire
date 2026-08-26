@@ -4,7 +4,7 @@ import { useParams } from "react-router-dom"
 import { get, post } from "../../api/client"
 import { t } from "../../i18n"
 
-export default function InterviewTake() {
+export default function AssessmentTake() {
   const { applicationId } = useParams()
 
   const [questions, setQuestions] = useState([])
@@ -15,7 +15,7 @@ export default function InterviewTake() {
   const [notReady, setNotReady] = useState(false)
 
   useEffect(() => {
-    get(`/interviews/applications/${applicationId}/questions`)
+    get(`/assessments/applications/${applicationId}/questions`)
       .then(setQuestions)
       .catch((err) => {
         if (err.code === "NO_QUESTIONS_SELECTED") {
@@ -25,7 +25,7 @@ export default function InterviewTake() {
         }
       })
 
-    get(`/interviews/applications/${applicationId}/answers`)
+    get(`/assessments/applications/${applicationId}/answers`)
       .then((data) => setAnsweredIds(data.map((item) => item.question_id)))
       .catch(() => setAnsweredIds([]))
   }, [applicationId])
@@ -39,7 +39,7 @@ export default function InterviewTake() {
     setPendingId(questionId)
 
     try {
-      await post(`/interviews/applications/${applicationId}/answers`, {
+      await post(`/assessments/applications/${applicationId}/answers`, {
         question_id: questionId,
         answer_text: answers[questionId] || "",
       })
@@ -56,26 +56,26 @@ export default function InterviewTake() {
   if (notReady) {
     return (
       <div className="mx-auto max-w-3xl p-8">
-        <h1 className="mb-6 text-2xl font-bold text-white">{t.interview.title}</h1>
-        <p className="text-slate-400">{t.interview.notReady}</p>
+        <h1 className="mb-6 text-2xl font-bold text-white">{t.assessment.title}</h1>
+        <p className="text-slate-400">{t.assessment.notReady}</p>
       </div>
     )
   }
 
   return (
     <div className="mx-auto max-w-3xl p-8">
-      <h1 className="mb-6 text-2xl font-bold text-white">{t.interview.title}</h1>
+      <h1 className="mb-6 text-2xl font-bold text-white">{t.assessment.title}</h1>
 
       {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
 
       {questions.length > 0 && (
         <p className="mb-4 text-sm text-slate-400">
-          {answeredIds.length}/{questions.length} {t.interview.progress}
+          {answeredIds.length}/{questions.length} {t.assessment.progress}
         </p>
       )}
 
       {completed && (
-        <p className="mb-4 text-sm text-green-400">{t.interview.completed}</p>
+        <p className="mb-4 text-sm text-green-400">{t.assessment.completed}</p>
       )}
 
       <div className="space-y-4">
@@ -86,13 +86,13 @@ export default function InterviewTake() {
             </p>
 
             {answeredIds.includes(question.id) ? (
-              <span className="text-sm text-green-400">{t.interview.answered}</span>
+              <span className="text-sm text-green-400">{t.assessment.answered}</span>
             ) : (
               <>
                 <textarea
                   value={answers[question.id] || ""}
                   onChange={(e) => setAnswer(question.id, e.target.value)}
-                  placeholder={t.interview.answerPlaceholder}
+                  placeholder={t.assessment.answerPlaceholder}
                   rows="3"
                   className="w-full rounded bg-slate-700 px-3 py-2 text-white placeholder-slate-400"
                 />
@@ -104,8 +104,8 @@ export default function InterviewTake() {
                   className="mt-2 rounded bg-blue-600 px-4 py-1 text-sm text-white disabled:opacity-50"
                 >
                   {pendingId === question.id
-                    ? t.interview.submitting
-                    : t.interview.submit}
+                    ? t.assessment.submitting
+                    : t.assessment.submit}
                 </button>
               </>
             )}

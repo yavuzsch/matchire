@@ -32,7 +32,7 @@ export default function CandidateList() {
     }
 
     try {
-      const data = await get(`/interviews/applications/${applicationId}/review`)
+      const data = await get(`/assessments/applications/${applicationId}/review`)
       setReviews({ ...reviews, [applicationId]: data })
     } catch (err) {
       setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
@@ -72,8 +72,8 @@ export default function CandidateList() {
                 value={candidate.compatibility_score}
               />
               <ScoreBadge
-                label={t.candidates.interview}
-                value={candidate.interview_score}
+                label={t.candidates.assessment}
+                value={candidate.assessment_score}
               />
               <ScoreBadge
                 label={t.candidates.total}
