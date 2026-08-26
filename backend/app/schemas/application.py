@@ -15,7 +15,7 @@ class ApplicationOut(BaseModel):
     job_id: int
     candidate_id: int
     status: ApplicationStatus
-    interview_eligible: bool = False
+    assessment_eligible: bool = False
     job: JobPublic | None = None
 
 
@@ -25,6 +25,6 @@ class CandidateRow(BaseModel):
     full_name: str
     email: str
     compatibility_score: float
-    interview_score: float
+    assessment_score: float
     total_score: float
     status: ApplicationStatus

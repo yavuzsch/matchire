@@ -1,4 +1,4 @@
-QUESTION_TEMPLATE = """Sen teknik bir mülakat uzmanısın. Aşağıdaki iş ilanı için {count} adet teknik mülakat sorusu üret.
+QUESTION_TEMPLATE = """Sen teknik bir değerlendirme uzmanısın. Aşağıdaki iş ilanı için {count} adet yetkinlik sorusu üret.
 
 Pozisyon: {title}
 Aranan beceriler: {skills}
@@ -15,7 +15,7 @@ Yanıtını yalnızca JSON dizisi olarak ver, başka hiçbir metin ekleme:
 ["soru 1", "soru 2", ...]"""
 
 
-EVALUATION_TEMPLATE = """Sen teknik bir mülakat değerlendiricisisin. Aşağıdaki soruya verilen cevabı değerlendir.
+EVALUATION_TEMPLATE = """Sen teknik bir değerlendirme uzmanısın. Aşağıdaki yetkinlik sorusuna verilen cevabı değerlendir.
 
 Soru: {question}
 Cevap: {answer}

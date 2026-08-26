@@ -7,7 +7,7 @@ from app.core.deps import require_candidate, require_employer
 from app.models import Application, Job, Resume, User
 from app.schemas.application import ApplicationCreate, ApplicationOut, CandidateRow
 from app.services.matching_service import calculate_compatibility, find_missing_mandatory_skills
-from app.services.interview_service import is_eligible
+from app.services.assessment_service import is_eligible
 
 router = APIRouter(prefix="/applications", tags=["applications"])
 
@@ -59,7 +59,7 @@ def create_application(
         job_id=job.id,
         candidate_id=current_user.id,
         compatibility_score=compatibility_score,
-        interview_score=0.0,
+        assessment_score=0.0,
         total_score=compatibility_score,
     )
     db.add(application)
@@ -84,7 +84,7 @@ def list_my_applications(
     for application in applications:
         job = db.query(Job).filter(Job.id == application.job_id).first()
         row = ApplicationOut.model_validate(application)
-        row.interview_eligible = is_eligible(db, job, application)
+        row.assessment_eligible = is_eligible(db, job, application)
         rows.append(row)
 
     return rows
@@ -124,7 +124,7 @@ def list_job_applications(
             full_name=user.full_name,
             email=user.email,
             compatibility_score=app.compatibility_score,
-            interview_score=app.interview_score,
+            assessment_score=app.assessment_score,
             total_score=app.total_score,
             status=app.status,
         )

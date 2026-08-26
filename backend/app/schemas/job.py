@@ -19,8 +19,8 @@ class JobCreate(BaseModel):
     education_level: EducationLevel | None = None
     field: TechField | None = None
     language: Language = "tr"
-    interview_slots: int = Field(default=5, ge=1)
-    interview_weight: int = Field(default=50, ge=20, le=80)
+    assessment_slots: int = Field(default=5, ge=1)
+    assessment_weight: int = Field(default=50, ge=20, le=80)
 
     @model_validator(mode="after")
     def check_skill_overlap(self):
@@ -62,8 +62,8 @@ class JobFull(BaseModel):
     education_level: EducationLevel | None
     field: TechField | None
     language: Language
-    interview_slots: int
-    interview_weight: int
+    assessment_slots: int
+    assessment_weight: int
     is_active: bool
     is_closed: bool
     created_at: datetime

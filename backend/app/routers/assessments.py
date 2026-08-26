@@ -4,22 +4,22 @@ from sqlalchemy.orm import Session
 from app.core import errors
 from app.core.database import get_db
 from app.core.deps import require_candidate, require_employer
-from app.models import Application, ApplicationStatus, InterviewAnswer, InterviewQuestion, Job, User
-from app.schemas.interview import (
+from app.models import Application, ApplicationStatus, AssessmentAnswer, AssessmentQuestion, Job, User
+from app.schemas.assessment import (
     AnswerOut,
     AnswerReview,
     AnswerSubmit,
-    InterviewResult,
+    AssessmentResult,
     QuestionForCandidate,
     QuestionOut,
     QuestionSelect,
 )
+from app.services.assessment_service import is_eligible
 from app.services.evaluation_service import evaluate_answer
-from app.services.interview_service import is_eligible
 from app.services.llm_client import LLMUnavailableError
 from app.services.question_service import generate_questions
 
-router = APIRouter(prefix="/interviews", tags=["interviews"])
+router = APIRouter(prefix="/assessments", tags=["assessments"])
 
 
 def get_owned_job(db: Session, job_id: int, employer: User) -> Job:
@@ -41,15 +41,15 @@ def get_owned_job(db: Session, job_id: int, employer: User) -> Job:
 
 def ensure_no_answers(db: Session, job: Job) -> None:
     answered = (
-        db.query(InterviewAnswer)
-        .join(InterviewQuestion, InterviewAnswer.question_id == InterviewQuestion.id)
-        .filter(InterviewQuestion.job_id == job.id)
+        db.query(AssessmentAnswer)
+        .join(AssessmentQuestion, AssessmentAnswer.question_id == AssessmentQuestion.id)
+        .filter(AssessmentQuestion.job_id == job.id)
         .first()
     )
     if answered:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"code": errors.INTERVIEW_ALREADY_STARTED},
+            detail={"code": errors.ASSESSMENT_ALREADY_STARTED},
         )
 
 
@@ -70,19 +70,19 @@ def create_questions(
             detail={"code": errors.LLM_UNAVAILABLE},
         )
 
-    db.query(InterviewQuestion).filter(InterviewQuestion.job_id == job.id).delete()
+    db.query(AssessmentQuestion).filter(AssessmentQuestion.job_id == job.id).delete()
 
     questions = [
-        InterviewQuestion(job_id=job.id, question_text=text) for text in generated
+        AssessmentQuestion(job_id=job.id, question_text=text) for text in generated
     ]
 
     db.add_all(questions)
     db.commit()
 
     return (
-        db.query(InterviewQuestion)
-        .filter(InterviewQuestion.job_id == job.id)
-        .order_by(InterviewQuestion.id)
+        db.query(AssessmentQuestion)
+        .filter(AssessmentQuestion.job_id == job.id)
+        .order_by(AssessmentQuestion.id)
         .all()
     )
 
@@ -96,9 +96,9 @@ def list_questions(
     job = get_owned_job(db, job_id, current_user)
 
     return (
-        db.query(InterviewQuestion)
-        .filter(InterviewQuestion.job_id == job.id)
-        .order_by(InterviewQuestion.id)
+        db.query(AssessmentQuestion)
+        .filter(AssessmentQuestion.job_id == job.id)
+        .order_by(AssessmentQuestion.id)
         .all()
     )
 
@@ -114,9 +114,9 @@ def select_questions(
     ensure_no_answers(db, job)
 
     questions = (
-        db.query(InterviewQuestion)
-        .filter(InterviewQuestion.job_id == job.id)
-        .order_by(InterviewQuestion.id)
+        db.query(AssessmentQuestion)
+        .filter(AssessmentQuestion.job_id == job.id)
+        .order_by(AssessmentQuestion.id)
         .all()
     )
 
@@ -129,7 +129,7 @@ def select_questions(
 
 
 @router.get("/applications/{application_id}/questions", response_model=list[QuestionForCandidate])
-def list_interview_questions(
+def list_assessment_questions(
     application_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_candidate),
@@ -153,16 +153,16 @@ def list_interview_questions(
     if not is_eligible(db, job, application):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail={"code": errors.INTERVIEW_NOT_ELIGIBLE},
+            detail={"code": errors.ASSESSMENT_NOT_ELIGIBLE},
         )
 
     questions = (
-        db.query(InterviewQuestion)
+        db.query(AssessmentQuestion)
         .filter(
-            InterviewQuestion.job_id == job.id,
-            InterviewQuestion.is_selected.is_(True),
+            AssessmentQuestion.job_id == job.id,
+            AssessmentQuestion.is_selected.is_(True),
         )
-        .order_by(InterviewQuestion.id)
+        .order_by(AssessmentQuestion.id)
         .all()
     )
 
@@ -196,8 +196,8 @@ def list_answers(
         )
 
     return (
-        db.query(InterviewAnswer)
-        .filter(InterviewAnswer.application_id == application.id)
+        db.query(AssessmentAnswer)
+        .filter(AssessmentAnswer.application_id == application.id)
         .all()
     )
 
@@ -218,10 +218,10 @@ def review_answers(
     get_owned_job(db, application.job_id, current_user)
 
     rows = (
-        db.query(InterviewAnswer, InterviewQuestion)
-        .join(InterviewQuestion, InterviewAnswer.question_id == InterviewQuestion.id)
-        .filter(InterviewAnswer.application_id == application.id)
-        .order_by(InterviewQuestion.id)
+        db.query(AssessmentAnswer, AssessmentQuestion)
+        .join(AssessmentQuestion, AssessmentAnswer.question_id == AssessmentQuestion.id)
+        .filter(AssessmentAnswer.application_id == application.id)
+        .order_by(AssessmentQuestion.id)
         .all()
     )
 
@@ -262,15 +262,15 @@ def submit_answer(
     if not is_eligible(db, job, application):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail={"code": errors.INTERVIEW_NOT_ELIGIBLE},
+            detail={"code": errors.ASSESSMENT_NOT_ELIGIBLE},
         )
 
     question = (
-        db.query(InterviewQuestion)
+        db.query(AssessmentQuestion)
         .filter(
-            InterviewQuestion.id == body.question_id,
-            InterviewQuestion.job_id == job.id,
-            InterviewQuestion.is_selected.is_(True),
+            AssessmentQuestion.id == body.question_id,
+            AssessmentQuestion.job_id == job.id,
+            AssessmentQuestion.is_selected.is_(True),
         )
         .first()
     )
@@ -281,10 +281,10 @@ def submit_answer(
         )
 
     existing = (
-        db.query(InterviewAnswer)
+        db.query(AssessmentAnswer)
         .filter(
-            InterviewAnswer.application_id == application.id,
-            InterviewAnswer.question_id == question.id,
+            AssessmentAnswer.application_id == application.id,
+            AssessmentAnswer.question_id == question.id,
         )
         .first()
     )
@@ -302,7 +302,7 @@ def submit_answer(
             detail={"code": errors.LLM_UNAVAILABLE},
         )
 
-    answer = InterviewAnswer(
+    answer = AssessmentAnswer(
         application_id=application.id,
         question_id=question.id,
         answer_text=body.answer_text,
@@ -313,17 +313,17 @@ def submit_answer(
     db.flush()
 
     if application.status == ApplicationStatus.PENDING:
-        application.status = ApplicationStatus.INTERVIEW
+        application.status = ApplicationStatus.ASSESSMENT
 
-    update_interview_score(db, application, job)
+    update_assessment_score(db, application, job)
     db.commit()
     db.refresh(answer)
 
     return answer
 
 
-@router.get("/applications/{application_id}/result", response_model=InterviewResult)
-def get_interview_result(
+@router.get("/applications/{application_id}/result", response_model=AssessmentResult)
+def get_assessment_result(
     application_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_candidate),
@@ -345,21 +345,21 @@ def get_interview_result(
     job = db.query(Job).filter(Job.id == application.job_id).first()
 
     total_questions = (
-        db.query(InterviewQuestion)
+        db.query(AssessmentQuestion)
         .filter(
-            InterviewQuestion.job_id == job.id,
-            InterviewQuestion.is_selected.is_(True),
+            AssessmentQuestion.job_id == job.id,
+            AssessmentQuestion.is_selected.is_(True),
         )
         .count()
     )
 
     answered_count = (
-        db.query(InterviewAnswer)
-        .filter(InterviewAnswer.application_id == application.id)
+        db.query(AssessmentAnswer)
+        .filter(AssessmentAnswer.application_id == application.id)
         .count()
     )
 
-    return InterviewResult(
+    return AssessmentResult(
         application_id=application.id,
         total_questions=total_questions,
         answered_count=answered_count,
@@ -367,12 +367,12 @@ def get_interview_result(
     )
 
 
-def update_interview_score(db: Session, application: Application, job: Job) -> None:
+def update_assessment_score(db: Session, application: Application, job: Job) -> None:
     selected_count = (
-        db.query(InterviewQuestion)
+        db.query(AssessmentQuestion)
         .filter(
-            InterviewQuestion.job_id == job.id,
-            InterviewQuestion.is_selected.is_(True),
+            AssessmentQuestion.job_id == job.id,
+            AssessmentQuestion.is_selected.is_(True),
         )
         .count()
     )
@@ -381,21 +381,21 @@ def update_interview_score(db: Session, application: Application, job: Job) -> N
         return
 
     answers = (
-        db.query(InterviewAnswer)
-        .filter(InterviewAnswer.application_id == application.id)
+        db.query(AssessmentAnswer)
+        .filter(AssessmentAnswer.application_id == application.id)
         .all()
     )
 
     total = sum(answer.score for answer in answers)
-    application.interview_score = round(total / selected_count, 2)
+    application.assessment_score = round(total / selected_count, 2)
 
     completed = len(answers) >= selected_count
 
     if completed:
-        weight = job.interview_weight / 100
+        weight = job.assessment_weight / 100
         application.total_score = round(
             application.compatibility_score * (1 - weight)
-            + application.interview_score * weight,
+            + application.assessment_score * weight,
             2,
         )
         application.status = ApplicationStatus.COMPLETED
