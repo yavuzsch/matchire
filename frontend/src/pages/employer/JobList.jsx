@@ -82,7 +82,7 @@ export default function JobList() {
               {job.location ? ` · ${job.location}` : ""}
             </p>
             <p className="mt-1 text-xs text-slate-400">
-              {job.interview_slots} {t.jobList.slots} · {t.jobList.postedAt}:{" "}
+              {job.assessment_slots} {t.jobList.slots} · {t.jobList.postedAt}:{" "}
               {new Date(job.created_at).toLocaleDateString("tr-TR")}
             </p>
 

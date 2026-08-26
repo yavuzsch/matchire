@@ -17,10 +17,10 @@ export default function JobCreate() {
   const [mandatorySkills, setMandatorySkills] = useState([])
   const [skillWeights, setSkillWeights] = useState({})
   const [optionalSkills, setOptionalSkills] = useState([])
-  const [interviewWeight, setInterviewWeight] = useState(50)
-  const [experienceYears, setExperienceYears] = useState(0)
-  const [interviewSlots, setInterviewSlots] = useState(5)
 
+  const [experienceYears, setExperienceYears] = useState(0)
+  const [assessmentSlots, setAssessmentSlots] = useState(5)
+  const [assessmentWeight, setAssessmentWeight] = useState(50)
   const [educationLevel, setEducationLevel] = useState("bachelor")
   const [field, setField] = useState("software_development")
 
@@ -76,8 +76,8 @@ export default function JobCreate() {
         experience_years: Number(experienceYears),
         education_level: educationLevel,
         field,
-        interview_slots: Number(interviewSlots),
-        interview_weight: Number(interviewWeight),
+        assessment_slots: Number(assessmentSlots),
+        assessment_weight: Number(assessmentWeight),
       })
       setMessage(t.job.created)
     } catch (err) {
@@ -181,9 +181,9 @@ export default function JobCreate() {
         <input
           type="number"
           min="1"
-          value={interviewSlots}
-          onChange={(e) => setInterviewSlots(e.target.value)}
-          placeholder={t.job.interviewSlots}
+          value={assessmentSlots}
+          onChange={(e) => setAssessmentSlots(e.target.value)}
+          placeholder={t.job.assessmentSlots}
           className={inputClass}
         />
 
@@ -191,9 +191,9 @@ export default function JobCreate() {
           type="number"
           min="20"
           max="80"
-          value={interviewWeight}
-          onChange={(e) => setInterviewWeight(e.target.value)}
-          placeholder={t.job.interviewWeight}
+          value={assessmentWeight}
+          onChange={(e) => setAssessmentWeight(e.target.value)}
+          placeholder={t.job.assessmentWeight}
           className={inputClass}
         />
 

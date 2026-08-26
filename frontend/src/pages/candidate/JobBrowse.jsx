@@ -94,12 +94,12 @@ export default function JobBrowse() {
                     <span className="text-sm text-green-400">
                       {t.jobBrowse.applied}
                     </span>
-                    {application.interview_eligible && (
+                    {application.assessment_eligible && (
                       <Link
-                        to={`/candidate/interviews/${application.id}`}
+                        to={`/candidate/assessments/${application.id}`}
                         className="text-sm text-blue-400"
                       >
-                        {t.interview.start}
+                        {t.assessment.start}
                       </Link>
                     )}
                   </div>
