@@ -49,6 +49,10 @@ export function post(path, body) {
   return request(path, { method: "POST", body: JSON.stringify(body) })
 }
 
+export function patch(path, body) {
+  return request(path, { method: "PATCH", body: JSON.stringify(body) })
+}
+
 export function put(path, body) {
   return request(path, { method: "PUT", body: JSON.stringify(body) })
 }

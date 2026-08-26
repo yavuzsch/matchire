@@ -78,6 +78,10 @@ export default function JobBrowse() {
                 {job.field ? ` · ${t.fields[job.field]}` : ""}
               </p>
 
+              <p className="mt-1 text-xs text-slate-500">
+                {new Date(job.created_at).toLocaleDateString("tr-TR")}
+              </p>
+
               {!isListed && (
                 <p className="mt-2 text-xs text-amber-400">
                   {t.jobBrowse.inactive}
