@@ -65,7 +65,10 @@ def create_application(
     db.add(application)
     db.commit()
     db.refresh(application)
-    return application
+
+    row = ApplicationOut.model_validate(application)
+    row.assessment_eligible = is_eligible(db, job, application)
+    return row
 
 
 @router.get("/mine", response_model=list[ApplicationOut])
