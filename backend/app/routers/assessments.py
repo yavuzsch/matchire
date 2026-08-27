@@ -14,7 +14,7 @@ from app.schemas.assessment import (
     QuestionOut,
     QuestionSelect,
 )
-from app.services.assessment_service import is_eligible
+from app.services.assessment_service import is_eligible, update_assessment_score
 from app.services.evaluation_service import evaluate_answer
 from app.services.llm_client import LLMUnavailableError
 from app.services.question_service import generate_questions
@@ -365,39 +365,3 @@ def get_assessment_result(
         answered_count=answered_count,
         completed=total_questions > 0 and answered_count >= total_questions,
     )
-
-
-def update_assessment_score(db: Session, application: Application, job: Job) -> None:
-    selected_count = (
-        db.query(AssessmentQuestion)
-        .filter(
-            AssessmentQuestion.job_id == job.id,
-            AssessmentQuestion.is_selected.is_(True),
-        )
-        .count()
-    )
-
-    if selected_count == 0:
-        return
-
-    answers = (
-        db.query(AssessmentAnswer)
-        .filter(AssessmentAnswer.application_id == application.id)
-        .all()
-    )
-
-    total = sum(answer.score for answer in answers)
-    application.assessment_score = round(total / selected_count, 2)
-
-    completed = len(answers) >= selected_count
-
-    if completed:
-        weight = job.assessment_weight / 100
-        application.total_score = round(
-            application.compatibility_score * (1 - weight)
-            + application.assessment_score * weight,
-            2,
-        )
-        application.status = ApplicationStatus.COMPLETED
-    else:
-        application.total_score = application.compatibility_score
