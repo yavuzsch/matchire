@@ -59,6 +59,34 @@ class TestGenerateText:
 
         assert mock_call.call_count == MAX_ATTEMPTS
 
+    def test_retries_on_rate_limit(self):
+        rate_limit = genai_errors.ClientError(
+            429, {"error": {"message": "quota exceeded"}}
+        )
+
+        with patch(
+            "app.services.llm_client.client.models.generate_content",
+            side_effect=[rate_limit, make_response("answer")],
+        ) as mock_call:
+            with patch("app.services.llm_client.time.sleep"):
+                assert generate_text("prompt") == "answer"
+
+        assert mock_call.call_count == 2
+
+    def test_does_not_retry_on_not_found(self):
+        not_found = genai_errors.ClientError(
+            404, {"error": {"message": "model not found"}}
+        )
+
+        with patch(
+            "app.services.llm_client.client.models.generate_content",
+            side_effect=not_found,
+        ) as mock_call:
+            with pytest.raises(genai_errors.ClientError):
+                generate_text("prompt")
+
+        assert mock_call.call_count == 1
+
 
 class TestGenerateJson:
     def test_parses_plain_json(self):

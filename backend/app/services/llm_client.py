@@ -28,11 +28,15 @@ def generate_text(prompt: str) -> str:
             return (response.text or "").strip()
         except genai_errors.ServerError as error:
             last_error = error
-            if attempt < MAX_ATTEMPTS - 1:
-                time.sleep(RETRY_DELAY_SECONDS * (attempt + 1))
+        except genai_errors.ClientError as error:
+            if error.code != 429:
+                raise
+            last_error = error
+
+        if attempt < MAX_ATTEMPTS - 1:
+            time.sleep(RETRY_DELAY_SECONDS * (attempt + 1))
 
     raise LLMUnavailableError(str(last_error))
-
 
 def generate_json(prompt: str) -> dict | list:
     text = generate_text(prompt)

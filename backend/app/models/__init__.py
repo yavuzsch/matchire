@@ -3,7 +3,7 @@ from app.models.job import Job
 from app.models.resume import Resume
 from app.models.application import Application, ApplicationStatus
 from app.models.assessment import AssessmentQuestion, AssessmentAnswer
-from app.models.skill import Skill, SkillAlias, UnknownSkill
+from app.models.skill import Skill, SkillAlias, SkillGroup, SkillGroupLabel, UnknownSkill
 
 __all__ = [
     "User",
@@ -16,5 +16,7 @@ __all__ = [
     "AssessmentAnswer",
     "Skill",
     "SkillAlias",
+    "SkillGroup",
+    "SkillGroupLabel",
     "UnknownSkill",
 ]
