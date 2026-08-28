@@ -1,7 +1,24 @@
 from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from app.schemas.common import EducationLevel, TechField, Language
+from app.models.job_skill import SkillRequirement
+from app.schemas.common import EducationLevel, Language, TechField
+
+
+class JobSkillIn(BaseModel):
+    skill_id: int
+    requirement: SkillRequirement
+    weight: int = Field(default=1, ge=1, le=3)
+
+
+class JobSkillOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    skill_id: int
+    name: str
+    requirement: SkillRequirement
+    weight: int
 
 
 class JobCreate(BaseModel):
@@ -10,10 +27,7 @@ class JobCreate(BaseModel):
     location: str | None = None
     description: str | None = None
 
-    required_skills: list[str] = Field(default_factory=list)
-    mandatory_skills: list[str] = Field(default_factory=list)
-    optional_skills: list[str] = Field(default_factory=list)
-    skill_weights: dict[str, int] = Field(default_factory=dict)
+    skills: list[JobSkillIn] = Field(default_factory=list)
 
     experience_years: int = 0
     education_level: EducationLevel | None = None
@@ -23,10 +37,10 @@ class JobCreate(BaseModel):
     assessment_weight: int = Field(default=50, ge=20, le=80)
 
     @model_validator(mode="after")
-    def check_skill_overlap(self):
-        overlap = set(self.optional_skills) & set(self.required_skills)
-        if overlap:
-            raise ValueError("optional skills cannot overlap with required skills")
+    def check_duplicate_skills(self):
+        ids = [item.skill_id for item in self.skills]
+        if len(ids) != len(set(ids)):
+            raise ValueError("duplicate skill")
         return self
 
 
@@ -54,10 +68,7 @@ class JobFull(BaseModel):
     company_name: str
     location: str | None
     description: str | None
-    required_skills: list[str]
-    mandatory_skills: list[str]
-    optional_skills: list[str]
-    skill_weights: dict[str, int]
+    skills: list[JobSkillOut]
     experience_years: int
     education_level: EducationLevel | None
     field: TechField | None

@@ -1,15 +1,19 @@
 from tests.conftest import auth
 
 
-def create_job(client, token) -> dict:
+def create_job(client, token, skills) -> dict:
     response = client.post(
         "/api/jobs",
         json={
             "title": "Backend Developer",
             "company_name": "Test AS",
-            "required_skills": ["Python"],
-            "mandatory_skills": ["Python"],
-            "skill_weights": {"Python": 3},
+            "skills": [
+                {
+                    "skill_id": skills["Python"],
+                    "requirement": "mandatory",
+                    "weight": 3,
+                }
+            ],
             "experience_years": 2,
             "education_level": "bachelor",
             "field": "software_development",
@@ -37,10 +41,10 @@ class TestEmployerOnlyEndpoints:
 
 
 class TestCandidateOnlyEndpoints:
-    def test_employer_cannot_create_resume(self, client, employer_token):
+    def test_employer_cannot_create_resume(self, client, employer_token, skills):
         response = client.post(
             "/api/resumes",
-            json={"skills": ["Python"], "experience_years": 2},
+            json={"skill_ids": [skills["Python"]], "experience_years": 2},
             headers=auth(employer_token),
         )
 
@@ -57,9 +61,51 @@ class TestCandidateOnlyEndpoints:
         assert response.status_code == 403
 
 
+class TestSkillValidation:
+    def test_rejects_unknown_skill_id(self, client, employer_token):
+        response = client.post(
+            "/api/jobs",
+            json={
+                "title": "Backend Developer",
+                "company_name": "Test AS",
+                "skills": [
+                    {"skill_id": 9999, "requirement": "required", "weight": 1}
+                ],
+            },
+            headers=auth(employer_token),
+        )
+
+        assert response.status_code == 400
+        assert response.json()["detail"]["code"] == "SKILL_NOT_FOUND"
+
+    def test_rejects_duplicate_skill(self, client, employer_token, skills):
+        response = client.post(
+            "/api/jobs",
+            json={
+                "title": "Backend Developer",
+                "company_name": "Test AS",
+                "skills": [
+                    {
+                        "skill_id": skills["Python"],
+                        "requirement": "required",
+                        "weight": 1,
+                    },
+                    {
+                        "skill_id": skills["Python"],
+                        "requirement": "optional",
+                        "weight": 1,
+                    },
+                ],
+            },
+            headers=auth(employer_token),
+        )
+
+        assert response.status_code == 422
+
+
 class TestJobOwnership:
-    def test_employer_cannot_modify_other_job(self, client, employer_token):
-        job = create_job(client, employer_token)
+    def test_employer_cannot_modify_other_job(self, client, employer_token, skills):
+        job = create_job(client, employer_token, skills)
 
         other = client.post(
             "/api/auth/register",
@@ -80,8 +126,8 @@ class TestJobOwnership:
         assert response.status_code == 403
         assert response.json()["detail"]["code"] == "JOB_ACCESS_DENIED"
 
-    def test_employer_cannot_view_other_candidates(self, client, employer_token):
-        job = create_job(client, employer_token)
+    def test_employer_cannot_view_other_candidates(self, client, employer_token, skills):
+        job = create_job(client, employer_token, skills)
 
         other = client.post(
             "/api/auth/register",
@@ -101,13 +147,14 @@ class TestJobOwnership:
 
 
 class TestPublicFiltering:
-    def test_candidate_does_not_see_skill_requirements(self, client, employer_token, candidate_token):
-        create_job(client, employer_token)
+    def test_candidate_does_not_see_skill_requirements(
+        self, client, employer_token, candidate_token, skills
+    ):
+        create_job(client, employer_token, skills)
 
         jobs = client.get("/api/jobs", headers=auth(candidate_token)).json()
 
         assert len(jobs) == 1
-        assert "required_skills" not in jobs[0]
-        assert "mandatory_skills" not in jobs[0]
-        assert "skill_weights" not in jobs[0]
+        assert "skills" not in jobs[0]
         assert "assessment_slots" not in jobs[0]
+        assert "assessment_weight" not in jobs[0]

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, ARRAY, JSON
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, JSON
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -11,7 +11,7 @@ class Resume(Base):
     candidate_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
 
     phone = Column(String)
-    skills = Column(ARRAY(String))
+    skills = relationship("ResumeSkill", back_populates="resume", cascade="all, delete-orphan")
     experience_years = Column(Integer, default=0)
 
     education_level = Column(String)

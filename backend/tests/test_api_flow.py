@@ -3,14 +3,15 @@ from unittest.mock import patch
 from tests.conftest import auth
 
 
-def create_job(client, token, **overrides) -> dict:
+def create_job(client, token, skills, **overrides) -> dict:
     payload = {
         "title": "Backend Developer",
         "company_name": "Test AS",
-        "required_skills": ["Python", "FastAPI"],
-        "mandatory_skills": ["Python"],
-        "optional_skills": ["Docker"],
-        "skill_weights": {"Python": 3, "FastAPI": 2},
+        "skills": [
+            {"skill_id": skills["Python"], "requirement": "mandatory", "weight": 3},
+            {"skill_id": skills["FastAPI"], "requirement": "required", "weight": 2},
+            {"skill_id": skills["Docker"], "requirement": "optional", "weight": 1},
+        ],
         "experience_years": 2,
         "education_level": "bachelor",
         "field": "software_development",
@@ -21,9 +22,9 @@ def create_job(client, token, **overrides) -> dict:
     return client.post("/api/jobs", json=payload, headers=auth(token)).json()
 
 
-def create_resume(client, token, **overrides) -> dict:
+def create_resume(client, token, skills, **overrides) -> dict:
     payload = {
-        "skills": ["Python", "FastAPI", "Docker"],
+        "skill_ids": [skills["Python"], skills["FastAPI"], skills["Docker"]],
         "experience_years": 2,
         "education_level": "bachelor",
         "field": "software_development",
@@ -33,9 +34,9 @@ def create_resume(client, token, **overrides) -> dict:
 
 
 class TestApplicationFlow:
-    def test_full_flow(self, client, employer_token, candidate_token):
-        job = create_job(client, employer_token)
-        create_resume(client, candidate_token)
+    def test_full_flow(self, client, employer_token, candidate_token, skills):
+        job = create_job(client, employer_token, skills)
+        create_resume(client, candidate_token, skills)
 
         response = client.post(
             "/api/applications",
@@ -49,8 +50,8 @@ class TestApplicationFlow:
         assert application["assessment_eligible"] is True
         assert "compatibility_score" not in application
 
-    def test_rejects_without_resume(self, client, employer_token, candidate_token):
-        job = create_job(client, employer_token)
+    def test_rejects_without_resume(self, client, employer_token, candidate_token, skills):
+        job = create_job(client, employer_token, skills)
 
         response = client.post(
             "/api/applications",
@@ -61,9 +62,11 @@ class TestApplicationFlow:
         assert response.status_code == 400
         assert response.json()["detail"]["code"] == "RESUME_REQUIRED"
 
-    def test_rejects_missing_mandatory_skills(self, client, employer_token, candidate_token):
-        job = create_job(client, employer_token)
-        create_resume(client, candidate_token, skills=["Java"])
+    def test_rejects_missing_mandatory_skills(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job = create_job(client, employer_token, skills)
+        create_resume(client, candidate_token, skills, skill_ids=[skills["Java"]])
 
         response = client.post(
             "/api/applications",
@@ -76,9 +79,11 @@ class TestApplicationFlow:
         assert detail["code"] == "MISSING_MANDATORY_SKILLS"
         assert "skills" not in detail
 
-    def test_rejects_duplicate_application(self, client, employer_token, candidate_token):
-        job = create_job(client, employer_token)
-        create_resume(client, candidate_token)
+    def test_rejects_duplicate_application(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job = create_job(client, employer_token, skills)
+        create_resume(client, candidate_token, skills)
         client.post(
             "/api/applications",
             json={"job_id": job["id"]},
@@ -96,9 +101,9 @@ class TestApplicationFlow:
 
 
 class TestAssessmentFlow:
-    def _prepare(self, client, employer_token, candidate_token):
-        job = create_job(client, employer_token)
-        create_resume(client, candidate_token)
+    def _prepare(self, client, employer_token, candidate_token, skills):
+        job = create_job(client, employer_token, skills)
+        create_resume(client, candidate_token, skills)
         application = client.post(
             "/api/applications",
             json={"job_id": job["id"]},
@@ -106,8 +111,10 @@ class TestAssessmentFlow:
         ).json()
         return job, application
 
-    def test_full_assessment_flow(self, client, employer_token, candidate_token):
-        job, application = self._prepare(client, employer_token, candidate_token)
+    def test_full_assessment_flow(self, client, employer_token, candidate_token, skills):
+        job, application = self._prepare(
+            client, employer_token, candidate_token, skills
+        )
 
         with patch(
             "app.services.question_service.generate_json",
@@ -157,9 +164,11 @@ class TestAssessmentFlow:
         assert candidates[0]["status"] == "completed"
 
     def test_blocks_assessment_when_no_questions_selected(
-        self, client, employer_token, candidate_token
+        self, client, employer_token, candidate_token, skills
     ):
-        job, application = self._prepare(client, employer_token, candidate_token)
+        job, application = self._prepare(
+            client, employer_token, candidate_token, skills
+        )
 
         response = client.get(
             f"/api/assessments/applications/{application['id']}/questions",
@@ -170,9 +179,11 @@ class TestAssessmentFlow:
         assert response.json()["detail"]["code"] == "NO_QUESTIONS_SELECTED"
 
     def test_locks_questions_after_first_answer(
-        self, client, employer_token, candidate_token
+        self, client, employer_token, candidate_token, skills
     ):
-        job, application = self._prepare(client, employer_token, candidate_token)
+        job, application = self._prepare(
+            client, employer_token, candidate_token, skills
+        )
 
         with patch(
             "app.services.question_service.generate_json",
@@ -211,8 +222,10 @@ class TestAssessmentFlow:
 
 
 class TestJobLifecycle:
-    def test_archived_job_hidden_from_candidates(self, client, employer_token, candidate_token):
-        job = create_job(client, employer_token)
+    def test_archived_job_hidden_from_candidates(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job = create_job(client, employer_token, skills)
 
         client.patch(
             f"/api/jobs/{job['id']}/status",
@@ -222,9 +235,11 @@ class TestJobLifecycle:
 
         assert client.get("/api/jobs", headers=auth(candidate_token)).json() == []
 
-    def test_closed_job_blocks_assessment(self, client, employer_token, candidate_token):
-        job = create_job(client, employer_token)
-        create_resume(client, candidate_token)
+    def test_closed_job_blocks_assessment(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job = create_job(client, employer_token, skills)
+        create_resume(client, candidate_token, skills)
         application = client.post(
             "/api/applications",
             json={"job_id": job["id"]},
@@ -245,9 +260,11 @@ class TestJobLifecycle:
         assert response.status_code == 403
         assert response.json()["detail"]["code"] == "ASSESSMENT_NOT_ELIGIBLE"
 
-    def test_cannot_delete_job_with_applications(self, client, employer_token, candidate_token):
-        job = create_job(client, employer_token)
-        create_resume(client, candidate_token)
+    def test_cannot_delete_job_with_applications(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job = create_job(client, employer_token, skills)
+        create_resume(client, candidate_token, skills)
         client.post(
             "/api/applications",
             json={"job_id": job["id"]},
@@ -259,8 +276,8 @@ class TestJobLifecycle:
         assert response.status_code == 400
         assert response.json()["detail"]["code"] == "JOB_HAS_ACTIVITY"
 
-    def test_can_delete_empty_job(self, client, employer_token):
-        job = create_job(client, employer_token)
+    def test_can_delete_empty_job(self, client, employer_token, skills):
+        job = create_job(client, employer_token, skills)
 
         response = client.delete(f"/api/jobs/{job['id']}", headers=auth(employer_token))
 

@@ -6,6 +6,7 @@ from sqlalchemy.orm import sessionmaker
 from app.core.config import settings
 from app.core.database import Base, get_db
 from app.main import app
+from app.models import Skill, SkillGroup
 
 TEST_SCHEMA = "test"
 
@@ -70,3 +71,21 @@ def candidate_token(client):
         },
     )
     return response.json()["access_token"]
+
+
+@pytest.fixture
+def skills(db):
+    group = SkillGroup(key="backend", position=0)
+    db.add(group)
+    db.flush()
+
+    created = {}
+
+    for name in ["Python", "FastAPI", "Docker", "Java"]:
+        skill = Skill(name=name, group_id=group.id, source="llm")
+        db.add(skill)
+        db.flush()
+        created[name] = skill.id
+
+    db.commit()
+    return created

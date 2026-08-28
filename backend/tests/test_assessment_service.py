@@ -1,6 +1,14 @@
 import pytest
 
-from app.models import Application, ApplicationStatus, AssessmentAnswer, AssessmentQuestion, Job, User, UserRole
+from app.models import (
+    Application,
+    ApplicationStatus,
+    AssessmentAnswer,
+    AssessmentQuestion,
+    Job,
+    User,
+    UserRole,
+)
 from app.services.assessment_service import (
     get_eligible_application_ids,
     is_eligible,
@@ -26,13 +34,10 @@ def make_job(db, employer, **kwargs) -> Job:
         "employer_id": employer.id,
         "title": "Backend Developer",
         "company_name": "Test AS",
-        "required_skills": [],
-        "mandatory_skills": [],
-        "optional_skills": [],
-        "skill_weights": {},
         "assessment_slots": 2,
     }
     defaults.update(kwargs)
+
     job = Job(**defaults)
     db.add(job)
     db.commit()
