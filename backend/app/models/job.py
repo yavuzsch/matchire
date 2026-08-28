@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, ForeignKey, ARRAY, JSON, Boolean, DateTime, func
+from sqlalchemy import Column, Integer, String, Text, ForeignKey, Boolean, DateTime, func
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -15,10 +15,7 @@ class Job(Base):
     location = Column(String)
     description = Column(Text)
 
-    required_skills = Column(ARRAY(String))
-    mandatory_skills = Column(ARRAY(String))
-    optional_skills = Column(ARRAY(String))
-    skill_weights = Column(JSON)
+    skills = relationship("JobSkill", back_populates="job", cascade="all, delete-orphan")
 
     experience_years = Column(Integer, default=0)
     education_level = Column(String)

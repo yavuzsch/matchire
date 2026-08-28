@@ -1,4 +1,15 @@
-from app.models import Job, Resume
+import pytest
+
+from app.models import (
+    Job,
+    JobSkill,
+    Resume,
+    Skill,
+    SkillGroup,
+    SkillRequirement,
+    User,
+    UserRole,
+)
 from app.services.matching_service import (
     BASE_SCALE,
     calculate_compatibility,
@@ -10,168 +21,345 @@ from app.services.matching_service import (
 )
 
 
-def make_job(**kwargs) -> Job:
+@pytest.fixture
+def group(db):
+    item = SkillGroup(key="frontend", position=0)
+    db.add(item)
+    db.commit()
+    return item
+
+
+@pytest.fixture
+def skills(db, group):
+    names = ["Python", "FastAPI", "PostgreSQL", "Docker", "AWS", "Redis"]
+    created = {}
+
+    for name in names:
+        skill = Skill(name=name, group_id=group.id, source="llm")
+        db.add(skill)
+        db.flush()
+        created[name] = skill
+
+    db.commit()
+    return created
+
+
+@pytest.fixture
+def employer(db):
+    user = User(
+        email="employer@test.com",
+        hashed_password="x",
+        full_name="Employer",
+        role=UserRole.EMPLOYER,
+    )
+    db.add(user)
+    db.commit()
+    return user
+
+
+@pytest.fixture
+def candidate(db):
+    user = User(
+        email="candidate@test.com",
+        hashed_password="x",
+        full_name="Candidate",
+        role=UserRole.CANDIDATE,
+    )
+    db.add(user)
+    db.commit()
+    return user
+
+
+def make_job(db, employer, skills=None, **kwargs):
     defaults = {
-        "required_skills": [],
-        "mandatory_skills": [],
-        "optional_skills": [],
-        "skill_weights": {},
+        "employer_id": employer.id,
+        "title": "Backend Developer",
+        "company_name": "Test AS",
         "experience_years": 0,
         "education_level": None,
         "field": None,
     }
     defaults.update(kwargs)
-    return Job(**defaults)
+
+    job = Job(**defaults)
+    db.add(job)
+    db.flush()
+
+    for skill, requirement, weight in skills or []:
+        db.add(
+            JobSkill(
+                job_id=job.id,
+                skill_id=skill.id,
+                requirement=requirement,
+                weight=weight,
+            )
+        )
+
+    db.commit()
+    db.refresh(job)
+    return job
 
 
-def make_resume(**kwargs) -> Resume:
+def make_resume(db, candidate, skills=None, **kwargs):
+    from app.models import ResumeSkill
+
     defaults = {
-        "skills": [],
+        "candidate_id": candidate.id,
         "experience_years": 0,
         "education_level": None,
         "field": None,
     }
     defaults.update(kwargs)
-    return Resume(**defaults)
+
+    resume = Resume(**defaults)
+    db.add(resume)
+    db.flush()
+
+    for skill in skills or []:
+        db.add(ResumeSkill(resume_id=resume.id, skill_id=skill.id))
+
+    db.commit()
+    db.refresh(resume)
+    return resume
 
 
 class TestScoreSkills:
-    def test_returns_100_when_job_requires_nothing(self):
-        job = make_job()
-        resume = make_resume(skills=["Python"])
+    def test_returns_100_when_job_requires_nothing(self, db, employer, candidate, skills):
+        job = make_job(db, employer)
+        resume = make_resume(db, candidate, [skills["Python"]])
+
         assert score_skills(job, resume) == 100.0
 
-    def test_weighted_intersection(self):
+    def test_weighted_intersection(self, db, employer, candidate, skills):
         job = make_job(
-            required_skills=["Python", "FastAPI", "PostgreSQL", "Docker"],
-            skill_weights={"Python": 3, "FastAPI": 3, "PostgreSQL": 2, "Docker": 1},
+            db,
+            employer,
+            [
+                (skills["Python"], SkillRequirement.REQUIRED, 3),
+                (skills["FastAPI"], SkillRequirement.REQUIRED, 3),
+                (skills["PostgreSQL"], SkillRequirement.REQUIRED, 2),
+                (skills["Docker"], SkillRequirement.REQUIRED, 1),
+            ],
         )
-        resume = make_resume(skills=["Python", "FastAPI", "PostgreSQL"])
+        resume = make_resume(
+            db,
+            candidate,
+            [skills["Python"], skills["FastAPI"], skills["PostgreSQL"]],
+        )
+
         assert round(score_skills(job, resume), 2) == 88.89
 
-    def test_falls_back_to_equal_weights(self):
-        job = make_job(required_skills=["Python", "Java"])
-        resume = make_resume(skills=["Python"])
+    def test_mandatory_counts_toward_score(self, db, employer, candidate, skills):
+        job = make_job(
+            db,
+            employer,
+            [
+                (skills["Python"], SkillRequirement.MANDATORY, 1),
+                (skills["FastAPI"], SkillRequirement.REQUIRED, 1),
+            ],
+        )
+        resume = make_resume(db, candidate, [skills["Python"]])
+
         assert score_skills(job, resume) == 50.0
 
-    def test_is_case_insensitive(self):
-        job = make_job(required_skills=["Python"], skill_weights={"Python": 1})
-        resume = make_resume(skills=["  python  "])
+    def test_optional_excluded_from_score(self, db, employer, candidate, skills):
+        job = make_job(
+            db,
+            employer,
+            [
+                (skills["Python"], SkillRequirement.REQUIRED, 1),
+                (skills["Docker"], SkillRequirement.OPTIONAL, 1),
+            ],
+        )
+        resume = make_resume(db, candidate, [skills["Python"]])
+
         assert score_skills(job, resume) == 100.0
 
 
 class TestScoreExperience:
-    def test_returns_100_when_no_requirement(self):
-        assert score_experience(make_job(), make_resume()) == 100.0
+    def test_returns_100_when_no_requirement(self, db, employer, candidate):
+        job = make_job(db, employer)
+        resume = make_resume(db, candidate)
 
-    def test_partial_experience(self):
-        job = make_job(experience_years=4)
-        resume = make_resume(experience_years=1)
+        assert score_experience(job, resume) == 100.0
+
+    def test_partial_experience(self, db, employer, candidate):
+        job = make_job(db, employer, experience_years=4)
+        resume = make_resume(db, candidate, experience_years=1)
+
         assert score_experience(job, resume) == 25.0
 
-    def test_caps_at_100(self):
-        job = make_job(experience_years=2)
-        resume = make_resume(experience_years=10)
+    def test_caps_at_100(self, db, employer, candidate):
+        job = make_job(db, employer, experience_years=2)
+        resume = make_resume(db, candidate, experience_years=10)
+
         assert score_experience(job, resume) == 100.0
 
 
 class TestScoreEducation:
-    def test_returns_100_when_no_requirement(self):
-        assert score_education(make_job(), make_resume()) == 100.0
+    def test_returns_100_when_no_requirement(self, db, employer, candidate):
+        job = make_job(db, employer)
+        resume = make_resume(db, candidate)
 
-    def test_returns_0_when_candidate_has_none(self):
-        job = make_job(education_level="bachelor")
-        assert score_education(job, make_resume()) == 0.0
-
-    def test_exact_match(self):
-        job = make_job(education_level="bachelor")
-        resume = make_resume(education_level="bachelor")
         assert score_education(job, resume) == 100.0
 
-    def test_higher_level_still_full_score(self):
-        job = make_job(education_level="bachelor")
-        resume = make_resume(education_level="doctorate")
+    def test_returns_0_when_candidate_has_none(self, db, employer, candidate):
+        job = make_job(db, employer, education_level="bachelor")
+        resume = make_resume(db, candidate)
+
+        assert score_education(job, resume) == 0.0
+
+    def test_exact_match(self, db, employer, candidate):
+        job = make_job(db, employer, education_level="bachelor")
+        resume = make_resume(db, candidate, education_level="bachelor")
+
         assert score_education(job, resume) == 100.0
 
-    def test_lower_level_partial(self):
-        job = make_job(education_level="doctorate")
-        resume = make_resume(education_level="bachelor")
+    def test_higher_level_still_full_score(self, db, employer, candidate):
+        job = make_job(db, employer, education_level="bachelor")
+        resume = make_resume(db, candidate, education_level="doctorate")
+
+        assert score_education(job, resume) == 100.0
+
+    def test_lower_level_partial(self, db, employer, candidate):
+        job = make_job(db, employer, education_level="doctorate")
+        resume = make_resume(db, candidate, education_level="bachelor")
+
         assert score_education(job, resume) == 60.0
 
-    def test_field_mismatch_penalty(self):
-        job = make_job(education_level="bachelor", field="software_development")
-        resume = make_resume(education_level="bachelor", field="data_science")
+    def test_field_mismatch_penalty(self, db, employer, candidate):
+        job = make_job(
+            db, employer, education_level="bachelor", field="software_development"
+        )
+        resume = make_resume(
+            db, candidate, education_level="bachelor", field="data_science"
+        )
+
         assert score_education(job, resume) == 70.0
 
 
 class TestScoreOptional:
-    def test_returns_0_when_no_optional_skills(self):
-        assert score_optional(make_job(), make_resume()) == 0.0
+    def test_returns_0_when_no_optional_skills(self, db, employer, candidate, skills):
+        job = make_job(db, employer, [(skills["Python"], SkillRequirement.REQUIRED, 1)])
+        resume = make_resume(db, candidate, [skills["Python"]])
 
-    def test_two_points_per_match(self):
-        job = make_job(optional_skills=["Docker", "AWS"])
-        resume = make_resume(skills=["Docker", "AWS"])
+        assert score_optional(job, resume) == 0.0
+
+    def test_two_points_per_match(self, db, employer, candidate, skills):
+        job = make_job(
+            db,
+            employer,
+            [
+                (skills["Docker"], SkillRequirement.OPTIONAL, 1),
+                (skills["AWS"], SkillRequirement.OPTIONAL, 1),
+            ],
+        )
+        resume = make_resume(db, candidate, [skills["Docker"], skills["AWS"]])
+
         assert score_optional(job, resume) == 4.0
 
-    def test_caps_at_10(self):
-        job = make_job(optional_skills=["A", "B", "C", "D", "E", "F", "G"])
-        resume = make_resume(skills=["A", "B", "C", "D", "E", "F", "G"])
-        assert score_optional(job, resume) == 10.0
+    def test_counts_only_matched(self, db, employer, candidate, skills):
+        job = make_job(
+            db,
+            employer,
+            [
+                (skills["Docker"], SkillRequirement.OPTIONAL, 1),
+                (skills["AWS"], SkillRequirement.OPTIONAL, 1),
+            ],
+        )
+        resume = make_resume(db, candidate, [skills["Docker"]])
+
+        assert score_optional(job, resume) == 2.0
 
 
 class TestMandatorySkills:
-    def test_no_missing_when_candidate_has_all(self):
-        job = make_job(mandatory_skills=["Python"])
-        resume = make_resume(skills=["Python"])
+    def test_no_missing_when_candidate_has_all(self, db, employer, candidate, skills):
+        job = make_job(db, employer, [(skills["Python"], SkillRequirement.MANDATORY, 1)])
+        resume = make_resume(db, candidate, [skills["Python"]])
+
         assert find_missing_mandatory_skills(job, resume) == []
 
-    def test_reports_missing(self):
-        job = make_job(mandatory_skills=["Python", "Java"])
-        resume = make_resume(skills=["Python"])
-        assert find_missing_mandatory_skills(job, resume) == ["Java"]
+    def test_reports_missing(self, db, employer, candidate, skills):
+        job = make_job(
+            db,
+            employer,
+            [
+                (skills["Python"], SkillRequirement.MANDATORY, 1),
+                (skills["Redis"], SkillRequirement.MANDATORY, 1),
+            ],
+        )
+        resume = make_resume(db, candidate, [skills["Python"]])
+
+        assert find_missing_mandatory_skills(job, resume) == ["Redis"]
+
+    def test_ignores_non_mandatory(self, db, employer, candidate, skills):
+        job = make_job(db, employer, [(skills["Redis"], SkillRequirement.REQUIRED, 1)])
+        resume = make_resume(db, candidate)
+
+        assert find_missing_mandatory_skills(job, resume) == []
 
 
 class TestCalculateCompatibility:
-    def test_perfect_candidate_without_bonus(self):
+    def test_perfect_candidate_without_bonus(self, db, employer, candidate, skills):
         job = make_job(
-            required_skills=["Python"],
-            skill_weights={"Python": 1},
+            db,
+            employer,
+            [(skills["Python"], SkillRequirement.REQUIRED, 1)],
             experience_years=2,
             education_level="bachelor",
         )
         resume = make_resume(
-            skills=["Python"],
+            db,
+            candidate,
+            [skills["Python"]],
             experience_years=2,
             education_level="bachelor",
         )
+
         assert calculate_compatibility(job, resume) == round(100 * BASE_SCALE, 2)
 
-    def test_bonus_lifts_score(self):
+    def test_bonus_lifts_score(self, db, employer, candidate, skills):
         job = make_job(
-            required_skills=["Python"],
-            skill_weights={"Python": 1},
-            optional_skills=["Docker"],
+            db,
+            employer,
+            [
+                (skills["Python"], SkillRequirement.REQUIRED, 1),
+                (skills["Docker"], SkillRequirement.OPTIONAL, 1),
+            ],
             experience_years=2,
             education_level="bachelor",
         )
         resume = make_resume(
-            skills=["Python", "Docker"],
+            db,
+            candidate,
+            [skills["Python"], skills["Docker"]],
             experience_years=2,
             education_level="bachelor",
         )
+
         assert calculate_compatibility(job, resume) == round(100 * BASE_SCALE + 2, 2)
 
-    def test_never_exceeds_100(self):
+    def test_never_exceeds_100(self, db, employer, candidate, skills):
         job = make_job(
-            required_skills=["Python"],
-            skill_weights={"Python": 1},
-            optional_skills=["A", "B", "C", "D", "E"],
+            db,
+            employer,
+            [
+                (skills["Python"], SkillRequirement.REQUIRED, 1),
+                (skills["Docker"], SkillRequirement.OPTIONAL, 1),
+                (skills["AWS"], SkillRequirement.OPTIONAL, 1),
+                (skills["Redis"], SkillRequirement.OPTIONAL, 1),
+                (skills["FastAPI"], SkillRequirement.OPTIONAL, 1),
+                (skills["PostgreSQL"], SkillRequirement.OPTIONAL, 1),
+            ],
             experience_years=1,
             education_level="bachelor",
         )
         resume = make_resume(
-            skills=["Python", "A", "B", "C", "D", "E"],
+            db,
+            candidate,
+            list(skills.values()),
             experience_years=5,
             education_level="doctorate",
         )
+
         assert calculate_compatibility(job, resume) <= 100.0

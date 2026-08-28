@@ -1,4 +1,4 @@
-from app.models import Job
+from app.models import Job, SkillRequirement
 from app.prompts import get_prompts
 from app.services.llm_client import generate_json
 
@@ -7,12 +7,17 @@ QUESTION_COUNT = 8
 
 def build_prompt(job: Job) -> str:
     prompts = get_prompts(job.language)
-    skills = ", ".join(job.required_skills or [])
+
+    names = [
+        item.skill.name
+        for item in job.skills
+        if item.requirement != SkillRequirement.OPTIONAL
+    ]
 
     return prompts.QUESTION_TEMPLATE.format(
         count=QUESTION_COUNT,
         title=job.title,
-        skills=skills or "-",
+        skills=", ".join(names) or "-",
         experience_years=job.experience_years or 0,
     )
 

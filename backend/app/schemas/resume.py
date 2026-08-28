@@ -5,7 +5,7 @@ from app.schemas.common import EducationLevel, TechField
 
 class ResumeCreate(BaseModel):
     phone: str | None = None
-    skills: list[str] = Field(default_factory=list)
+    skill_ids: list[int] = Field(default_factory=list)
     experience_years: int = 0
 
     education_level: EducationLevel | None = None
@@ -17,13 +17,20 @@ class ResumeCreate(BaseModel):
     languages: dict[str, str] = Field(default_factory=dict)
 
 
+class ResumeSkillOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    skill_id: int
+    name: str
+
+
 class ResumeOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
     candidate_id: int
     phone: str | None
-    skills: list[str]
+    skills: list[ResumeSkillOut]
     experience_years: int
     education_level: EducationLevel | None
     university: str | None
