@@ -7,16 +7,18 @@ import { t, EDUCATION_LEVELS, FIELDS } from "../../i18n"
 const inputClass =
   "w-full rounded bg-slate-700 px-3 py-2 text-white placeholder-slate-400"
 
+const REQUIREMENTS = ["mandatory", "required", "optional"]
+const WEIGHTS = [1, 2, 3]
+
 export default function JobCreate() {
   const [title, setTitle] = useState("")
   const [companyName, setCompanyName] = useState("")
   const [location, setLocation] = useState("")
   const [description, setDescription] = useState("")
 
-  const [requiredSkills, setRequiredSkills] = useState([])
-  const [mandatorySkills, setMandatorySkills] = useState([])
-  const [skillWeights, setSkillWeights] = useState({})
-  const [optionalSkills, setOptionalSkills] = useState([])
+  const [skillIds, setSkillIds] = useState([])
+  const [skillNames, setSkillNames] = useState({})
+  const [settings, setSettings] = useState({})
 
   const [experienceYears, setExperienceYears] = useState(0)
   const [assessmentSlots, setAssessmentSlots] = useState(5)
@@ -28,33 +30,22 @@ export default function JobCreate() {
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
 
-  function handleSkillsChange(skills) {
-    setRequiredSkills(skills)
+  function handleSkillsChange(ids, names) {
+    setSkillIds(ids)
+    setSkillNames(names)
 
-    const weights = {}
-    skills.forEach((skill) => {
-      weights[skill] = skillWeights[skill] || 1
+    const next = {}
+    ids.forEach((id) => {
+      next[id] = settings[id] || { requirement: "required", weight: 2 }
     })
-    setSkillWeights(weights)
-
-    setMandatorySkills(mandatorySkills.filter((skill) => skills.includes(skill)))
-    setOptionalSkills(optionalSkills.filter((skill) => !skills.includes(skill)))
+    setSettings(next)
   }
 
-  function setWeight(skill, weight) {
-    setSkillWeights({ ...skillWeights, [skill]: Number(weight) })
-  }
-
-  function toggleMandatory(skill) {
-    if (mandatorySkills.includes(skill)) {
-      setMandatorySkills(mandatorySkills.filter((item) => item !== skill))
-    } else {
-      setMandatorySkills([...mandatorySkills, skill])
-    }
-  }
-
-  function handleOptionalChange(skills) {
-    setOptionalSkills(skills.filter((skill) => !requiredSkills.includes(skill)))
+  function updateSetting(id, key, value) {
+    setSettings({
+      ...settings,
+      [id]: { ...settings[id], [key]: value },
+    })
   }
 
   async function handleSubmit(event) {
@@ -69,10 +60,11 @@ export default function JobCreate() {
         company_name: companyName,
         location,
         description,
-        required_skills: requiredSkills,
-        mandatory_skills: mandatorySkills,
-        optional_skills: optionalSkills,
-        skill_weights: skillWeights,
+        skills: skillIds.map((id) => ({
+          skill_id: id,
+          requirement: settings[id]?.requirement || "required",
+          weight: settings[id]?.weight || 2,
+        })),
         experience_years: Number(experienceYears),
         education_level: educationLevel,
         field,
@@ -130,44 +122,53 @@ export default function JobCreate() {
         />
 
         <div>
-          <p className="mb-2 text-sm text-slate-300">{t.job.requiredSkills}</p>
-          <SkillSelect selected={requiredSkills} onChange={handleSkillsChange} />
+          <p className="mb-2 text-sm text-slate-300">{t.job.skills}</p>
+          <SkillSelect selected={skillIds} onChange={handleSkillsChange} />
         </div>
 
-        {requiredSkills.length > 0 && (
+        {skillIds.length > 0 && (
           <div className="space-y-2 rounded bg-slate-800 p-3">
-            <p className="text-sm text-slate-300">{t.job.weightAndMandatory}</p>
-            {requiredSkills.map((skill) => (
-              <div key={skill} className="flex items-center gap-3">
-                <span className="w-40 text-sm text-white">{skill}</span>
+            <p className="text-sm text-slate-300">{t.job.skillsHint}</p>
+
+            {skillIds.map((id) => (
+              <div key={id} className="flex items-center gap-3">
+                <span className="w-40 truncate text-sm text-white">
+                  {skillNames[id]}
+                </span>
 
                 <select
-                  value={skillWeights[skill] || 1}
-                  onChange={(e) => setWeight(skill, e.target.value)}
+                  value={settings[id]?.requirement || "required"}
+                  onChange={(e) =>
+                    updateSetting(id, "requirement", e.target.value)
+                  }
                   className="rounded bg-slate-700 px-2 py-1 text-sm text-white"
                 >
-                  <option value="1">{t.job.weightLow}</option>
-                  <option value="2">{t.job.weightMedium}</option>
-                  <option value="3">{t.job.weightHigh}</option>
+                  {REQUIREMENTS.map((value) => (
+                    <option key={value} value={value}>
+                      {t.skills.requirement[value]}
+                    </option>
+                  ))}
                 </select>
 
-                <label className="flex items-center gap-1 text-sm text-slate-300">
-                  <input
-                    type="checkbox"
-                    checked={mandatorySkills.includes(skill)}
-                    onChange={() => toggleMandatory(skill)}
-                  />
-                  {t.job.mandatory}
-                </label>
+                {settings[id]?.requirement !== "optional" && (
+                  <select
+                    value={settings[id]?.weight || 2}
+                    onChange={(e) =>
+                      updateSetting(id, "weight", Number(e.target.value))
+                    }
+                    className="rounded bg-slate-700 px-2 py-1 text-sm text-white"
+                  >
+                    {WEIGHTS.map((value) => (
+                      <option key={value} value={value}>
+                        {t.skills.weight[value]}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
             ))}
           </div>
         )}
-
-        <div>
-          <p className="mb-2 text-sm text-slate-300">{t.job.optionalSkills}</p>
-          <SkillSelect selected={optionalSkills} onChange={handleOptionalChange} />
-        </div>
 
         <input
           type="number"

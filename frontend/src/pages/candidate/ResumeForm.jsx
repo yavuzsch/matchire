@@ -10,7 +10,7 @@ const inputClass =
 export default function ResumeForm() {
   const [exists, setExists] = useState(false)
   const [phone, setPhone] = useState("")
-  const [skills, setSkills] = useState([])
+  const [skillIds, setSkillIds] = useState([])
   const [experienceYears, setExperienceYears] = useState(0)
   const [educationLevel, setEducationLevel] = useState("bachelor")
   const [university, setUniversity] = useState("")
@@ -27,7 +27,7 @@ export default function ResumeForm() {
       .then((data) => {
         setExists(true)
         setPhone(data.phone || "")
-        setSkills(data.skills || [])
+        setSkillIds((data.skills || []).map((item) => item.skill_id))
         setExperienceYears(data.experience_years || 0)
         setEducationLevel(data.education_level || "bachelor")
         setUniversity(data.university || "")
@@ -46,7 +46,7 @@ export default function ResumeForm() {
 
     const body = {
       phone,
-      skills,
+      skill_ids: skillIds,
       experience_years: Number(experienceYears),
       education_level: educationLevel,
       university,
@@ -89,7 +89,7 @@ export default function ResumeForm() {
 
         <div>
           <p className="mb-2 text-sm text-slate-300">{t.resume.skills}</p>
-          <SkillSelect selected={skills} onChange={setSkills} />
+          <SkillSelect selected={skillIds} onChange={setSkillIds} />
         </div>
 
         <input
