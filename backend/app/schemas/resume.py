@@ -38,3 +38,16 @@ class ResumeOut(BaseModel):
     projects: str | None
     certifications: str | None
     languages: dict[str, str]
+
+
+class ResumeParsed(BaseModel):
+    phone: str | None = None
+    skill_ids: list[int] = Field(default_factory=list)
+    skill_names: list[str] = Field(default_factory=list)
+    unmatched_skills: list[str] = Field(default_factory=list)
+    experience_years: int = 0
+    education_level: EducationLevel | None = None
+    university: str | None = None
+    field: TechField | None = None
+    projects: str | None = None
+    certifications: str | None = None

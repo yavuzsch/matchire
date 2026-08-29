@@ -1,13 +1,18 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
 from app.core import errors
 from app.core.database import get_db
 from app.core.deps import require_candidate
 from app.models import Resume, ResumeSkill, Skill, User
-from app.schemas.resume import ResumeCreate, ResumeOut, ResumeSkillOut
+from app.schemas.resume import ResumeCreate, ResumeOut, ResumeParsed, ResumeSkillOut
+from app.services.llm_client import LLMUnavailableError
+from app.services.pdf_service import PdfExtractionError, extract_text
+from app.services.resume_parser import parse_resume
 
 router = APIRouter(prefix="/resumes", tags=["resumes"])
+
+MAX_FILE_SIZE = 5 * 1024 * 1024
 
 
 def build_resume_out(resume: Resume) -> ResumeOut:
@@ -51,6 +56,46 @@ def set_resume_skills(db: Session, resume: Resume, skill_ids: list[int]) -> None
 
     for skill_id in dict.fromkeys(skill_ids):
         db.add(ResumeSkill(resume_id=resume.id, skill_id=skill_id))
+
+
+@router.post("/parse", response_model=ResumeParsed)
+async def parse_resume_file(
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_candidate),
+):
+    if file.content_type != "application/pdf":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"code": errors.INVALID_FILE_TYPE},
+        )
+
+    content = await file.read()
+
+    if len(content) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"code": errors.FILE_TOO_LARGE},
+        )
+
+    try:
+        text = extract_text(content)
+    except PdfExtractionError:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"code": errors.PDF_TEXT_NOT_FOUND},
+        )
+
+    try:
+        parsed = parse_resume(db, text, "tr")
+    except LLMUnavailableError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={"code": errors.LLM_UNAVAILABLE},
+        )
+
+    db.commit()
+    return ResumeParsed(**parsed)
 
 
 @router.post("", response_model=ResumeOut, status_code=status.HTTP_201_CREATED)
