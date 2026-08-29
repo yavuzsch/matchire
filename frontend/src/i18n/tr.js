@@ -39,6 +39,10 @@ export default {
     projects: "Projeler",
     certifications: "Sertifikalar",
     saved: "Özgeçmiş kaydedildi",
+    upload: "CV yükle (PDF)",
+    uploading: "Okunuyor...",
+    uploaded: "CV okundu. Bilgileri kontrol edip kaydedin",
+    unmatched: "Şu beceriler listede bulunamadı, elle ekleyebilirsiniz:",
   },
 
   job: {
@@ -173,6 +177,9 @@ export default {
     RESUME_NOT_FOUND: "Henüz özgeçmiş oluşturmadınız",
     RESUME_ALREADY_EXISTS: "Zaten bir özgeçmişiniz var, güncelleme yapabilirsiniz",
     RESUME_REQUIRED: "Başvuru yapmadan önce özgeçmişinizi oluşturmalısınız",
+    INVALID_FILE_TYPE: "Yalnızca PDF dosyası yükleyebilirsiniz",
+    FILE_TOO_LARGE: "Dosya çok büyük (en fazla 5 MB)",
+    PDF_TEXT_NOT_FOUND: "PDF'ten metin okunamadı. Taranmış belge yerine metin içeren bir PDF deneyin veya formu elle doldurun",
     ALREADY_APPLIED: "Bu ilana zaten başvurdunuz",
     MISSING_MANDATORY_SKILLS: "Bu ilanın zorunlu gereksinimlerini karşılamıyorsunuz",
     ASSESSMENT_NOT_ELIGIBLE: "Bu ilan için yetkinlik testi hakkınız yok",

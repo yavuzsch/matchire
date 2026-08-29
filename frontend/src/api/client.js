@@ -60,3 +60,32 @@ export function put(path, body) {
 export function del(path) {
   return request(path, { method: "DELETE" })
 }
+
+export async function upload(path, file) {
+  const token = getToken()
+  const headers = {}
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`
+  }
+
+  const form = new FormData()
+  form.append("file", file)
+
+  const response = await fetch(`${BASE_URL}${path}`, {
+    method: "POST",
+    headers,
+    body: form,
+  })
+
+  const data = await response.json().catch(() => null)
+
+  if (!response.ok) {
+    const code = data?.detail?.code || "UNKNOWN_ERROR"
+    const error = new Error(code)
+    error.code = code
+    throw error
+  }
+
+  return data
+}
