@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 
-import { get, post, put } from "../../api/client"
+import { get, post, put, upload } from "../../api/client"
 import SkillSelect from "../../components/SkillSelect"
 import { t, EDUCATION_LEVELS, FIELDS } from "../../i18n"
 
@@ -21,6 +21,8 @@ export default function ResumeForm() {
   const [message, setMessage] = useState(null)
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
+  const [parsing, setParsing] = useState(false)
+  const [unmatched, setUnmatched] = useState([])
 
   useEffect(() => {
     get("/resumes/me")
@@ -37,6 +39,39 @@ export default function ResumeForm() {
       })
       .catch(() => setExists(false))
   }, [])
+
+  async function handleUpload(event) {
+    const file = event.target.files?.[0]
+    if (!file) {
+      return
+    }
+
+    setError(null)
+    setMessage(null)
+    setUnmatched([])
+    setParsing(true)
+
+    try {
+      const data = await upload("/resumes/parse", file)
+
+      if (data.phone) setPhone(data.phone)
+      if (data.skill_ids.length) setSkillIds(data.skill_ids)
+      if (data.experience_years) setExperienceYears(data.experience_years)
+      if (data.education_level) setEducationLevel(data.education_level)
+      if (data.university) setUniversity(data.university)
+      if (data.field) setField(data.field)
+      if (data.projects) setProjects(data.projects)
+      if (data.certifications) setCertifications(data.certifications)
+
+      setUnmatched(data.unmatched_skills || [])
+      setMessage(t.resume.uploaded)
+    } catch (err) {
+      setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
+    } finally {
+      setParsing(false)
+      event.target.value = ""
+    }
+  }
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -78,6 +113,25 @@ export default function ResumeForm() {
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && <p className="text-sm text-red-400">{error}</p>}
         {message && <p className="text-sm text-green-400">{message}</p>}
+
+        <div className="rounded bg-slate-800 p-3">
+          <label className="block text-sm text-slate-300">
+            {parsing ? t.resume.uploading : t.resume.upload}
+            <input
+              type="file"
+              accept="application/pdf"
+              onChange={handleUpload}
+              disabled={parsing}
+              className="mt-2 block w-full text-sm text-slate-400 file:mr-3 file:rounded file:border-0 file:bg-blue-600 file:px-3 file:py-1 file:text-sm file:text-white"
+            />
+          </label>
+
+          {unmatched.length > 0 && (
+            <p className="mt-2 text-xs text-amber-400">
+              {t.resume.unmatched} {unmatched.join(", ")}
+            </p>
+          )}
+        </div>
 
         <input
           type="text"
