@@ -13,6 +13,7 @@ class ResumeCreate(BaseModel):
     field: TechField | None = None
 
     projects: str | None = None
+    project_summary: str | None = None
     certifications: str | None = None
     languages: dict[str, str] = Field(default_factory=dict)
 
@@ -36,6 +37,7 @@ class ResumeOut(BaseModel):
     university: str | None
     field: TechField | None
     projects: str | None
+    project_summary: str | None
     certifications: str | None
     languages: dict[str, str]
 
@@ -50,4 +52,5 @@ class ResumeParsed(BaseModel):
     university: str | None = None
     field: TechField | None = None
     projects: str | None = None
+    project_summary: str | None = None
     certifications: str | None = None

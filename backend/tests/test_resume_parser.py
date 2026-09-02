@@ -100,3 +100,21 @@ class TestParseResume:
             result = parse_resume(db, "cv text", "tr")
 
         assert result["skill_names"] == ["Python"]
+
+    def test_extracts_project_summary(self, db, taxonomy):
+        with patch(
+            "app.services.resume_parser.generate_json",
+            return_value={"project_summary": "  Built an e-commerce backend.  "},
+        ):
+            result = parse_resume(db, "cv text", "tr")
+
+        assert result["project_summary"] == "Built an e-commerce backend."
+
+    def test_missing_project_summary_is_none(self, db, taxonomy):
+        with patch(
+            "app.services.resume_parser.generate_json",
+            return_value={"skills": ["Python"]},
+        ):
+            result = parse_resume(db, "cv text", "tr")
+
+        assert result["project_summary"] is None

@@ -162,6 +162,7 @@ class TestAssessmentFlow:
 
         assert candidates[0]["assessment_score"] == 80.0
         assert candidates[0]["status"] == "completed"
+        assert "project_summary" in candidates[0]
 
     def test_blocks_assessment_when_no_questions_selected(
         self, client, employer_token, candidate_token, skills
@@ -282,3 +283,58 @@ class TestJobLifecycle:
         response = client.delete(f"/api/jobs/{job['id']}", headers=auth(employer_token))
 
         assert response.status_code == 204
+
+
+class TestJobParsing:
+    def test_parses_job_text(self, client, employer_token, skills):
+        with patch(
+            "app.services.job_parser.generate_json",
+            return_value={
+                "title": "Backend Developer",
+                "company_name": "Test AS",
+                "skills": [{"name": "Python", "requirement": "mandatory"}],
+                "experience_years": 3,
+                "education_level": "bachelor",
+                "field": "software_development",
+            },
+        ):
+            response = client.post(
+                "/api/jobs/parse",
+                json={"text": "We are hiring a backend developer with Python"},
+                headers=auth(employer_token),
+            )
+
+        assert response.status_code == 200
+        parsed = response.json()
+        assert parsed["title"] == "Backend Developer"
+        assert len(parsed["skills"]) == 1
+        assert parsed["skills"][0]["requirement"] == "mandatory"
+        assert parsed["skills"][0]["weight"] == 3
+
+    def test_reports_unmatched_skills(self, client, employer_token, skills):
+        with patch(
+            "app.services.job_parser.generate_json",
+            return_value={
+                "title": "Backend Developer",
+                "skills": [
+                    {"name": "Python", "requirement": "required"},
+                    {"name": "Svelte", "requirement": "required"},
+                ],
+            },
+        ):
+            response = client.post(
+                "/api/jobs/parse",
+                json={"text": "job text"},
+                headers=auth(employer_token),
+            )
+
+        assert response.json()["unmatched_skills"] == ["Svelte"]
+
+    def test_candidate_cannot_parse_job(self, client, candidate_token):
+        response = client.post(
+            "/api/jobs/parse",
+            json={"text": "job text"},
+            headers=auth(candidate_token),
+        )
+
+        assert response.status_code == 403

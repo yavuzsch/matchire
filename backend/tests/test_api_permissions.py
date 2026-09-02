@@ -1,26 +1,23 @@
 from tests.conftest import auth
 
 
-def create_job(client, token, skills) -> dict:
-    response = client.post(
-        "/api/jobs",
-        json={
-            "title": "Backend Developer",
-            "company_name": "Test AS",
-            "skills": [
-                {
-                    "skill_id": skills["Python"],
-                    "requirement": "mandatory",
-                    "weight": 3,
-                }
-            ],
-            "experience_years": 2,
-            "education_level": "bachelor",
-            "field": "software_development",
-        },
-        headers=auth(token),
-    )
-    return response.json()
+def create_job(client, token, skills, **overrides) -> dict:
+    payload = {
+        "title": "Backend Developer",
+        "company_name": "Test AS",
+        "skills": [
+            {
+                "skill_id": skills["Python"],
+                "requirement": "mandatory",
+                "weight": 3,
+            }
+        ],
+        "experience_years": 2,
+        "education_level": "bachelor",
+        "field": "software_development",
+    }
+    payload.update(overrides)
+    return client.post("/api/jobs", json=payload, headers=auth(token)).json()
 
 
 class TestEmployerOnlyEndpoints:
@@ -158,3 +155,17 @@ class TestPublicFiltering:
         assert "skills" not in jobs[0]
         assert "assessment_slots" not in jobs[0]
         assert "assessment_weight" not in jobs[0]
+
+    def test_candidate_does_not_see_raw_description(
+        self, client, employer_token, candidate_token, skills
+    ):
+        create_job(
+            client,
+            employer_token,
+            skills,
+            description_raw="Python bilmek zorunludur, Docker tercihen",
+        )
+
+        jobs = client.get("/api/jobs", headers=auth(candidate_token)).json()
+
+        assert "description_raw" not in jobs[0]

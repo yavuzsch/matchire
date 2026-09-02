@@ -2,10 +2,21 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.core import errors
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.deps import get_current_user, require_employer
 from app.models import Application, AssessmentQuestion, Job, JobSkill, Skill, User, UserRole
-from app.schemas.job import JobCreate, JobFull, JobPublic, JobSkillOut, JobStatusUpdate
+from app.schemas.job import (
+    JobCreate,
+    JobFull,
+    JobParsed,
+    JobParseIn,
+    JobPublic,
+    JobSkillOut,
+    JobStatusUpdate,
+)
+from app.services.job_parser import parse_job
+from app.services.llm_client import LLMUnavailableError
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
@@ -54,6 +65,24 @@ def validate_skill_ids(db: Session, skill_ids: list[int]) -> None:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"code": errors.SKILL_NOT_FOUND},
         )
+
+
+@router.post("/parse", response_model=JobParsed)
+def parse_job_text(
+    body: JobParseIn,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_employer),
+):
+    try:
+        parsed = parse_job(db, body.text, settings.DEFAULT_LANGUAGE)
+    except LLMUnavailableError:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail={"code": errors.LLM_UNAVAILABLE},
+        )
+
+    db.commit()
+    return JobParsed(**parsed)
 
 
 @router.post("", response_model=JobFull, status_code=status.HTTP_201_CREATED)

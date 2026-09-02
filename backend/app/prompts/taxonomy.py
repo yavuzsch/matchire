@@ -35,3 +35,31 @@ Wrong: {{"name": "CSS", "aliases": ["SASS", "SCSS"]}} — those are separate lan
 
 Respond with only a JSON array, no other text:
 [{{"name": "React", "aliases": ["React.js", "ReactJS"]}}]"""
+
+
+PROMOTE_TEMPLATE = """You are curating a technical skill taxonomy for a software recruitment platform in 2026.
+
+A user typed a term that is not in the taxonomy. Decide whether it should be added.
+
+Term: {term}
+
+Available groups:
+{groups}
+
+Accept only if the term names a real, widely used technology: a language, framework, library, platform, database, tool or service that appears in current job postings.
+
+Reject if the term is:
+- a misspelling of an existing technology
+- a general concept ("algorithms", "problem solving", "teamwork", "OOP")
+- an internal or company specific tool
+- a sub-component, plugin or module of a larger product
+- a job title, a methodology, or a soft skill
+- discontinued, or too niche to appear in job postings
+
+When unsure, reject.
+
+If accepted, give the canonical form a developer would write on a CV, the group key it belongs to, and alternative spellings of the SAME technology.
+
+Respond with only a JSON object, no other text:
+{{"accepted": true, "name": ".NET", "group": "programming_languages", "aliases": ["dotnet", ".NET Core"], "reason": ""}}
+{{"accepted": false, "name": "", "group": "", "aliases": [], "reason": "misspelling of Python"}}"""

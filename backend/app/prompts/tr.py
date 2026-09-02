@@ -42,9 +42,32 @@ Kurallar:
 - Beceriler için teknoloji adlarını olduğu gibi yaz (Python, React, Docker)
 - Her beceriyi ayrı yaz; "Git/GitHub" gibi birleşik yazımları böl
 - Deneyim yılı toplam profesyonel deneyimdir; stajlar ve okul projeleri sayılmaz
+- project_summary: Adayın projelerini 1-2 cümlede özetle. Teknoloji adı sayma, ne yaptığını anlat. Proje yoksa null bırak
 - Bilgi yoksa alanı null bırak
 - education_level yalnızca şunlardan biri olabilir: high_school, associate, bachelor, master, doctorate
 - field yalnızca şunlardan biri olabilir: software_development, data_science, artificial_intelligence, cyber_security, mobile_development, data_engineering, devops, quality_assurance
 
 Yanıtını yalnızca JSON nesnesi olarak ver, başka hiçbir metin ekleme:
-{{"phone": "...", "skills": ["Python", "React"], "experience_years": 3, "education_level": "bachelor", "university": "...", "field": "software_development", "projects": "...", "certifications": "..."}}"""
+{{"phone": "...", "skills": ["Python", "React"], "experience_years": 3, "education_level": "bachelor", "university": "...", "field": "software_development", "projects": "...", "certifications": "...", "project_summary": "..."}}"""
+
+
+JOB_TEMPLATE = """Aşağıdaki iş ilanı metninden yapılandırılmış bilgi çıkar.
+
+Metin:
+{text}
+
+Kurallar:
+- Yalnızca metinde açıkça geçen bilgileri çıkar, tahmin etme
+- Beceriler için teknoloji adlarını olduğu gibi yaz (Python, React, Docker)
+- Her beceriyi ayrı yaz; "Git/GitHub" gibi birleşik yazımları böl
+- Her beceri için gereklilik düzeyi belirle:
+    mandatory: "şart", "zorunlu", "olmadan başvurmayın" gibi ifadelerle anılan
+    required: normal olarak aranan, ilanın ana gereksinimleri
+    optional: "tercihen", "artı olur", "avantaj sağlar" gibi ifadelerle anılan
+- Deneyim yılı, ilanda istenen asgari yıldır
+- Bilgi yoksa alanı null bırak
+- education_level yalnızca şunlardan biri olabilir: high_school, associate, bachelor, master, doctorate
+- field yalnızca şunlardan biri olabilir: software_development, data_science, artificial_intelligence, cyber_security, mobile_development, data_engineering, devops, quality_assurance
+
+Yanıtını yalnızca JSON nesnesi olarak ver, başka hiçbir metin ekleme:
+{{"title": "...", "company_name": "...", "location": "...", "description": "...", "skills": [{{"name": "Python", "requirement": "mandatory"}}, {{"name": "Docker", "requirement": "optional"}}], "experience_years": 3, "education_level": "bachelor", "field": "software_development"}}"""
