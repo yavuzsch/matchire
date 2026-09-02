@@ -35,6 +35,8 @@ class Skill(Base):
     group_id = Column(Integer, ForeignKey("skill_groups.id"), nullable=False)
     source = Column(String, nullable=False, default="llm")
     is_deprecated = Column(Boolean, nullable=False, default=False, server_default="false")
+    is_verified = Column(Boolean, nullable=False, default=True, server_default="true")
+    created_by = Column(Integer, ForeignKey("users.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     group = relationship("SkillGroup", back_populates="skills")

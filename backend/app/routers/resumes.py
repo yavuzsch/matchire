@@ -29,6 +29,7 @@ def build_resume_out(resume: Resume) -> ResumeOut:
         university=resume.university,
         field=resume.field,
         projects=resume.projects,
+        project_summary=resume.project_summary,
         certifications=resume.certifications,
         languages=resume.languages,
     )

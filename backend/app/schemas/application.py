@@ -24,6 +24,7 @@ class CandidateRow(BaseModel):
     candidate_id: int
     full_name: str
     email: str
+    project_summary: str | None = None
     compatibility_score: float
     assessment_score: float
     total_score: float

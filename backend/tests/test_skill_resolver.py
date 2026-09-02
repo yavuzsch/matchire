@@ -86,6 +86,18 @@ class TestResolve:
         assert resolve(db, "") is None
         assert resolve(db, "   ") is None
 
+    def test_finds_unverified_skill(self, db, group):
+            skill = Skill(
+                name="Unity",
+                group_id=group.id,
+                source="user",
+                is_verified=False,
+            )
+            db.add(skill)
+            db.commit()
+
+            assert resolve(db, "Unity").id == skill.id
+
 
 class TestRecordUnknown:
     def test_creates_entry(self, db):

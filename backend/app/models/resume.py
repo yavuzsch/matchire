@@ -11,7 +11,6 @@ class Resume(Base):
     candidate_id = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
 
     phone = Column(String)
-    skills = relationship("ResumeSkill", back_populates="resume", cascade="all, delete-orphan")
     experience_years = Column(Integer, default=0)
 
     education_level = Column(String)
@@ -19,7 +18,9 @@ class Resume(Base):
     field = Column(String)
 
     projects = Column(Text)
+    project_summary = Column(Text, nullable=True)
     certifications = Column(Text)
     languages = Column(JSON)
 
     candidate = relationship("User")
+    skills = relationship("ResumeSkill", back_populates="resume", cascade="all, delete-orphan")

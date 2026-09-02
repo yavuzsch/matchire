@@ -76,5 +76,6 @@ def parse_resume(db: Session, text: str, language: str) -> dict:
         "university": clean_text(result.get("university")),
         "field": clean_choice(result.get("field"), FIELDS),
         "projects": clean_text(result.get("projects")),
+        "project_summary": clean_text(result.get("project_summary")),
         "certifications": clean_text(result.get("certifications")),
     }

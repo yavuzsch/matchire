@@ -26,6 +26,7 @@ class JobCreate(BaseModel):
     company_name: str
     location: str | None = None
     description: str | None = None
+    description_raw: str | None = None
 
     skills: list[JobSkillIn] = Field(default_factory=list)
 
@@ -83,3 +84,26 @@ class JobFull(BaseModel):
 class JobStatusUpdate(BaseModel):
     is_active: bool | None = None
     is_closed: bool | None = None
+
+
+class JobParseIn(BaseModel):
+    text: str = Field(min_length=1, max_length=20000)
+
+
+class JobSkillParsed(BaseModel):
+    skill_id: int
+    name: str
+    requirement: SkillRequirement
+    weight: int
+
+
+class JobParsed(BaseModel):
+    title: str | None = None
+    company_name: str | None = None
+    location: str | None = None
+    description: str | None = None
+    skills: list[JobSkillParsed] = Field(default_factory=list)
+    unmatched_skills: list[str] = Field(default_factory=list)
+    experience_years: int = 0
+    education_level: EducationLevel | None = None
+    field: TechField | None = None
