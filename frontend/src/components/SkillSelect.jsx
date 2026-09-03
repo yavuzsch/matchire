@@ -1,25 +1,34 @@
 import { useEffect, useMemo, useState } from "react"
 
-import { get } from "../api/client"
+import { get, post } from "../api/client"
 import { t } from "../i18n"
 
-export default function SkillSelect({ selected, onChange }) {
+export default function SkillSelect({ selected, onChange, names = {} }) {
   const [groups, setGroups] = useState([])
+  const [extra, setExtra] = useState([])
   const [query, setQuery] = useState("")
+  const [proposing, setProposing] = useState(false)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     get("/skills").then(setGroups).catch(() => setGroups([]))
   }, [])
 
   const byId = useMemo(() => {
-    const map = {}
+    const map = { ...names }
+
     groups.forEach((group) => {
       group.skills.forEach((skill) => {
         map[skill.id] = skill.name
       })
     })
+
+    extra.forEach((skill) => {
+      map[skill.id] = skill.name
+    })
+
     return map
-  }, [groups])
+  }, [groups, extra, names])
 
   function toggle(id) {
     const next = selected.includes(id)
@@ -29,10 +38,12 @@ export default function SkillSelect({ selected, onChange }) {
     onChange(next, byId)
   }
 
-  const filtered = useMemo(() => {
-    const term = query.trim().toLowerCase()
+  const term = query.trim()
 
-    if (!term) {
+  const filtered = useMemo(() => {
+    const lowered = term.toLowerCase()
+
+    if (!lowered) {
       return groups
     }
 
@@ -40,21 +51,60 @@ export default function SkillSelect({ selected, onChange }) {
       .map((group) => ({
         ...group,
         skills: group.skills.filter((skill) =>
-          skill.name.toLowerCase().includes(term)
+          skill.name.toLowerCase().includes(lowered)
         ),
       }))
       .filter((group) => group.skills.length > 0)
-  }, [groups, query])
+  }, [groups, term])
+
+  const hasResults = filtered.length > 0
+
+  const hasExactMatch = useMemo(() => {
+    const lowered = term.toLowerCase()
+
+    if (!lowered) {
+      return true
+    }
+
+    return filtered.some((group) =>
+      group.skills.some((skill) => skill.name.toLowerCase() === lowered)
+    )
+  }, [filtered, term])
+
+  async function propose() {
+    setError(null)
+    setProposing(true)
+
+    try {
+      const skill = await post("/skills/propose", { term })
+
+      setExtra([...extra.filter((item) => item.id !== skill.id), skill])
+      onChange([...selected.filter((id) => id !== skill.id), skill.id], {
+        ...byId,
+        [skill.id]: skill.name,
+      })
+      setQuery("")
+    } catch (err) {
+      setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
+    } finally {
+      setProposing(false)
+    }
+  }
 
   return (
     <div className="space-y-2">
       <input
         type="text"
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        onChange={(e) => {
+          setQuery(e.target.value)
+          setError(null)
+        }}
         placeholder={t.skills.search}
         className="w-full rounded bg-slate-700 px-3 py-2 text-sm text-white placeholder-slate-400"
       />
+
+      {error && <p className="text-xs text-red-400">{error}</p>}
 
       {selected.length > 0 && (
         <div className="flex flex-wrap gap-1">
@@ -72,8 +122,21 @@ export default function SkillSelect({ selected, onChange }) {
       )}
 
       <div className="max-h-64 space-y-3 overflow-y-auto rounded bg-slate-700 p-3">
-        {filtered.length === 0 && (
+        {!hasResults && (
           <p className="text-xs text-slate-400">{t.skills.noResults}</p>
+        )}
+
+        {term.length > 1 && !hasExactMatch && (
+          <div>
+            <button
+              type="button"
+              onClick={propose}
+              disabled={proposing}
+              className="rounded bg-blue-600 px-3 py-1 text-xs text-white disabled:opacity-50"
+            >
+              {proposing ? t.skills.proposing : `${t.skills.propose}: ${term}`}
+            </button>
+          </div>
         )}
 
         {filtered.map((group) => (

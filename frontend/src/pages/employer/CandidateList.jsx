@@ -81,6 +81,17 @@ export default function CandidateList() {
               />
             </div>
 
+            {candidate.project_summary && (
+              <div className="mt-3">
+                <p className="text-xs text-slate-400">
+                  {t.candidates.projectSummary}
+                </p>
+                <p className="text-sm text-slate-300">
+                  {candidate.project_summary}
+                </p>
+              </div>
+            )}
+
             <button
               type="button"
               onClick={() => toggleAnswers(candidate.application_id)}

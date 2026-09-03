@@ -11,11 +11,13 @@ export default function ResumeForm() {
   const [exists, setExists] = useState(false)
   const [phone, setPhone] = useState("")
   const [skillIds, setSkillIds] = useState([])
+  const [skillNames, setSkillNames] = useState({})
   const [experienceYears, setExperienceYears] = useState(0)
   const [educationLevel, setEducationLevel] = useState("bachelor")
   const [university, setUniversity] = useState("")
   const [field, setField] = useState("software_development")
   const [projects, setProjects] = useState("")
+  const [projectSummary, setProjectSummary] = useState("")
   const [certifications, setCertifications] = useState("")
 
   const [message, setMessage] = useState(null)
@@ -27,14 +29,20 @@ export default function ResumeForm() {
   useEffect(() => {
     get("/resumes/me")
       .then((data) => {
+        const items = data.skills || []
+
         setExists(true)
         setPhone(data.phone || "")
-        setSkillIds((data.skills || []).map((item) => item.skill_id))
+        setSkillIds(items.map((item) => item.skill_id))
+        setSkillNames(
+          Object.fromEntries(items.map((item) => [item.skill_id, item.name]))
+        )
         setExperienceYears(data.experience_years || 0)
         setEducationLevel(data.education_level || "bachelor")
         setUniversity(data.university || "")
         setField(data.field || "software_development")
         setProjects(data.projects || "")
+        setProjectSummary(data.project_summary || "")
         setCertifications(data.certifications || "")
       })
       .catch(() => setExists(false))
@@ -55,12 +63,22 @@ export default function ResumeForm() {
       const data = await upload("/resumes/parse", file)
 
       if (data.phone) setPhone(data.phone)
-      if (data.skill_ids.length) setSkillIds(data.skill_ids)
+
+      if (data.skill_ids.length) {
+        setSkillIds(data.skill_ids)
+        setSkillNames(
+          Object.fromEntries(
+            data.skill_ids.map((id, index) => [id, data.skill_names[index]])
+          )
+        )
+      }
+
       if (data.experience_years) setExperienceYears(data.experience_years)
       if (data.education_level) setEducationLevel(data.education_level)
       if (data.university) setUniversity(data.university)
       if (data.field) setField(data.field)
       if (data.projects) setProjects(data.projects)
+      if (data.project_summary) setProjectSummary(data.project_summary)
       if (data.certifications) setCertifications(data.certifications)
 
       setUnmatched(data.unmatched_skills || [])
@@ -87,6 +105,7 @@ export default function ResumeForm() {
       university,
       field,
       projects,
+      project_summary: projectSummary || null,
       certifications,
       languages: {},
     }
@@ -143,7 +162,11 @@ export default function ResumeForm() {
 
         <div>
           <p className="mb-2 text-sm text-slate-300">{t.resume.skills}</p>
-          <SkillSelect selected={skillIds} onChange={setSkillIds} />
+          <SkillSelect
+            selected={skillIds}
+            onChange={setSkillIds}
+            names={skillNames}
+          />
         </div>
 
         <input
@@ -192,6 +215,14 @@ export default function ResumeForm() {
           onChange={(e) => setProjects(e.target.value)}
           placeholder={t.resume.projects}
           rows="3"
+          className={inputClass}
+        />
+
+        <textarea
+          value={projectSummary}
+          onChange={(e) => setProjectSummary(e.target.value)}
+          placeholder={t.resume.projectSummary}
+          rows="2"
           className={inputClass}
         />
 

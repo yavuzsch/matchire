@@ -26,6 +26,10 @@ export default function JobCreate() {
   const [educationLevel, setEducationLevel] = useState("bachelor")
   const [field, setField] = useState("software_development")
 
+  const [rawText, setRawText] = useState("")
+  const [parsing, setParsing] = useState(false)
+  const [unmatched, setUnmatched] = useState([])
+
   const [message, setMessage] = useState(null)
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -48,6 +52,54 @@ export default function JobCreate() {
     })
   }
 
+  async function handleParse() {
+    if (!rawText.trim()) {
+      return
+    }
+
+    setError(null)
+    setMessage(null)
+    setUnmatched([])
+    setParsing(true)
+
+    try {
+      const data = await post("/jobs/parse", { text: rawText })
+
+      if (data.title) setTitle(data.title)
+      if (data.company_name) setCompanyName(data.company_name)
+      if (data.location) setLocation(data.location)
+      if (data.description) setDescription(data.description)
+      if (data.experience_years) setExperienceYears(data.experience_years)
+      if (data.education_level) setEducationLevel(data.education_level)
+      if (data.field) setField(data.field)
+
+      if (data.skills.length) {
+        const ids = data.skills.map((item) => item.skill_id)
+        const names = {}
+        const next = {}
+
+        data.skills.forEach((item) => {
+          names[item.skill_id] = item.name
+          next[item.skill_id] = {
+            requirement: item.requirement,
+            weight: item.weight,
+          }
+        })
+
+        setSkillIds(ids)
+        setSkillNames(names)
+        setSettings(next)
+      }
+
+      setUnmatched(data.unmatched_skills || [])
+      setMessage(t.job.parsed)
+    } catch (err) {
+      setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
+    } finally {
+      setParsing(false)
+    }
+  }
+
   async function handleSubmit(event) {
     event.preventDefault()
     setError(null)
@@ -60,6 +112,7 @@ export default function JobCreate() {
         company_name: companyName,
         location,
         description,
+        description_raw: rawText.trim() || null,
         skills: skillIds.map((id) => ({
           skill_id: id,
           requirement: settings[id]?.requirement || "required",
@@ -86,6 +139,33 @@ export default function JobCreate() {
       <form onSubmit={handleSubmit} className="space-y-4">
         {error && <p className="text-sm text-red-400">{error}</p>}
         {message && <p className="text-sm text-green-400">{message}</p>}
+
+        <div className="space-y-2 rounded bg-slate-800 p-3">
+          <p className="text-sm text-slate-300">{t.job.rawTextHint}</p>
+
+          <textarea
+            value={rawText}
+            onChange={(e) => setRawText(e.target.value)}
+            placeholder={t.job.rawText}
+            rows="5"
+            className={inputClass}
+          />
+
+          <button
+            type="button"
+            onClick={handleParse}
+            disabled={parsing || !rawText.trim()}
+            className="rounded bg-blue-600 px-4 py-1 text-sm text-white disabled:opacity-50"
+          >
+            {parsing ? t.job.parsing : t.job.parse}
+          </button>
+
+          {unmatched.length > 0 && (
+            <p className="text-xs text-amber-400">
+              {t.job.unmatched} {unmatched.join(", ")}
+            </p>
+          )}
+        </div>
 
         <input
           type="text"
