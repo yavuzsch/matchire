@@ -19,6 +19,22 @@ export default function JobBrowse() {
     return applications.find((item) => item.job_id === jobId)
   }
 
+  function statusText(application) {
+    if (application.status === "completed") {
+      return t.jobBrowse.statusCompleted
+    }
+
+    if (application.status === "assessment") {
+      return t.jobBrowse.statusAssessment
+    }
+
+    if (application.status === "rejected") {
+      return t.jobBrowse.statusRejected
+    }
+
+    return t.jobBrowse.statusPending
+  }
+
   const visibleJobs = [...jobs]
 
   applications.forEach((application) => {
@@ -48,7 +64,15 @@ export default function JobBrowse() {
     <div className="mx-auto max-w-3xl p-8">
       <h1 className="mb-6 text-2xl font-bold text-white">{t.jobBrowse.title}</h1>
 
-      {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
+      {error && (
+        <div className="mb-4 space-y-1">
+          <p className="text-sm text-red-400">{error}</p>
+          <Link to="/candidate/resume" className="text-sm text-blue-400">
+            {t.jobBrowse.goToResume}
+          </Link>
+        </div>
+      )}
+
       {visibleJobs.length === 0 && (
         <p className="text-slate-400">{t.jobBrowse.empty}</p>
       )}
@@ -90,18 +114,33 @@ export default function JobBrowse() {
 
               <div className="mt-3">
                 {application ? (
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm text-green-400">
-                      {t.jobBrowse.applied}
-                    </span>
-                    {application.assessment_eligible && (
-                      <Link
-                        to={`/candidate/assessments/${application.id}`}
-                        className="text-sm text-blue-400"
-                      >
-                        {t.assessment.start}
-                      </Link>
-                    )}
+                  <div className="space-y-1">
+                    <p
+                      className={
+                        application.status === "rejected"
+                          ? "text-sm text-slate-400"
+                          : "text-sm text-green-400"
+                      }
+                    >
+                      {statusText(application)}
+                    </p>
+
+                    {application.assessment_eligible &&
+                      application.status !== "completed" && (
+                        <Link
+                          to={`/candidate/assessments/${application.id}`}
+                          className="text-sm text-blue-400"
+                        >
+                          {t.assessment.start}
+                        </Link>
+                      )}
+
+                    {!application.assessment_eligible &&
+                      application.status === "pending" && (
+                        <p className="text-xs text-slate-400">
+                          {t.jobBrowse.notEligible}
+                        </p>
+                      )}
                   </div>
                 ) : (
                   <button
