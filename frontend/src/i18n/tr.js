@@ -74,7 +74,13 @@ export default {
     inactive: "Bu ilan yayından kaldırıldı",
     apply: "Başvur",
     applying: "Gönderiliyor...",
-    applied: "Başvuru alındı",
+    applied: "Başvurunuz alındı",
+    statusPending: "Başvurunuz değerlendiriliyor",
+    statusAssessment: "Yetkinlik testiniz devam ediyor",
+    statusCompleted: "Yetkinlik testiniz tamamlandı, sonuç işverende",
+    statusRejected: "Bu başvuru olumsuz sonuçlandı",
+    notEligible: "Bu ilan için yetkinlik testi kontenjanı dolu",
+    goToResume: "Özgeçmişimi güncelle",
   },
 
   jobList: {
@@ -123,6 +129,11 @@ export default {
     noAnswers: "Aday henüz yetkinlik testini tamamlamadı",
     correct: "Doğru",
     incorrect: "Yanlış",
+    reject: "Reddet",
+    rejectConfirm: "Bu adayı reddetmek istediğinize emin misiniz?",
+    undoReject: "Reddi geri al",
+    rejected: "Reddedildi",
+    statusUpdated: "Aday durumu güncellendi",
   },
 
   assessment: {
@@ -197,8 +208,10 @@ export default {
     PDF_TEXT_NOT_FOUND: "PDF'ten metin okunamadı. Taranmış belge yerine metin içeren bir PDF deneyin veya formu elle doldurun",
 
     APPLICATION_NOT_FOUND: "Başvuru bulunamadı",
+    APPLICATION_ACCESS_DENIED: "Bu başvuruya erişim yetkiniz yok",
+    INVALID_STATUS_CHANGE: "Bu durum değişikliği yapılamaz",
     ALREADY_APPLIED: "Bu ilana zaten başvurdunuz",
-    MISSING_MANDATORY_SKILLS: "Bu ilanın zorunlu gereksinimlerini karşılamıyorsunuz",
+    MISSING_MANDATORY_SKILLS: "Bu ilanın zorunlu gereksinimlerini karşılamıyorsunuz. Özgeçmişinizi güncelleyebilir veya diğer ilanlara başvurabilirsiniz",
 
     ASSESSMENT_NOT_ELIGIBLE: "Bu ilan için yetkinlik testi hakkınız yok",
     ASSESSMENT_ALREADY_STARTED: "Yetkinlik testi başladığı için sorular değiştirilemez",

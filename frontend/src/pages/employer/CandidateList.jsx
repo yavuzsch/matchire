@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 
-import { get } from "../../api/client"
+import { get, patch } from "../../api/client"
 import ScoreBadge from "../../components/ScoreBadge"
 import { t } from "../../i18n"
 
@@ -12,6 +12,7 @@ export default function CandidateList() {
   const [openId, setOpenId] = useState(null)
   const [reviews, setReviews] = useState({})
   const [error, setError] = useState(null)
+  const [message, setMessage] = useState(null)
 
   useEffect(() => {
     get(`/applications/job/${jobId}`)
@@ -39,6 +40,30 @@ export default function CandidateList() {
     }
   }
 
+  async function updateStatus(applicationId, status) {
+    if (status === "rejected" && !window.confirm(t.candidates.rejectConfirm)) {
+      return
+    }
+
+    setError(null)
+    setMessage(null)
+
+    try {
+      const updated = await patch(`/applications/${applicationId}/status`, {
+        status,
+      })
+
+      setCandidates(
+        candidates.map((item) =>
+          item.application_id === applicationId ? updated : item
+        )
+      )
+      setMessage(t.candidates.statusUpdated)
+    } catch (err) {
+      setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
+    }
+  }
+
   return (
     <div className="mx-auto max-w-3xl p-8">
       <Link to="/employer/jobs" className="text-sm text-blue-400">
@@ -50,13 +75,21 @@ export default function CandidateList() {
       </h1>
 
       {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
+      {message && <p className="mb-4 text-sm text-green-400">{message}</p>}
       {candidates.length === 0 && (
         <p className="text-slate-400">{t.candidates.empty}</p>
       )}
 
       <div className="space-y-3">
         {candidates.map((candidate, index) => (
-          <div key={candidate.application_id} className="rounded bg-slate-800 p-4">
+          <div
+            key={candidate.application_id}
+            className={
+              candidate.status === "rejected"
+                ? "rounded bg-slate-800 p-4 opacity-60"
+                : "rounded bg-slate-800 p-4"
+            }
+          >
             <div className="flex items-start justify-between">
               <div>
                 <h2 className="font-medium text-white">
@@ -64,6 +97,12 @@ export default function CandidateList() {
                 </h2>
                 <p className="text-sm text-slate-400">{candidate.email}</p>
               </div>
+
+              {candidate.status === "rejected" && (
+                <span className="rounded bg-slate-700 px-2 py-1 text-xs text-slate-300">
+                  {t.candidates.rejected}
+                </span>
+              )}
             </div>
 
             <div className="mt-3 flex flex-wrap gap-2">
@@ -92,15 +131,39 @@ export default function CandidateList() {
               </div>
             )}
 
-            <button
-              type="button"
-              onClick={() => toggleAnswers(candidate.application_id)}
-              className="mt-3 text-sm text-blue-400"
-            >
-              {openId === candidate.application_id
-                ? t.candidates.hideAnswers
-                : t.candidates.showAnswers}
-            </button>
+            <div className="mt-3 flex items-center gap-4">
+              <button
+                type="button"
+                onClick={() => toggleAnswers(candidate.application_id)}
+                className="text-sm text-blue-400"
+              >
+                {openId === candidate.application_id
+                  ? t.candidates.hideAnswers
+                  : t.candidates.showAnswers}
+              </button>
+
+              {candidate.status === "rejected" ? (
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateStatus(candidate.application_id, "pending")
+                  }
+                  className="text-sm text-amber-400"
+                >
+                  {t.candidates.undoReject}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateStatus(candidate.application_id, "rejected")
+                  }
+                  className="text-sm text-red-400"
+                >
+                  {t.candidates.reject}
+                </button>
+              )}
+            </div>
 
             {openId === candidate.application_id && (
               <div className="mt-3 space-y-3">
