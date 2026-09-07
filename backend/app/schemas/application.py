@@ -29,3 +29,7 @@ class CandidateRow(BaseModel):
     assessment_score: float
     total_score: float
     status: ApplicationStatus
+
+
+class ApplicationStatusUpdate(BaseModel):
+    status: ApplicationStatus

@@ -142,6 +142,41 @@ class TestJobOwnership:
 
         assert response.status_code == 403
 
+    def test_employer_cannot_reject_other_application(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job = create_job(client, employer_token, skills)
+
+        client.post(
+            "/api/resumes",
+            json={"skill_ids": [skills["Python"]], "experience_years": 2},
+            headers=auth(candidate_token),
+        )
+        application = client.post(
+            "/api/applications",
+            json={"job_id": job["id"]},
+            headers=auth(candidate_token),
+        ).json()
+
+        other = client.post(
+            "/api/auth/register",
+            json={
+                "email": "other3@test.com",
+                "password": "password123",
+                "full_name": "Other Employer",
+                "role": "employer",
+            },
+        ).json()["access_token"]
+
+        response = client.patch(
+            f"/api/applications/{application['id']}/status",
+            json={"status": "rejected"},
+            headers=auth(other),
+        )
+
+        assert response.status_code == 403
+        assert response.json()["detail"]["code"] == "APPLICATION_ACCESS_DENIED"
+
 
 class TestPublicFiltering:
     def test_candidate_does_not_see_skill_requirements(
