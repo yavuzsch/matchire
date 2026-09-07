@@ -4,8 +4,8 @@ from sqlalchemy.orm import Session
 from app.core import errors
 from app.core.database import get_db
 from app.core.deps import require_candidate, require_employer
-from app.models import Application, Job, Resume, User
-from app.schemas.application import ApplicationCreate, ApplicationOut, CandidateRow
+from app.models import Application, ApplicationStatus, Job, Resume, User
+from app.schemas.application import ApplicationCreate, ApplicationOut, ApplicationStatusUpdate, CandidateRow
 from app.services.assessment_service import is_eligible
 from app.services.matching_service import calculate_compatibility, find_missing_mandatory_skills
 
@@ -91,6 +91,58 @@ def list_my_applications(
         rows.append(row)
 
     return rows
+
+
+@router.patch("/{application_id}/status", response_model=CandidateRow)
+def update_application_status(
+    application_id: int,
+    body: ApplicationStatusUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_employer),
+):
+    application = (
+        db.query(Application).filter(Application.id == application_id).first()
+    )
+    if application is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": errors.APPLICATION_NOT_FOUND},
+        )
+
+    job = db.query(Job).filter(Job.id == application.job_id).first()
+
+    if job is None or job.employer_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={"code": errors.APPLICATION_ACCESS_DENIED},
+        )
+
+    if body.status not in (ApplicationStatus.REJECTED, ApplicationStatus.PENDING):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"code": errors.INVALID_STATUS_CHANGE},
+        )
+
+    application.status = body.status
+    db.commit()
+    db.refresh(application)
+
+    candidate = db.query(User).filter(User.id == application.candidate_id).first()
+    resume = (
+        db.query(Resume).filter(Resume.candidate_id == application.candidate_id).first()
+    )
+
+    return CandidateRow(
+        application_id=application.id,
+        candidate_id=candidate.id,
+        full_name=candidate.full_name,
+        email=candidate.email,
+        compatibility_score=application.compatibility_score,
+        assessment_score=application.assessment_score,
+        total_score=application.total_score,
+        status=application.status,
+        project_summary=resume.project_summary if resume else None,
+    )
 
 
 @router.get("/job/{job_id}", response_model=list[CandidateRow])

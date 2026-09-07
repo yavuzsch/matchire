@@ -338,3 +338,103 @@ class TestJobParsing:
         )
 
         assert response.status_code == 403
+
+
+class TestApplicationStatus:
+    def _prepare(self, client, employer_token, candidate_token, skills):
+        job = create_job(client, employer_token, skills)
+        create_resume(client, candidate_token, skills)
+        application = client.post(
+            "/api/applications",
+            json={"job_id": job["id"]},
+            headers=auth(candidate_token),
+        ).json()
+        return job, application
+
+    def test_employer_can_reject(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application = self._prepare(
+            client, employer_token, candidate_token, skills
+        )
+
+        response = client.patch(
+            f"/api/applications/{application['id']}/status",
+            json={"status": "rejected"},
+            headers=auth(employer_token),
+        )
+
+        assert response.status_code == 200
+        assert response.json()["status"] == "rejected"
+
+    def test_rejected_candidate_loses_assessment_access(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application = self._prepare(
+            client, employer_token, candidate_token, skills
+        )
+
+        client.patch(
+            f"/api/applications/{application['id']}/status",
+            json={"status": "rejected"},
+            headers=auth(employer_token),
+        )
+
+        applications = client.get(
+            "/api/applications/mine", headers=auth(candidate_token)
+        ).json()
+
+        assert applications[0]["status"] == "rejected"
+        assert applications[0]["assessment_eligible"] is False
+
+    def test_employer_can_undo_rejection(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application = self._prepare(
+            client, employer_token, candidate_token, skills
+        )
+
+        client.patch(
+            f"/api/applications/{application['id']}/status",
+            json={"status": "rejected"},
+            headers=auth(employer_token),
+        )
+
+        response = client.patch(
+            f"/api/applications/{application['id']}/status",
+            json={"status": "pending"},
+            headers=auth(employer_token),
+        )
+
+        assert response.json()["status"] == "pending"
+
+    def test_rejects_invalid_status_change(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application = self._prepare(
+            client, employer_token, candidate_token, skills
+        )
+
+        response = client.patch(
+            f"/api/applications/{application['id']}/status",
+            json={"status": "completed"},
+            headers=auth(employer_token),
+        )
+
+        assert response.status_code == 400
+        assert response.json()["detail"]["code"] == "INVALID_STATUS_CHANGE"
+
+    def test_candidate_cannot_change_status(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application = self._prepare(
+            client, employer_token, candidate_token, skills
+        )
+
+        response = client.patch(
+            f"/api/applications/{application['id']}/status",
+            json={"status": "rejected"},
+            headers=auth(candidate_token),
+        )
+
+        assert response.status_code == 403
