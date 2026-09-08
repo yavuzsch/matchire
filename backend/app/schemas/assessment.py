@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict
 
 
@@ -15,6 +17,12 @@ class QuestionForCandidate(BaseModel):
 
     id: int
     question_text: str
+
+
+class AssessmentSession(BaseModel):
+    questions: list[QuestionForCandidate]
+    started_at: datetime
+    time_limit_minutes: int | None
 
 
 class QuestionSelect(BaseModel):

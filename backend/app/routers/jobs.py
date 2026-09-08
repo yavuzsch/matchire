@@ -44,6 +44,7 @@ def build_job_full(job: Job) -> JobFull:
         language=job.language,
         assessment_slots=job.assessment_slots,
         assessment_weight=job.assessment_weight,
+        assessment_time_limit_minutes=job.assessment_time_limit_minutes,
         is_active=job.is_active,
         is_closed=job.is_closed,
         created_at=job.created_at,

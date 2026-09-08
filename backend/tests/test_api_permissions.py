@@ -204,3 +204,31 @@ class TestPublicFiltering:
         jobs = client.get("/api/jobs", headers=auth(candidate_token)).json()
 
         assert "description_raw" not in jobs[0]
+
+
+class TestJobValidation:
+    def test_rejects_time_limit_below_minimum(self, client, employer_token):
+        response = client.post(
+            "/api/jobs",
+            json={
+                "title": "Test",
+                "company_name": "Test",
+                "assessment_time_limit_minutes": 2,
+            },
+            headers=auth(employer_token),
+        )
+
+        assert response.status_code == 422
+
+    def test_rejects_time_limit_above_maximum(self, client, employer_token):
+        response = client.post(
+            "/api/jobs",
+            json={
+                "title": "Test",
+                "company_name": "Test",
+                "assessment_time_limit_minutes": 200,
+            },
+            headers=auth(employer_token),
+        )
+
+        assert response.status_code == 422

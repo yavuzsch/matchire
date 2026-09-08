@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -10,6 +12,7 @@ from app.schemas.assessment import (
     AnswerReview,
     AnswerSubmit,
     AssessmentResult,
+    AssessmentSession,
     QuestionForCandidate,
     QuestionOut,
     QuestionSelect,
@@ -51,6 +54,19 @@ def ensure_no_answers(db: Session, job: Job) -> None:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"code": errors.ASSESSMENT_ALREADY_STARTED},
         )
+
+
+def is_time_expired(application: Application, job: Job) -> bool:
+    if job.assessment_time_limit_minutes is None:
+        return False
+
+    if application.assessment_started_at is None:
+        return False
+
+    deadline = application.assessment_started_at + timedelta(
+        minutes=job.assessment_time_limit_minutes
+    )
+    return datetime.now(timezone.utc) > deadline
 
 
 @router.post("/jobs/{job_id}/questions", response_model=list[QuestionOut])
@@ -128,7 +144,7 @@ def select_questions(
     return questions
 
 
-@router.get("/applications/{application_id}/questions", response_model=list[QuestionForCandidate])
+@router.get("/applications/{application_id}/questions", response_model=AssessmentSession)
 def list_assessment_questions(
     application_id: int,
     db: Session = Depends(get_db),
@@ -156,6 +172,17 @@ def list_assessment_questions(
             detail={"code": errors.ASSESSMENT_NOT_ELIGIBLE},
         )
 
+    if application.assessment_started_at is None:
+        application.assessment_started_at = datetime.now(timezone.utc)
+        db.commit()
+        db.refresh(application)
+
+    if is_time_expired(application, job):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={"code": errors.ASSESSMENT_TIME_EXPIRED},
+        )
+
     questions = (
         db.query(AssessmentQuestion)
         .filter(
@@ -172,7 +199,11 @@ def list_assessment_questions(
             detail={"code": errors.NO_QUESTIONS_SELECTED},
         )
 
-    return questions
+    return AssessmentSession(
+        questions=questions,
+        started_at=application.assessment_started_at,
+        time_limit_minutes=job.assessment_time_limit_minutes,
+    )
 
 
 @router.get("/applications/{application_id}/answers", response_model=list[AnswerOut])
@@ -263,6 +294,12 @@ def submit_answer(
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={"code": errors.ASSESSMENT_NOT_ELIGIBLE},
+        )
+
+    if is_time_expired(application, job):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={"code": errors.ASSESSMENT_TIME_EXPIRED},
         )
 
     question = (

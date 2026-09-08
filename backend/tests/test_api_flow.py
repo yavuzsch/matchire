@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 
 from tests.conftest import auth
@@ -137,7 +138,7 @@ class TestAssessmentFlow:
         candidate_view = client.get(
             f"/api/assessments/applications/{application['id']}/questions",
             headers=auth(candidate_token),
-        ).json()
+        ).json()["questions"]
 
         assert len(candidate_view) == 2
         assert "is_selected" not in candidate_view[0]
@@ -590,3 +591,179 @@ class TestApplicationStatus:
 
         assert response.status_code == 200
         assert response.json()["status"] == "pending"
+
+
+class TestAssessmentTimeLimit:
+    def _prepare_with_time_limit(
+        self, client, employer_token, candidate_token, skills, minutes
+    ):
+        job = create_job(
+            client,
+            employer_token,
+            skills,
+            assessment_time_limit_minutes=minutes,
+        )
+        create_resume(client, candidate_token, skills)
+        application = client.post(
+            "/api/applications",
+            json={"job_id": job["id"]},
+            headers=auth(candidate_token),
+        ).json()
+
+        with patch(
+            "app.services.question_service.generate_json",
+            return_value=["Question 1"],
+        ):
+            questions = client.post(
+                f"/api/assessments/jobs/{job['id']}/questions",
+                json={},
+                headers=auth(employer_token),
+            ).json()
+
+        client.put(
+            f"/api/assessments/jobs/{job['id']}/questions",
+            json={"question_ids": [questions[0]["id"]]},
+            headers=auth(employer_token),
+        )
+
+        return job, application, questions
+
+    def test_session_includes_time_limit(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application, questions = self._prepare_with_time_limit(
+            client, employer_token, candidate_token, skills, 30
+        )
+
+        response = client.get(
+            f"/api/assessments/applications/{application['id']}/questions",
+            headers=auth(candidate_token),
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["time_limit_minutes"] == 30
+        assert "started_at" in data
+        assert len(data["questions"]) == 1
+
+    def test_no_time_limit_by_default(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application, questions = self._prepare_with_time_limit(
+            client, employer_token, candidate_token, skills, None
+        )
+
+        response = client.get(
+            f"/api/assessments/applications/{application['id']}/questions",
+            headers=auth(candidate_token),
+        )
+
+        assert response.json()["time_limit_minutes"] is None
+
+    def test_started_at_does_not_change_on_second_view(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application, questions = self._prepare_with_time_limit(
+            client, employer_token, candidate_token, skills, 30
+        )
+
+        first = client.get(
+            f"/api/assessments/applications/{application['id']}/questions",
+            headers=auth(candidate_token),
+        ).json()
+
+        second = client.get(
+            f"/api/assessments/applications/{application['id']}/questions",
+            headers=auth(candidate_token),
+        ).json()
+
+        assert first["started_at"] == second["started_at"]
+
+    def test_expired_time_blocks_question_access(
+        self, client, employer_token, candidate_token, skills, db
+    ):
+        job, application, questions = self._prepare_with_time_limit(
+            client, employer_token, candidate_token, skills, 10
+        )
+
+        client.get(
+            f"/api/assessments/applications/{application['id']}/questions",
+            headers=auth(candidate_token),
+        )
+
+        from app.models import Application as ApplicationModel
+
+        record = (
+            db.query(ApplicationModel)
+            .filter(ApplicationModel.id == application["id"])
+            .first()
+        )
+        record.assessment_started_at = datetime.now(timezone.utc) - timedelta(
+            minutes=20
+        )
+        db.commit()
+
+        response = client.get(
+            f"/api/assessments/applications/{application['id']}/questions",
+            headers=auth(candidate_token),
+        )
+
+        assert response.status_code == 403
+        assert response.json()["detail"]["code"] == "ASSESSMENT_TIME_EXPIRED"
+
+    def test_expired_time_blocks_answer_submission(
+        self, client, employer_token, candidate_token, skills, db
+    ):
+        job, application, questions = self._prepare_with_time_limit(
+            client, employer_token, candidate_token, skills, 10
+        )
+
+        client.get(
+            f"/api/assessments/applications/{application['id']}/questions",
+            headers=auth(candidate_token),
+        )
+
+        from app.models import Application as ApplicationModel
+
+        record = (
+            db.query(ApplicationModel)
+            .filter(ApplicationModel.id == application["id"])
+            .first()
+        )
+        record.assessment_started_at = datetime.now(timezone.utc) - timedelta(
+            minutes=20
+        )
+        db.commit()
+
+        response = client.post(
+            f"/api/assessments/applications/{application['id']}/answers",
+            json={"question_id": questions[0]["id"], "answer_text": "An answer"},
+            headers=auth(candidate_token),
+        )
+
+        assert response.status_code == 403
+        assert response.json()["detail"]["code"] == "ASSESSMENT_TIME_EXPIRED"
+
+    def test_answer_within_time_limit_succeeds(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application, questions = self._prepare_with_time_limit(
+            client, employer_token, candidate_token, skills, 30
+        )
+
+        client.get(
+            f"/api/assessments/applications/{application['id']}/questions",
+            headers=auth(candidate_token),
+        )
+
+        with patch(
+            "app.services.evaluation_service.generate_json",
+            return_value={"score": 80},
+        ):
+            response = client.post(
+                f"/api/assessments/applications/{application['id']}/answers",
+                json={"question_id": questions[0]["id"], "answer_text": "An answer"},
+                headers=auth(candidate_token),
+            )
+
+        assert response.status_code == 200
