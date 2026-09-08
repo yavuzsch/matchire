@@ -21,16 +21,24 @@ export default function AssessmentTake() {
   const [answers, setAnswers] = useState({})
   const [answeredIds, setAnsweredIds] = useState([])
   const [pendingId, setPendingId] = useState(null)
+  const [starting, setStarting] = useState(false)
   const [error, setError] = useState(null)
   const [notReady, setNotReady] = useState(false)
+  const [notStarted, setNotStarted] = useState(false)
   const [timeExpired, setTimeExpired] = useState(false)
 
   useEffect(() => {
     get(`/assessments/applications/${applicationId}/questions`)
       .then((data) => {
+        setTimeLimitMinutes(data.time_limit_minutes)
+
+        if (data.started_at === null) {
+          setNotStarted(true)
+          return
+        }
+
         setQuestions(data.questions)
         setStartedAt(new Date(data.started_at).getTime())
-        setTimeLimitMinutes(data.time_limit_minutes)
       })
       .catch((err) => {
         if (err.code === "NO_QUESTIONS_SELECTED") {
@@ -47,18 +55,39 @@ export default function AssessmentTake() {
       .catch(() => setAnsweredIds([]))
   }, [applicationId])
 
+  async function start() {
+    setError(null)
+    setStarting(true)
+
+    try {
+      const data = await post(`/assessments/applications/${applicationId}/start`)
+      setQuestions(data.questions)
+      setStartedAt(new Date(data.started_at).getTime())
+      setTimeLimitMinutes(data.time_limit_minutes)
+      setNotStarted(false)
+    } catch (err) {
+      if (err.code === "ASSESSMENT_TIME_EXPIRED") {
+        setTimeExpired(true)
+      } else {
+        setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
+      }
+    } finally {
+      setStarting(false)
+    }
+  }
+
   useEffect(() => {
-    if (!timeLimitMinutes) {
+    if (!timeLimitMinutes || notStarted) {
       return
     }
 
     const interval = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(interval)
-  }, [timeLimitMinutes])
+  }, [timeLimitMinutes, notStarted])
 
   useEffect(() => {
     function handleBeforeUnload(event) {
-      if (timeLimitMinutes && !timeExpired) {
+      if (timeLimitMinutes && !notStarted && !timeExpired) {
         event.preventDefault()
         event.returnValue = ""
       }
@@ -66,7 +95,7 @@ export default function AssessmentTake() {
 
     window.addEventListener("beforeunload", handleBeforeUnload)
     return () => window.removeEventListener("beforeunload", handleBeforeUnload)
-  }, [timeLimitMinutes, timeExpired])
+  }, [timeLimitMinutes, notStarted, timeExpired])
 
   const remainingSeconds = useMemo(() => {
     if (!timeLimitMinutes || !startedAt) {
@@ -124,6 +153,40 @@ export default function AssessmentTake() {
       <div className="mx-auto max-w-3xl p-8">
         <h1 className="mb-6 text-2xl font-bold text-white">{t.assessment.title}</h1>
         <p className="text-amber-400">{t.assessment.timeExpired}</p>
+      </div>
+    )
+  }
+
+  if (notStarted) {
+    return (
+      <div className="mx-auto max-w-3xl p-8">
+        <h1 className="mb-6 text-2xl font-bold text-white">{t.assessment.title}</h1>
+
+        {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
+
+        <div className="rounded bg-slate-800 p-6">
+          <h2 className="mb-3 text-lg font-medium text-white">
+            {t.assessment.beforeStartTitle}
+          </h2>
+
+          <p className="mb-6 text-sm text-slate-300">
+            {timeLimitMinutes
+              ? t.assessment.beforeStartWithLimit.replace(
+                  "{minutes}",
+                  timeLimitMinutes
+                )
+              : t.assessment.beforeStartNoLimit}
+          </p>
+
+          <button
+            type="button"
+            onClick={start}
+            disabled={starting}
+            className="rounded bg-blue-600 px-6 py-2 font-medium text-white disabled:opacity-50"
+          >
+            {starting ? t.assessment.starting : t.assessment.start}
+          </button>
+        </div>
       </div>
     )
   }
