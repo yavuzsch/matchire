@@ -115,7 +115,7 @@ class TestJobOwnership:
         ).json()["access_token"]
 
         response = client.patch(
-            f"/api/jobs/{job['id']}/status",
+            f"/api/jobs/{job['id']}/settings",
             json={"is_active": False},
             headers=auth(other),
         )
@@ -207,27 +207,23 @@ class TestPublicFiltering:
 
 
 class TestJobValidation:
-    def test_rejects_time_limit_below_minimum(self, client, employer_token):
-        response = client.post(
-            "/api/jobs",
-            json={
-                "title": "Test",
-                "company_name": "Test",
-                "assessment_time_limit_minutes": 2,
-            },
+    def test_rejects_time_limit_below_minimum(self, client, employer_token, skills):
+        job = create_job(client, employer_token, skills)
+
+        response = client.patch(
+            f"/api/jobs/{job['id']}/settings",
+            json={"assessment_time_limit_minutes": 2},
             headers=auth(employer_token),
         )
 
         assert response.status_code == 422
 
-    def test_rejects_time_limit_above_maximum(self, client, employer_token):
-        response = client.post(
-            "/api/jobs",
-            json={
-                "title": "Test",
-                "company_name": "Test",
-                "assessment_time_limit_minutes": 200,
-            },
+    def test_rejects_time_limit_above_maximum(self, client, employer_token, skills):
+        job = create_job(client, employer_token, skills)
+
+        response = client.patch(
+            f"/api/jobs/{job['id']}/settings",
+            json={"assessment_time_limit_minutes": 200},
             headers=auth(employer_token),
         )
 

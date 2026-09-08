@@ -13,7 +13,7 @@ from app.schemas.job import (
     JobParseIn,
     JobPublic,
     JobSkillOut,
-    JobStatusUpdate,
+    JobSettingsUpdate,
 )
 from app.services.job_parser import parse_job
 from app.services.llm_client import LLMUnavailableError
@@ -158,10 +158,10 @@ def get_job(
     return JobPublic.model_validate(job)
 
 
-@router.patch("/{job_id}/status", response_model=JobFull)
-def update_job_status(
+@router.patch("/{job_id}/settings", response_model=JobFull)
+def update_job_settings(
     job_id: int,
-    body: JobStatusUpdate,
+    body: JobSettingsUpdate,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_employer),
 ):
@@ -183,6 +183,9 @@ def update_job_status(
 
     if body.is_closed is not None:
         job.is_closed = body.is_closed
+
+    if body.assessment_time_limit_minutes is not None:
+        job.assessment_time_limit_minutes = body.assessment_time_limit_minutes
 
     db.commit()
     db.refresh(job)

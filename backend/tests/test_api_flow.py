@@ -230,7 +230,7 @@ class TestJobLifecycle:
         job = create_job(client, employer_token, skills)
 
         client.patch(
-            f"/api/jobs/{job['id']}/status",
+            f"/api/jobs/{job['id']}/settings",
             json={"is_active": False},
             headers=auth(employer_token),
         )
@@ -249,7 +249,7 @@ class TestJobLifecycle:
         ).json()
 
         client.patch(
-            f"/api/jobs/{job['id']}/status",
+            f"/api/jobs/{job['id']}/settings",
             json={"is_closed": True},
             headers=auth(employer_token),
         )
@@ -597,12 +597,15 @@ class TestAssessmentTimeLimit:
     def _prepare_with_time_limit(
         self, client, employer_token, candidate_token, skills, minutes
     ):
-        job = create_job(
-            client,
-            employer_token,
-            skills,
-            assessment_time_limit_minutes=minutes,
-        )
+        job = create_job(client, employer_token, skills)
+
+        if minutes is not None:
+            client.patch(
+                f"/api/jobs/{job['id']}/settings",
+                json={"assessment_time_limit_minutes": minutes},
+                headers=auth(employer_token),
+            )
+
         create_resume(client, candidate_token, skills)
         application = client.post(
             "/api/applications",
