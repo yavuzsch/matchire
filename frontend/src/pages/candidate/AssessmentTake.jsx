@@ -1,25 +1,42 @@
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useParams } from "react-router-dom"
 
 import { get, post } from "../../api/client"
 import { t } from "../../i18n"
 
+function formatRemaining(seconds) {
+  const clamped = Math.max(0, seconds)
+  const minutes = Math.floor(clamped / 60)
+  const secs = clamped % 60
+  return `${minutes}:${String(secs).padStart(2, "0")}`
+}
+
 export default function AssessmentTake() {
   const { applicationId } = useParams()
 
   const [questions, setQuestions] = useState([])
+  const [startedAt, setStartedAt] = useState(null)
+  const [timeLimitMinutes, setTimeLimitMinutes] = useState(null)
+  const [now, setNow] = useState(Date.now())
   const [answers, setAnswers] = useState({})
   const [answeredIds, setAnsweredIds] = useState([])
   const [pendingId, setPendingId] = useState(null)
   const [error, setError] = useState(null)
   const [notReady, setNotReady] = useState(false)
+  const [timeExpired, setTimeExpired] = useState(false)
 
   useEffect(() => {
     get(`/assessments/applications/${applicationId}/questions`)
-      .then(setQuestions)
+      .then((data) => {
+        setQuestions(data.questions)
+        setStartedAt(new Date(data.started_at).getTime())
+        setTimeLimitMinutes(data.time_limit_minutes)
+      })
       .catch((err) => {
         if (err.code === "NO_QUESTIONS_SELECTED") {
           setNotReady(true)
+        } else if (err.code === "ASSESSMENT_TIME_EXPIRED") {
+          setTimeExpired(true)
         } else {
           setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
         }
@@ -29,6 +46,42 @@ export default function AssessmentTake() {
       .then((data) => setAnsweredIds(data.map((item) => item.question_id)))
       .catch(() => setAnsweredIds([]))
   }, [applicationId])
+
+  useEffect(() => {
+    if (!timeLimitMinutes) {
+      return
+    }
+
+    const interval = setInterval(() => setNow(Date.now()), 1000)
+    return () => clearInterval(interval)
+  }, [timeLimitMinutes])
+
+  useEffect(() => {
+    function handleBeforeUnload(event) {
+      if (timeLimitMinutes && !timeExpired) {
+        event.preventDefault()
+        event.returnValue = ""
+      }
+    }
+
+    window.addEventListener("beforeunload", handleBeforeUnload)
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload)
+  }, [timeLimitMinutes, timeExpired])
+
+  const remainingSeconds = useMemo(() => {
+    if (!timeLimitMinutes || !startedAt) {
+      return null
+    }
+
+    const deadline = startedAt + timeLimitMinutes * 60 * 1000
+    return Math.floor((deadline - now) / 1000)
+  }, [startedAt, timeLimitMinutes, now])
+
+  useEffect(() => {
+    if (remainingSeconds !== null && remainingSeconds <= 0 && !timeExpired) {
+      setTimeExpired(true)
+    }
+  }, [remainingSeconds, timeExpired])
 
   function setAnswer(questionId, text) {
     setAnswers({ ...answers, [questionId]: text })
@@ -45,7 +98,11 @@ export default function AssessmentTake() {
       })
       setAnsweredIds([...answeredIds, questionId])
     } catch (err) {
-      setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
+      if (err.code === "ASSESSMENT_TIME_EXPIRED") {
+        setTimeExpired(true)
+      } else {
+        setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
+      }
     } finally {
       setPendingId(null)
     }
@@ -62,11 +119,36 @@ export default function AssessmentTake() {
     )
   }
 
+  if (timeExpired) {
+    return (
+      <div className="mx-auto max-w-3xl p-8">
+        <h1 className="mb-6 text-2xl font-bold text-white">{t.assessment.title}</h1>
+        <p className="text-amber-400">{t.assessment.timeExpired}</p>
+      </div>
+    )
+  }
+
   return (
     <div className="mx-auto max-w-3xl p-8">
       <h1 className="mb-6 text-2xl font-bold text-white">{t.assessment.title}</h1>
 
       {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
+
+      <div className="mb-4 rounded bg-slate-800 p-3">
+        {timeLimitMinutes && remainingSeconds !== null ? (
+          <>
+            <p className="text-sm text-slate-300">
+              {t.assessment.timeRemaining}:{" "}
+              <span className="font-mono text-amber-400">
+                {formatRemaining(remainingSeconds)}
+              </span>
+            </p>
+            <p className="mt-1 text-xs text-slate-500">{t.assessment.leaveWarning}</p>
+          </>
+        ) : (
+          <p className="text-sm text-slate-400">{t.assessment.noTimeLimit}</p>
+        )}
+      </div>
 
       {questions.length > 0 && (
         <p className="mb-4 text-sm text-slate-400">

@@ -146,6 +146,10 @@ export default {
     start: "Yetkinlik testine başla",
     notReady: "İşveren henüz yetkinlik sorularını hazırlamadı. Lütfen daha sonra tekrar deneyin.",
     progress: "cevaplandı",
+    timeRemaining: "Kalan süre",
+    timeExpired: "Süreniz doldu. O ana kadarki cevaplarınız değerlendirmeye alındı",
+    leaveWarning: "Bu sayfadan ayrılırsanız süreniz işlemeye devam eder ve geri dönemeyebilirsiniz",
+    noTimeLimit: "Bu yetkinlik testi için süre sınırı yok",
     answerPlaceholder: "Cevabınızı yazın",
     submit: "Cevabı gönder",
     submitting: "Değerlendiriliyor...",
@@ -220,6 +224,7 @@ export default {
 
     ASSESSMENT_NOT_ELIGIBLE: "Bu ilan için yetkinlik testi hakkınız yok",
     ASSESSMENT_ALREADY_STARTED: "Yetkinlik testi başladığı için sorular değiştirilemez",
+    ASSESSMENT_TIME_EXPIRED: "Yetkinlik testi süreniz doldu",
     NO_QUESTIONS_SELECTED: "İşveren henüz yetkinlik sorularını seçmedi",
     QUESTION_NOT_FOUND: "Soru bulunamadı",
     ALREADY_ANSWERED: "Bu soruyu zaten cevapladınız",
