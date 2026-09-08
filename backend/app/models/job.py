@@ -26,6 +26,7 @@ class Job(Base):
     is_active = Column(Boolean, nullable=False, default=True, server_default="true")
     is_closed = Column(Boolean, nullable=False, default=False, server_default="false")
     description_raw = Column(Text, nullable=True)
+    assessment_time_limit_minutes = Column(Integer, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     employer = relationship("User")
