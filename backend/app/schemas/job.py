@@ -36,7 +36,6 @@ class JobCreate(BaseModel):
     language: Language = "tr"
     assessment_slots: int = Field(default=5, ge=1)
     assessment_weight: int = Field(default=50, ge=20, le=80)
-    assessment_time_limit_minutes: int | None = Field(default=None, ge=5, le=180)
 
     @model_validator(mode="after")
     def check_duplicate_skills(self):
@@ -83,9 +82,10 @@ class JobFull(BaseModel):
     created_at: datetime
 
 
-class JobStatusUpdate(BaseModel):
+class JobSettingsUpdate(BaseModel):
     is_active: bool | None = None
     is_closed: bool | None = None
+    assessment_time_limit_minutes: int | None = Field(default=None, ge=5, le=180)
 
 
 class JobParseIn(BaseModel):
