@@ -20,6 +20,10 @@ export default function JobBrowse() {
   }
 
   function statusText(application) {
+    if (application.status === "accepted") {
+      return t.jobBrowse.statusAccepted
+    }
+
     if (application.status === "completed") {
       return t.jobBrowse.statusCompleted
     }
@@ -30,6 +34,10 @@ export default function JobBrowse() {
 
     if (application.status === "rejected") {
       return t.jobBrowse.statusRejected
+    }
+
+    if (application.assessment_eligible) {
+      return t.jobBrowse.statusReadyForAssessment
     }
 
     return t.jobBrowse.statusPending
@@ -133,13 +141,6 @@ export default function JobBrowse() {
                         >
                           {t.assessment.start}
                         </Link>
-                      )}
-
-                    {!application.assessment_eligible &&
-                      application.status === "pending" && (
-                        <p className="text-xs text-slate-400">
-                          {t.jobBrowse.notEligible}
-                        </p>
                       )}
                   </div>
                 ) : (

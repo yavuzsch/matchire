@@ -103,6 +103,12 @@ export default function CandidateList() {
                   {t.candidates.rejected}
                 </span>
               )}
+
+              {candidate.status === "accepted" && (
+                <span className="rounded bg-green-900 px-2 py-1 text-xs text-green-300">
+                  {t.candidates.accepted}
+                </span>
+              )}
             </div>
 
             <div className="mt-3 flex flex-wrap gap-2">
@@ -142,7 +148,7 @@ export default function CandidateList() {
                   : t.candidates.showAnswers}
               </button>
 
-              {candidate.status === "rejected" ? (
+              {candidate.status === "rejected" && (
                 <button
                   type="button"
                   onClick={() =>
@@ -152,7 +158,45 @@ export default function CandidateList() {
                 >
                   {t.candidates.undoReject}
                 </button>
-              ) : (
+              )}
+
+              {candidate.status === "accepted" && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateStatus(candidate.application_id, "pending")
+                  }
+                  className="text-sm text-amber-400"
+                >
+                  {t.candidates.undoAccept}
+                </button>
+              )}
+
+              {candidate.status === "completed" && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateStatus(candidate.application_id, "accepted")
+                    }
+                    className="text-sm text-green-400"
+                  >
+                    {t.candidates.accept}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateStatus(candidate.application_id, "rejected")
+                    }
+                    className="text-sm text-red-400"
+                  >
+                    {t.candidates.reject}
+                  </button>
+                </>
+              )}
+
+              {(candidate.status === "pending" ||
+                candidate.status === "assessment") && (
                 <button
                   type="button"
                   onClick={() =>
