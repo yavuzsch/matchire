@@ -21,7 +21,7 @@ def get_eligible_application_ids(db: Session, job: Job) -> list[int]:
 
 
 def is_eligible(db: Session, job: Job, application: Application) -> bool:
-    if application.status == ApplicationStatus.REJECTED:
+    if application.status in (ApplicationStatus.REJECTED, ApplicationStatus.ACCEPTED):
         return False
 
     if job.is_closed:
