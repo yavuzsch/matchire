@@ -185,6 +185,21 @@ def update_job_settings(
         job.is_closed = body.is_closed
 
     if body.assessment_time_limit_minutes is not None:
+        has_started = (
+            db.query(Application)
+            .filter(
+                Application.job_id == job.id,
+                Application.assessment_started_at.isnot(None),
+            )
+            .first()
+        )
+
+        if has_started:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={"code": errors.ASSESSMENT_TIME_LOCKED},
+            )
+
         job.assessment_time_limit_minutes = body.assessment_time_limit_minutes
 
     db.commit()
