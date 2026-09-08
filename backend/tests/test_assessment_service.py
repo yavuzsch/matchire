@@ -138,6 +138,12 @@ class TestIsEligible:
 
         assert is_eligible(db, job, application) is False
 
+    def test_accepted_candidate_is_not_eligible(self, db, employer):
+        job = make_job(db, employer, assessment_slots=5)
+        application = make_application(db, job, 90, ApplicationStatus.ACCEPTED)
+
+        assert is_eligible(db, job, application) is False
+
 
 class TestUpdateAssessmentScore:
     def _setup(self, db, employer, question_count=4, weight=50, compatibility=80):

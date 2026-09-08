@@ -438,3 +438,155 @@ class TestApplicationStatus:
         )
 
         assert response.status_code == 403
+
+    def test_cannot_accept_before_completion(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application = self._prepare(
+            client, employer_token, candidate_token, skills
+        )
+
+        response = client.patch(
+            f"/api/applications/{application['id']}/status",
+            json={"status": "accepted"},
+            headers=auth(employer_token),
+        )
+
+        assert response.status_code == 400
+        assert response.json()["detail"]["code"] == "INVALID_STATUS_CHANGE"
+
+    def test_can_accept_after_completion(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application = self._prepare(
+            client, employer_token, candidate_token, skills
+        )
+
+        with patch(
+            "app.services.question_service.generate_json",
+            return_value=["Question 1"],
+        ):
+            questions = client.post(
+                f"/api/assessments/jobs/{job['id']}/questions",
+                json={},
+                headers=auth(employer_token),
+            ).json()
+
+        client.put(
+            f"/api/assessments/jobs/{job['id']}/questions",
+            json={"question_ids": [questions[0]["id"]]},
+            headers=auth(employer_token),
+        )
+
+        with patch(
+            "app.services.evaluation_service.generate_json",
+            return_value={"score": 80},
+        ):
+            client.post(
+                f"/api/assessments/applications/{application['id']}/answers",
+                json={"question_id": questions[0]["id"], "answer_text": "An answer"},
+                headers=auth(candidate_token),
+            )
+
+        response = client.patch(
+            f"/api/applications/{application['id']}/status",
+            json={"status": "accepted"},
+            headers=auth(employer_token),
+        )
+
+        assert response.status_code == 200
+        assert response.json()["status"] == "accepted"
+
+    def test_accepted_candidate_cannot_start_assessment_again(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application = self._prepare(
+            client, employer_token, candidate_token, skills
+        )
+
+        with patch(
+            "app.services.question_service.generate_json",
+            return_value=["Question 1"],
+        ):
+            questions = client.post(
+                f"/api/assessments/jobs/{job['id']}/questions",
+                json={},
+                headers=auth(employer_token),
+            ).json()
+
+        client.put(
+            f"/api/assessments/jobs/{job['id']}/questions",
+            json={"question_ids": [questions[0]["id"]]},
+            headers=auth(employer_token),
+        )
+
+        with patch(
+            "app.services.evaluation_service.generate_json",
+            return_value={"score": 80},
+        ):
+            client.post(
+                f"/api/assessments/applications/{application['id']}/answers",
+                json={"question_id": questions[0]["id"], "answer_text": "An answer"},
+                headers=auth(candidate_token),
+            )
+
+        client.patch(
+            f"/api/applications/{application['id']}/status",
+            json={"status": "accepted"},
+            headers=auth(employer_token),
+        )
+
+        response = client.get(
+            f"/api/assessments/applications/{application['id']}/questions",
+            headers=auth(candidate_token),
+        )
+
+        assert response.status_code == 403
+
+    def test_can_undo_acceptance(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application = self._prepare(
+            client, employer_token, candidate_token, skills
+        )
+
+        with patch(
+            "app.services.question_service.generate_json",
+            return_value=["Question 1"],
+        ):
+            questions = client.post(
+                f"/api/assessments/jobs/{job['id']}/questions",
+                json={},
+                headers=auth(employer_token),
+            ).json()
+
+        client.put(
+            f"/api/assessments/jobs/{job['id']}/questions",
+            json={"question_ids": [questions[0]["id"]]},
+            headers=auth(employer_token),
+        )
+
+        with patch(
+            "app.services.evaluation_service.generate_json",
+            return_value={"score": 80},
+        ):
+            client.post(
+                f"/api/assessments/applications/{application['id']}/answers",
+                json={"question_id": questions[0]["id"], "answer_text": "An answer"},
+                headers=auth(candidate_token),
+            )
+
+        client.patch(
+            f"/api/applications/{application['id']}/status",
+            json={"status": "accepted"},
+            headers=auth(employer_token),
+        )
+
+        response = client.patch(
+            f"/api/applications/{application['id']}/status",
+            json={"status": "pending"},
+            headers=auth(employer_token),
+        )
+
+        assert response.status_code == 200
+        assert response.json()["status"] == "pending"

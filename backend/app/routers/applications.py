@@ -11,6 +11,14 @@ from app.services.matching_service import calculate_compatibility, find_missing_
 
 router = APIRouter(prefix="/applications", tags=["applications"])
 
+VALID_TRANSITIONS = {
+    ApplicationStatus.PENDING: {ApplicationStatus.REJECTED},
+    ApplicationStatus.ASSESSMENT: {ApplicationStatus.REJECTED},
+    ApplicationStatus.COMPLETED: {ApplicationStatus.ACCEPTED, ApplicationStatus.REJECTED},
+    ApplicationStatus.ACCEPTED: {ApplicationStatus.PENDING, ApplicationStatus.REJECTED},
+    ApplicationStatus.REJECTED: {ApplicationStatus.PENDING},
+}
+
 
 @router.post("", response_model=ApplicationOut, status_code=status.HTTP_201_CREATED)
 def create_application(
@@ -117,7 +125,9 @@ def update_application_status(
             detail={"code": errors.APPLICATION_ACCESS_DENIED},
         )
 
-    if body.status not in (ApplicationStatus.REJECTED, ApplicationStatus.PENDING):
+    allowed = VALID_TRANSITIONS.get(application.status, set())
+
+    if body.status not in allowed:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"code": errors.INVALID_STATUS_CHANGE},
