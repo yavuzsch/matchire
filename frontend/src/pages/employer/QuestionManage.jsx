@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 
-import { get, post, put } from "../../api/client"
+import { get, patch, post, put } from "../../api/client"
 import { t } from "../../i18n"
 
 export default function QuestionManage() {
@@ -9,6 +9,9 @@ export default function QuestionManage() {
 
   const [questions, setQuestions] = useState([])
   const [checkedIds, setCheckedIds] = useState([])
+
+  const [timeLimit, setTimeLimit] = useState("")
+  const [savingTimeLimit, setSavingTimeLimit] = useState(false)
 
   const [generating, setGenerating] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -24,6 +27,14 @@ export default function QuestionManage() {
     get(`/assessments/jobs/${jobId}/questions`)
       .then(load)
       .catch(() => setQuestions([]))
+
+    get(`/jobs/${jobId}`)
+      .then((job) => {
+        if (job.assessment_time_limit_minutes) {
+          setTimeLimit(String(job.assessment_time_limit_minutes))
+        }
+      })
+      .catch(() => {})
   }, [jobId])
 
   async function generate() {
@@ -65,6 +76,23 @@ export default function QuestionManage() {
     }
   }
 
+  async function saveTimeLimit() {
+    setSavingTimeLimit(true)
+    setMessage(null)
+    setError(null)
+
+    try {
+      await patch(`/jobs/${jobId}/settings`, {
+        assessment_time_limit_minutes: timeLimit ? Number(timeLimit) : null,
+      })
+      setMessage(t.questions.timeLimitSaved)
+    } catch (err) {
+      setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
+    } finally {
+      setSavingTimeLimit(false)
+    }
+  }
+
   return (
     <div className="mx-auto max-w-3xl p-8">
       <Link to="/employer/jobs" className="text-sm text-blue-400">
@@ -77,6 +105,32 @@ export default function QuestionManage() {
 
       {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
       {message && <p className="mb-4 text-sm text-green-400">{message}</p>}
+
+      <div className="mb-4 flex items-end gap-3 rounded bg-slate-800 p-3">
+        <div className="flex-1">
+          <label className="mb-1 block text-sm text-slate-300">
+            {t.questions.timeLimit}
+          </label>
+          <input
+            type="number"
+            min="5"
+            max="180"
+            value={timeLimit}
+            onChange={(e) => setTimeLimit(e.target.value)}
+            placeholder={t.questions.timeLimitPlaceholder}
+            className="w-full rounded bg-slate-700 px-3 py-2 text-white placeholder-slate-400"
+          />
+        </div>
+
+        <button
+          type="button"
+          onClick={saveTimeLimit}
+          disabled={savingTimeLimit}
+          className="rounded bg-slate-600 px-4 py-2 text-sm text-white disabled:opacity-50"
+        >
+          {savingTimeLimit ? t.common.saving : t.common.save}
+        </button>
+      </div>
 
       <div className="mb-4 flex items-center gap-3">
         <button

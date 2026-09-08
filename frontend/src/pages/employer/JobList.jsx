@@ -18,7 +18,7 @@ export default function JobList() {
     setMessage(null)
 
     try {
-      const updated = await patch(`/jobs/${jobId}/status`, changes)
+      const updated = await patch(`/jobs/${jobId}/settings`, changes)
       setJobs(jobs.map((job) => (job.id === jobId ? updated : job)))
       setMessage(t.jobList.statusUpdated)
     } catch (err) {

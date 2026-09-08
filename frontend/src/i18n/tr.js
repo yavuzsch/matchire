@@ -107,6 +107,9 @@ export default {
   questions: {
     title: "Yetkinlik Soruları",
     back: "İlanlarıma dön",
+    timeLimit: "Yetkinlik testi süresi (dakika, opsiyonel)",
+    timeLimitPlaceholder: "Boş bırakılırsa süre sınırı olmaz",
+    timeLimitSaved: "Süre sınırı kaydedildi",
     generate: "Soru üret",
     generating: "Üretiliyor...",
     regenerate: "Yeniden üret",
