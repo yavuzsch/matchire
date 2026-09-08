@@ -144,6 +144,68 @@ def select_questions(
     return questions
 
 
+@router.post("/applications/{application_id}/start", response_model=AssessmentSession)
+def start_assessment(
+    application_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_candidate),
+):
+    application = (
+        db.query(Application)
+        .filter(
+            Application.id == application_id,
+            Application.candidate_id == current_user.id,
+        )
+        .first()
+    )
+    if application is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": errors.APPLICATION_NOT_FOUND},
+        )
+
+    job = db.query(Job).filter(Job.id == application.job_id).first()
+
+    if not is_eligible(db, job, application):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={"code": errors.ASSESSMENT_NOT_ELIGIBLE},
+        )
+
+    questions = (
+        db.query(AssessmentQuestion)
+        .filter(
+            AssessmentQuestion.job_id == job.id,
+            AssessmentQuestion.is_selected.is_(True),
+        )
+        .order_by(AssessmentQuestion.id)
+        .all()
+    )
+
+    if not questions:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"code": errors.NO_QUESTIONS_SELECTED},
+        )
+
+    if application.assessment_started_at is None:
+        application.assessment_started_at = datetime.now(timezone.utc)
+        db.commit()
+        db.refresh(application)
+
+    if is_time_expired(application, job):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={"code": errors.ASSESSMENT_TIME_EXPIRED},
+        )
+
+    return AssessmentSession(
+        questions=questions,
+        started_at=application.assessment_started_at,
+        time_limit_minutes=job.assessment_time_limit_minutes,
+    )
+
+
 @router.get("/applications/{application_id}/questions", response_model=AssessmentSession)
 def list_assessment_questions(
     application_id: int,
@@ -172,17 +234,6 @@ def list_assessment_questions(
             detail={"code": errors.ASSESSMENT_NOT_ELIGIBLE},
         )
 
-    if application.assessment_started_at is None:
-        application.assessment_started_at = datetime.now(timezone.utc)
-        db.commit()
-        db.refresh(application)
-
-    if is_time_expired(application, job):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail={"code": errors.ASSESSMENT_TIME_EXPIRED},
-        )
-
     questions = (
         db.query(AssessmentQuestion)
         .filter(
@@ -197,6 +248,19 @@ def list_assessment_questions(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"code": errors.NO_QUESTIONS_SELECTED},
+        )
+
+    if application.assessment_started_at is None:
+        return AssessmentSession(
+            questions=[],
+            started_at=None,
+            time_limit_minutes=job.assessment_time_limit_minutes,
+        )
+
+    if is_time_expired(application, job):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={"code": errors.ASSESSMENT_TIME_EXPIRED},
         )
 
     return AssessmentSession(

@@ -21,7 +21,7 @@ class QuestionForCandidate(BaseModel):
 
 class AssessmentSession(BaseModel):
     questions: list[QuestionForCandidate]
-    started_at: datetime
+    started_at: datetime | None
     time_limit_minutes: int | None
 
 

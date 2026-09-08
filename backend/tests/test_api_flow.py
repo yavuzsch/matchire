@@ -135,6 +135,11 @@ class TestAssessmentFlow:
             headers=auth(employer_token),
         )
 
+        client.post(
+            f"/api/assessments/applications/{application['id']}/start",
+            headers=auth(candidate_token),
+        )
+
         candidate_view = client.get(
             f"/api/assessments/applications/{application['id']}/questions",
             headers=auth(candidate_token),
@@ -201,6 +206,11 @@ class TestAssessmentFlow:
             f"/api/assessments/jobs/{job['id']}/questions",
             json={"question_ids": [questions[0]["id"]]},
             headers=auth(employer_token),
+        )
+
+        client.post(
+            f"/api/assessments/applications/{application['id']}/start",
+            headers=auth(candidate_token),
         )
 
         with patch(
@@ -479,6 +489,11 @@ class TestApplicationStatus:
             headers=auth(employer_token),
         )
 
+        client.post(
+            f"/api/assessments/applications/{application['id']}/start",
+            headers=auth(candidate_token),
+        )
+
         with patch(
             "app.services.evaluation_service.generate_json",
             return_value={"score": 80},
@@ -519,6 +534,11 @@ class TestApplicationStatus:
             f"/api/assessments/jobs/{job['id']}/questions",
             json={"question_ids": [questions[0]["id"]]},
             headers=auth(employer_token),
+        )
+
+        client.post(
+            f"/api/assessments/applications/{application['id']}/start",
+            headers=auth(candidate_token),
         )
 
         with patch(
@@ -565,6 +585,11 @@ class TestApplicationStatus:
             f"/api/assessments/jobs/{job['id']}/questions",
             json={"question_ids": [questions[0]["id"]]},
             headers=auth(employer_token),
+        )
+
+        client.post(
+            f"/api/assessments/applications/{application['id']}/start",
+            headers=auth(candidate_token),
         )
 
         with patch(
@@ -638,15 +663,15 @@ class TestAssessmentTimeLimit:
             client, employer_token, candidate_token, skills, 30
         )
 
-        response = client.get(
-            f"/api/assessments/applications/{application['id']}/questions",
+        response = client.post(
+            f"/api/assessments/applications/{application['id']}/start",
             headers=auth(candidate_token),
         )
 
         assert response.status_code == 200
         data = response.json()
         assert data["time_limit_minutes"] == 30
-        assert "started_at" in data
+        assert data["started_at"] is not None
         assert len(data["questions"]) == 1
 
     def test_no_time_limit_by_default(
@@ -656,27 +681,27 @@ class TestAssessmentTimeLimit:
             client, employer_token, candidate_token, skills, None
         )
 
-        response = client.get(
-            f"/api/assessments/applications/{application['id']}/questions",
+        response = client.post(
+            f"/api/assessments/applications/{application['id']}/start",
             headers=auth(candidate_token),
         )
 
         assert response.json()["time_limit_minutes"] is None
 
-    def test_started_at_does_not_change_on_second_view(
+    def test_started_at_does_not_change_on_second_start(
         self, client, employer_token, candidate_token, skills
     ):
         job, application, questions = self._prepare_with_time_limit(
             client, employer_token, candidate_token, skills, 30
         )
 
-        first = client.get(
-            f"/api/assessments/applications/{application['id']}/questions",
+        first = client.post(
+            f"/api/assessments/applications/{application['id']}/start",
             headers=auth(candidate_token),
         ).json()
 
-        second = client.get(
-            f"/api/assessments/applications/{application['id']}/questions",
+        second = client.post(
+            f"/api/assessments/applications/{application['id']}/start",
             headers=auth(candidate_token),
         ).json()
 
@@ -689,8 +714,8 @@ class TestAssessmentTimeLimit:
             client, employer_token, candidate_token, skills, 10
         )
 
-        client.get(
-            f"/api/assessments/applications/{application['id']}/questions",
+        client.post(
+            f"/api/assessments/applications/{application['id']}/start",
             headers=auth(candidate_token),
         )
 
@@ -721,8 +746,8 @@ class TestAssessmentTimeLimit:
             client, employer_token, candidate_token, skills, 10
         )
 
-        client.get(
-            f"/api/assessments/applications/{application['id']}/questions",
+        client.post(
+            f"/api/assessments/applications/{application['id']}/start",
             headers=auth(candidate_token),
         )
 
@@ -754,8 +779,8 @@ class TestAssessmentTimeLimit:
             client, employer_token, candidate_token, skills, 30
         )
 
-        client.get(
-            f"/api/assessments/applications/{application['id']}/questions",
+        client.post(
+            f"/api/assessments/applications/{application['id']}/start",
             headers=auth(candidate_token),
         )
 
@@ -770,3 +795,129 @@ class TestAssessmentTimeLimit:
             )
 
         assert response.status_code == 200
+
+    def test_questions_endpoint_shows_not_started_before_start(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application, questions = self._prepare_with_time_limit(
+            client, employer_token, candidate_token, skills, 30
+        )
+
+        response = client.get(
+            f"/api/assessments/applications/{application['id']}/questions",
+            headers=auth(candidate_token),
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert data["started_at"] is None
+        assert data["questions"] == []
+
+    def test_questions_endpoint_shows_questions_after_start(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application, questions = self._prepare_with_time_limit(
+            client, employer_token, candidate_token, skills, 30
+        )
+
+        client.post(
+            f"/api/assessments/applications/{application['id']}/start",
+            headers=auth(candidate_token),
+        )
+
+        response = client.get(
+            f"/api/assessments/applications/{application['id']}/questions",
+            headers=auth(candidate_token),
+        )
+
+        data = response.json()
+        assert data["started_at"] is not None
+        assert len(data["questions"]) == 1
+
+
+class TestJobSettingsLock:
+    def _start_assessment(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job = create_job(client, employer_token, skills)
+
+        client.patch(
+            f"/api/jobs/{job['id']}/settings",
+            json={"assessment_time_limit_minutes": 30},
+            headers=auth(employer_token),
+        )
+
+        create_resume(client, candidate_token, skills)
+        application = client.post(
+            "/api/applications",
+            json={"job_id": job["id"]},
+            headers=auth(candidate_token),
+        ).json()
+
+        with patch(
+            "app.services.question_service.generate_json",
+            return_value=["Question 1"],
+        ):
+            questions = client.post(
+                f"/api/assessments/jobs/{job['id']}/questions",
+                json={},
+                headers=auth(employer_token),
+            ).json()
+
+        client.put(
+            f"/api/assessments/jobs/{job['id']}/questions",
+            json={"question_ids": [questions[0]["id"]]},
+            headers=auth(employer_token),
+        )
+
+        client.post(
+            f"/api/assessments/applications/{application['id']}/start",
+            headers=auth(candidate_token),
+        )
+
+        return job, application
+
+    def test_cannot_change_time_limit_after_started(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application = self._start_assessment(
+            client, employer_token, candidate_token, skills
+        )
+
+        response = client.patch(
+            f"/api/jobs/{job['id']}/settings",
+            json={"assessment_time_limit_minutes": 60},
+            headers=auth(employer_token),
+        )
+
+        assert response.status_code == 400
+        assert response.json()["detail"]["code"] == "ASSESSMENT_TIME_LOCKED"
+
+    def test_can_change_other_settings_after_started(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application = self._start_assessment(
+            client, employer_token, candidate_token, skills
+        )
+
+        response = client.patch(
+            f"/api/jobs/{job['id']}/settings",
+            json={"is_closed": True},
+            headers=auth(employer_token),
+        )
+
+        assert response.status_code == 200
+
+    def test_can_set_time_limit_before_anyone_started(
+        self, client, employer_token, skills
+    ):
+        job = create_job(client, employer_token, skills)
+
+        response = client.patch(
+            f"/api/jobs/{job['id']}/settings",
+            json={"assessment_time_limit_minutes": 45},
+            headers=auth(employer_token),
+        )
+
+        assert response.status_code == 200
+        assert response.json()["assessment_time_limit_minutes"] == 45
