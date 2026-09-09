@@ -49,7 +49,7 @@ class TestApplicationFlow:
         application = response.json()
         assert application["status"] == "pending"
         assert application["assessment_eligible"] is True
-        assert "compatibility_score" not in application
+        assert application["compatibility_score"] is not None
 
     def test_rejects_without_resume(self, client, employer_token, candidate_token, skills):
         job = create_job(client, employer_token, skills)
@@ -921,3 +921,146 @@ class TestJobSettingsLock:
 
         assert response.status_code == 200
         assert response.json()["assessment_time_limit_minutes"] == 45
+
+
+class TestApplicationWithdrawal:
+    def test_candidate_can_withdraw_pending_application(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job = create_job(client, employer_token, skills)
+        create_resume(client, candidate_token, skills)
+        application = client.post(
+            "/api/applications",
+            json={"job_id": job["id"]},
+            headers=auth(candidate_token),
+        ).json()
+
+        response = client.delete(
+            f"/api/applications/{application['id']}",
+            headers=auth(candidate_token),
+        )
+
+        assert response.status_code == 204
+
+    def test_withdrawn_application_hidden_from_list(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job = create_job(client, employer_token, skills)
+        create_resume(client, candidate_token, skills)
+        application = client.post(
+            "/api/applications",
+            json={"job_id": job["id"]},
+            headers=auth(candidate_token),
+        ).json()
+
+        client.delete(
+            f"/api/applications/{application['id']}",
+            headers=auth(candidate_token),
+        )
+
+        applications = client.get(
+            "/api/applications/mine", headers=auth(candidate_token)
+        ).json()
+
+        assert applications == []
+
+    def test_cannot_withdraw_accepted_application(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job = create_job(client, employer_token, skills)
+        create_resume(client, candidate_token, skills)
+        application = client.post(
+            "/api/applications",
+            json={"job_id": job["id"]},
+            headers=auth(candidate_token),
+        ).json()
+
+        with patch(
+            "app.services.question_service.generate_json",
+            return_value=["Question 1"],
+        ):
+            questions = client.post(
+                f"/api/assessments/jobs/{job['id']}/questions",
+                json={},
+                headers=auth(employer_token),
+            ).json()
+
+        client.put(
+            f"/api/assessments/jobs/{job['id']}/questions",
+            json={"question_ids": [questions[0]["id"]]},
+            headers=auth(employer_token),
+        )
+
+        client.post(
+            f"/api/assessments/applications/{application['id']}/start",
+            headers=auth(candidate_token),
+        )
+
+        with patch(
+            "app.services.evaluation_service.generate_json",
+            return_value={"score": 80},
+        ):
+            client.post(
+                f"/api/assessments/applications/{application['id']}/answers",
+                json={"question_id": questions[0]["id"], "answer_text": "An answer"},
+                headers=auth(candidate_token),
+            )
+
+        client.patch(
+            f"/api/applications/{application['id']}/status",
+            json={"status": "accepted"},
+            headers=auth(employer_token),
+        )
+
+        response = client.delete(
+            f"/api/applications/{application['id']}",
+            headers=auth(candidate_token),
+        )
+
+        assert response.status_code == 400
+        assert response.json()["detail"]["code"] == "CANNOT_WITHDRAW_ACCEPTED"
+
+    def test_cannot_withdraw_others_application(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job = create_job(client, employer_token, skills)
+        create_resume(client, candidate_token, skills)
+        application = client.post(
+            "/api/applications",
+            json={"job_id": job["id"]},
+            headers=auth(candidate_token),
+        ).json()
+
+        other_candidate = client.post(
+            "/api/auth/register",
+            json={
+                "email": "other_candidate@test.com",
+                "password": "password123",
+                "full_name": "Other Candidate",
+                "role": "candidate",
+            },
+        ).json()["access_token"]
+
+        response = client.delete(
+            f"/api/applications/{application['id']}",
+            headers=auth(other_candidate),
+        )
+
+        assert response.status_code == 404
+
+    def test_application_list_includes_compatibility_score(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job = create_job(client, employer_token, skills)
+        create_resume(client, candidate_token, skills)
+        client.post(
+            "/api/applications",
+            json={"job_id": job["id"]},
+            headers=auth(candidate_token),
+        )
+
+        applications = client.get(
+            "/api/applications/mine", headers=auth(candidate_token)
+        ).json()
+
+        assert applications[0]["compatibility_score"] is not None
