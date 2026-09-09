@@ -72,6 +72,8 @@ export default {
     empty: "Henüz ilan yok",
     experienceRequired: "yıl deneyim",
     inactive: "Bu ilan yayından kaldırıldı",
+    compatibility: "Uyumluluk",
+    assessmentClosed: "Yetkinlik testi kapalı",
     apply: "Başvur",
     applying: "Gönderiliyor...",
     applied: "Başvurunuz alındı",
