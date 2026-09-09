@@ -57,6 +57,8 @@ class JobPublic(BaseModel):
     education_level: EducationLevel | None
     field: TechField | None
     language: Language
+    is_closed: bool
+    compatibility_score: float | None = None
     created_at: datetime
 
 

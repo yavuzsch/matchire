@@ -5,7 +5,7 @@ from app.core import errors
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.deps import get_current_user, require_employer
-from app.models import Application, AssessmentQuestion, Job, JobSkill, Skill, User, UserRole
+from app.models import Application, AssessmentQuestion, Job, JobSkill, Resume, Skill, User, UserRole
 from app.schemas.job import (
     JobCreate,
     JobFull,
@@ -17,6 +17,7 @@ from app.schemas.job import (
 )
 from app.services.job_parser import parse_job
 from app.services.llm_client import LLMUnavailableError
+from app.services.matching_service import calculate_compatibility
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
@@ -115,13 +116,31 @@ def create_job(
 
 
 @router.get("", response_model=list[JobPublic])
-def list_jobs(db: Session = Depends(get_db)):
-    return (
+def list_jobs(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    jobs = (
         db.query(Job)
         .filter(Job.is_active.is_(True))
         .order_by(Job.id.desc())
         .all()
     )
+
+    resume = None
+    if current_user.role == UserRole.CANDIDATE:
+        resume = db.query(Resume).filter(Resume.candidate_id == current_user.id).first()
+
+    results = []
+    for job in jobs:
+        data = JobPublic.model_validate(job)
+        if resume is not None:
+            data.compatibility_score = calculate_compatibility(job, resume)
+        results.append(data)
+
+    results.sort(key=lambda item: (item.is_closed, -(item.compatibility_score or 0)))
+
+    return results
 
 
 @router.get("/mine", response_model=list[JobFull])
