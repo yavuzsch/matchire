@@ -43,17 +43,6 @@ export default function JobBrowse() {
     return t.jobBrowse.statusPending
   }
 
-  const visibleJobs = [...jobs]
-
-  applications.forEach((application) => {
-    if (!application.job) {
-      return
-    }
-    if (!visibleJobs.some((job) => job.id === application.job_id)) {
-      visibleJobs.push(application.job)
-    }
-  })
-
   async function apply(jobId) {
     setError(null)
     setPendingId(jobId)
@@ -72,23 +61,15 @@ export default function JobBrowse() {
     <div className="mx-auto max-w-3xl p-8">
       <h1 className="mb-6 text-2xl font-bold text-white">{t.jobBrowse.title}</h1>
 
-      {error && (
-        <div className="mb-4 space-y-1">
-          <p className="text-sm text-red-400">{error}</p>
-          <Link to="/candidate/resume" className="text-sm text-blue-400">
-            {t.jobBrowse.goToResume}
-          </Link>
-        </div>
-      )}
+      {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
 
-      {visibleJobs.length === 0 && (
+      {jobs.length === 0 && (
         <p className="text-slate-400">{t.jobBrowse.empty}</p>
       )}
 
       <div className="space-y-3">
-        {visibleJobs.map((job) => {
+        {jobs.map((job) => {
           const application = findApplication(job.id)
-          const isListed = jobs.some((item) => item.id === job.id)
 
           return (
             <div key={job.id} className="rounded bg-slate-800 p-4">
@@ -127,12 +108,6 @@ export default function JobBrowse() {
               {job.is_closed && (
                 <p className="mt-1 text-xs text-slate-500">
                   {t.jobBrowse.assessmentClosed}
-                </p>
-              )}
-
-              {!isListed && (
-                <p className="mt-2 text-xs text-amber-400">
-                  {t.jobBrowse.inactive}
                 </p>
               )}
 

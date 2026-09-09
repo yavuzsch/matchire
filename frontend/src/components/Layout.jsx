@@ -10,6 +10,7 @@ const EMPLOYER_LINKS = [
 
 const CANDIDATE_LINKS = [
   { to: "/candidate/jobs", label: t.menu.jobs },
+  { to: "/candidate/applications", label: t.menu.myApplications },
   { to: "/candidate/resume", label: t.menu.myResume },
 ]
 
