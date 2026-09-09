@@ -178,6 +178,77 @@ class TestJobOwnership:
         assert response.json()["detail"]["code"] == "APPLICATION_ACCESS_DENIED"
 
 
+class TestJobCompatibility:
+    def test_candidate_sees_compatibility_score(
+        self, client, employer_token, candidate_token, skills
+    ):
+        create_job(client, employer_token, skills)
+        client.post(
+            "/api/resumes",
+            json={"skill_ids": [skills["Python"]], "experience_years": 2},
+            headers=auth(candidate_token),
+        )
+
+        jobs = client.get("/api/jobs", headers=auth(candidate_token)).json()
+
+        assert jobs[0]["compatibility_score"] is not None
+
+    def test_candidate_without_resume_sees_null_score(
+        self, client, employer_token, candidate_token, skills
+    ):
+        create_job(client, employer_token, skills)
+
+        jobs = client.get("/api/jobs", headers=auth(candidate_token)).json()
+
+        assert jobs[0]["compatibility_score"] is None
+
+    def test_employer_sees_null_score(
+        self, client, employer_token, skills
+    ):
+        create_job(client, employer_token, skills)
+
+        jobs = client.get("/api/jobs", headers=auth(employer_token)).json()
+
+        assert jobs[0]["compatibility_score"] is None
+
+    def test_requires_authentication(self, client):
+        response = client.get("/api/jobs")
+
+        assert response.status_code == 401
+
+    def test_closed_jobs_sort_last(
+        self, client, employer_token, candidate_token, skills
+    ):
+        low_job = create_job(client, employer_token, skills)
+        high_job = create_job(client, employer_token, skills)
+
+        client.patch(
+            f"/api/jobs/{low_job['id']}/settings",
+            json={"is_closed": True},
+            headers=auth(employer_token),
+        )
+
+        client.post(
+            "/api/resumes",
+            json={
+                "skill_ids": [
+                    skills["Python"],
+                    skills["FastAPI"],
+                    skills["Docker"],
+                ],
+                "experience_years": 2,
+                "education_level": "bachelor",
+                "field": "software_development",
+            },
+            headers=auth(candidate_token),
+        )
+
+        jobs = client.get("/api/jobs", headers=auth(candidate_token)).json()
+        job_ids = [job["id"] for job in jobs]
+
+        assert job_ids.index(high_job["id"]) < job_ids.index(low_job["id"])
+
+
 class TestPublicFiltering:
     def test_candidate_does_not_see_skill_requirements(
         self, client, employer_token, candidate_token, skills
