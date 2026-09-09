@@ -134,6 +134,10 @@ export default function JobBrowse() {
                         </Link>
                       )}
                   </div>
+                ) : job.withdrawn ? (
+                  <p className="text-xs text-slate-500">
+                    {t.jobBrowse.withdrawnNotice}
+                  </p>
                 ) : (
                   <button
                     type="button"
