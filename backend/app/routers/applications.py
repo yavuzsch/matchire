@@ -86,7 +86,10 @@ def list_my_applications(
 ):
     applications = (
         db.query(Application)
-        .filter(Application.candidate_id == current_user.id)
+        .filter(
+            Application.candidate_id == current_user.id,
+            Application.hidden_by_candidate.is_(False),
+        )
         .order_by(Application.id.desc())
         .all()
     )
@@ -197,3 +200,34 @@ def list_job_applications(
         )
         for app, user, resume in rows
     ]
+
+
+@router.delete("/{application_id}", status_code=status.HTTP_204_NO_CONTENT)
+def withdraw_application(
+    application_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_candidate),
+):
+    application = (
+        db.query(Application)
+        .filter(
+            Application.id == application_id,
+            Application.candidate_id == current_user.id,
+        )
+        .first()
+    )
+    if application is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"code": errors.APPLICATION_NOT_FOUND},
+        )
+
+    if application.status == ApplicationStatus.ACCEPTED:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail={"code": errors.CANNOT_WITHDRAW_ACCEPTED},
+        )
+
+    application.status = ApplicationStatus.WITHDRAWN
+    application.hidden_by_candidate = True
+    db.commit()

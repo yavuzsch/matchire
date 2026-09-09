@@ -1,6 +1,6 @@
 import enum
 
-from sqlalchemy import Column, Integer, Float, DateTime, ForeignKey, Enum as SAEnum, UniqueConstraint
+from sqlalchemy import Boolean, Column, DateTime, Enum as SAEnum, Float, ForeignKey, Integer, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 from app.core.database import Base
@@ -12,6 +12,7 @@ class ApplicationStatus(str, enum.Enum):
     COMPLETED = "completed"
     ACCEPTED = "accepted"
     REJECTED = "rejected"
+    WITHDRAWN = "withdrawn"
 
 
 class Application(Base):
@@ -28,6 +29,7 @@ class Application(Base):
 
     status = Column(SAEnum(ApplicationStatus), default=ApplicationStatus.PENDING)
     assessment_started_at = Column(DateTime(timezone=True), nullable=True)
+    hidden_by_candidate = Column(Boolean, nullable=False, default=False, server_default="false")
 
     job = relationship("Job")
     candidate = relationship("User")
