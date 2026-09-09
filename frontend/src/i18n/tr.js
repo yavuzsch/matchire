@@ -2,7 +2,6 @@ export default {
   common: {
     save: "Kaydet",
     saving: "Kaydediliyor...",
-    error: "Bir hata oluştu",
   },
 
   auth: {
@@ -102,15 +101,12 @@ export default {
     withdrawnNotice: "Bu ilana daha önce başvurmuş ve geri çekmiştiniz, tekrar başvuramazsınız",
     apply: "Başvur",
     applying: "Gönderiliyor...",
-    applied: "Başvurunuz alındı",
     statusPending: "Başvurunuz alındı, sıralamaya göre değerlendirilecek",
     statusReadyForAssessment: "Yetkinlik testine girebilirsiniz",
     statusAssessment: "Yetkinlik testiniz devam ediyor",
     statusCompleted: "Yetkinlik testiniz tamamlandı, sonuç işverende",
     statusAccepted: "Tebrikler, mülakata davet edildiniz",
     statusRejected: "Bu başvuru olumsuz sonuçlandı",
-    notEligible: "Bu ilan için yetkinlik testi kontenjanı dolu",
-    goToResume: "Özgeçmişimi güncelle",
   },
 
   applications: {
@@ -164,7 +160,6 @@ export default {
     compatibility: "Uyumluluk",
     assessment: "Yetkinlik",
     total: "Toplam",
-    eligible: "Yetkinlik testine uygun",
     projectSummary: "Projeler",
     showAnswers: "Cevapları göster",
     hideAnswers: "Cevapları gizle",
@@ -266,6 +261,7 @@ export default {
     APPLICATION_NOT_FOUND: "Başvuru bulunamadı",
     APPLICATION_ACCESS_DENIED: "Bu başvuruya erişim yetkiniz yok",
     INVALID_STATUS_CHANGE: "Bu durum değişikliği yapılamaz",
+    CANNOT_WITHDRAW_ACCEPTED: "Mülakata çağrılan bir başvuru geri çekilemez",
     ALREADY_APPLIED: "Bu ilana zaten başvurdunuz",
     MISSING_MANDATORY_SKILLS: "Bu ilanın zorunlu gereksinimlerini karşılamıyorsunuz. Özgeçmişinizi güncelleyebilir veya diğer ilanlara başvurabilirsiniz",
 

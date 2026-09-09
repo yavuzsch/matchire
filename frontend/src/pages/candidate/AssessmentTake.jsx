@@ -17,7 +17,7 @@ export default function AssessmentTake() {
   const [questions, setQuestions] = useState([])
   const [startedAt, setStartedAt] = useState(null)
   const [timeLimitMinutes, setTimeLimitMinutes] = useState(null)
-  const [now, setNow] = useState(Date.now())
+  const [now, setNow] = useState(() => Date.now())
   const [answers, setAnswers] = useState({})
   const [answeredIds, setAnsweredIds] = useState([])
   const [pendingId, setPendingId] = useState(null)
@@ -25,7 +25,7 @@ export default function AssessmentTake() {
   const [error, setError] = useState(null)
   const [notReady, setNotReady] = useState(false)
   const [notStarted, setNotStarted] = useState(false)
-  const [timeExpired, setTimeExpired] = useState(false)
+  const [serverTimeExpired, setServerTimeExpired] = useState(false)
 
   useEffect(() => {
     get(`/assessments/applications/${applicationId}/questions`)
@@ -44,7 +44,7 @@ export default function AssessmentTake() {
         if (err.code === "NO_QUESTIONS_SELECTED") {
           setNotReady(true)
         } else if (err.code === "ASSESSMENT_TIME_EXPIRED") {
-          setTimeExpired(true)
+          setServerTimeExpired(true)
         } else {
           setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
         }
@@ -67,7 +67,7 @@ export default function AssessmentTake() {
       setNotStarted(false)
     } catch (err) {
       if (err.code === "ASSESSMENT_TIME_EXPIRED") {
-        setTimeExpired(true)
+        setServerTimeExpired(true)
       } else {
         setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
       }
@@ -85,6 +85,20 @@ export default function AssessmentTake() {
     return () => clearInterval(interval)
   }, [timeLimitMinutes, notStarted])
 
+  const remainingSeconds = useMemo(() => {
+    if (!timeLimitMinutes || !startedAt) {
+      return null
+    }
+
+    const deadline = startedAt + timeLimitMinutes * 60 * 1000
+    return Math.floor((deadline - now) / 1000)
+  }, [startedAt, timeLimitMinutes, now])
+
+  const clientTimeExpired =
+    timeLimitMinutes !== null && remainingSeconds !== null && remainingSeconds <= 0
+
+  const timeExpired = serverTimeExpired || clientTimeExpired
+
   useEffect(() => {
     function handleBeforeUnload(event) {
       if (timeLimitMinutes && !notStarted && !timeExpired) {
@@ -96,21 +110,6 @@ export default function AssessmentTake() {
     window.addEventListener("beforeunload", handleBeforeUnload)
     return () => window.removeEventListener("beforeunload", handleBeforeUnload)
   }, [timeLimitMinutes, notStarted, timeExpired])
-
-  const remainingSeconds = useMemo(() => {
-    if (!timeLimitMinutes || !startedAt) {
-      return null
-    }
-
-    const deadline = startedAt + timeLimitMinutes * 60 * 1000
-    return Math.floor((deadline - now) / 1000)
-  }, [startedAt, timeLimitMinutes, now])
-
-  useEffect(() => {
-    if (remainingSeconds !== null && remainingSeconds <= 0 && !timeExpired) {
-      setTimeExpired(true)
-    }
-  }, [remainingSeconds, timeExpired])
 
   function setAnswer(questionId, text) {
     setAnswers({ ...answers, [questionId]: text })
@@ -128,7 +127,7 @@ export default function AssessmentTake() {
       setAnsweredIds([...answeredIds, questionId])
     } catch (err) {
       if (err.code === "ASSESSMENT_TIME_EXPIRED") {
-        setTimeExpired(true)
+        setServerTimeExpired(true)
       } else {
         setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
       }

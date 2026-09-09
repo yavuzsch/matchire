@@ -21,14 +21,17 @@ async function request(path, options = {}) {
   }
 
   const response = await fetch(`${BASE_URL}${path}`, { ...options, headers })
+  const data = await response.json().catch(() => null)
 
-  if (response.status === 401 && !path.startsWith("/auth/")) {
+  const isSessionInvalid =
+    response.status === 401 ||
+    (response.status === 403 && data?.detail?.code === "ACCOUNT_DEACTIVATED")
+
+  if (isSessionInvalid && !path.startsWith("/auth/")) {
     clearToken()
     window.location.href = "/login"
     return
   }
-
-  const data = await response.json().catch(() => null)
 
   if (!response.ok) {
     const code = data?.detail?.code || "UNKNOWN_ERROR"
