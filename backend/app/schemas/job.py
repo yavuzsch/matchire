@@ -60,6 +60,7 @@ class JobPublic(BaseModel):
     is_active: bool
     is_closed: bool
     compatibility_score: float | None = None
+    withdrawn: bool = False
     created_at: datetime
 
 
