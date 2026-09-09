@@ -92,7 +92,17 @@ export default function JobBrowse() {
 
           return (
             <div key={job.id} className="rounded bg-slate-800 p-4">
-              <h2 className="font-medium text-white">{job.title}</h2>
+              <div className="flex items-start justify-between gap-3">
+                <h2 className="font-medium text-white">{job.title}</h2>
+
+                {job.compatibility_score !== null &&
+                  job.compatibility_score !== undefined && (
+                    <span className="shrink-0 rounded bg-slate-700 px-2 py-1 text-xs font-medium text-emerald-400">
+                      %{Math.round(job.compatibility_score)} {t.jobBrowse.compatibility}
+                    </span>
+                  )}
+              </div>
+
               <p className="text-sm text-slate-400">
                 {job.company_name}
                 {job.location ? ` · ${job.location}` : ""}
@@ -113,6 +123,12 @@ export default function JobBrowse() {
               <p className="mt-1 text-xs text-slate-500">
                 {new Date(job.created_at).toLocaleDateString("tr-TR")}
               </p>
+
+              {job.is_closed && (
+                <p className="mt-1 text-xs text-slate-500">
+                  {t.jobBrowse.assessmentClosed}
+                </p>
+              )}
 
               {!isListed && (
                 <p className="mt-2 text-xs text-amber-400">
