@@ -90,6 +90,12 @@ export default function ApplicationList() {
                 </span>
               </div>
 
+              {job && !job.is_active && (
+                <p className="mt-2 text-xs text-amber-400">
+                  {t.jobBrowse.inactive}
+                </p>
+              )}
+
               <div className="mt-3 space-y-1">
                 <p
                   className={
