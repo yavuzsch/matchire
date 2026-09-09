@@ -43,6 +43,12 @@ def login(body: UserLogin, db: Session = Depends(get_db)):
             detail={"code": errors.INVALID_CREDENTIALS},
         )
 
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail={"code": errors.ACCOUNT_DEACTIVATED},
+        )
+
     if user.role != body.role:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -84,3 +90,34 @@ def change_password(
 
     current_user.hashed_password = hash_password(body.new_password)
     db.commit()
+
+
+@router.delete("/me", status_code=status.HTTP_204_NO_CONTENT)
+def deactivate_account(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    current_user.is_active = False
+    db.commit()
+
+
+@router.post("/reactivate", response_model=Token)
+def reactivate_account(body: UserLogin, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == body.email).first()
+    if not user or not verify_password(body.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"code": errors.INVALID_CREDENTIALS},
+        )
+
+    if user.role != body.role:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"code": errors.ROLE_MISMATCH},
+        )
+
+    user.is_active = True
+    db.commit()
+
+    token = create_access_token({"sub": str(user.id), "role": user.role.value})
+    return Token(access_token=token)

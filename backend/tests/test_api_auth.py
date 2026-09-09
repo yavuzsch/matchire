@@ -213,3 +213,123 @@ class TestChangePassword:
         )
 
         assert response.status_code == 422
+
+
+class TestDeactivateAccount:
+    def test_deactivates_account(self, client, candidate_token):
+        response = client.delete("/api/auth/me", headers=auth(candidate_token))
+
+        assert response.status_code == 204
+
+    def test_requires_authentication(self, client):
+        response = client.delete("/api/auth/me")
+
+        assert response.status_code == 401
+
+    def test_deactivated_account_cannot_login(self, client, candidate_token):
+        client.delete("/api/auth/me", headers=auth(candidate_token))
+
+        response = client.post(
+            "/api/auth/login",
+            json={
+                "email": "candidate@test.com",
+                "password": "password123",
+                "role": "candidate",
+            },
+        )
+
+        assert response.status_code == 403
+        assert response.json()["detail"]["code"] == "ACCOUNT_DEACTIVATED"
+
+    def test_deactivated_account_cannot_use_existing_token(
+        self, client, candidate_token
+    ):
+        client.delete("/api/auth/me", headers=auth(candidate_token))
+
+        response = client.get("/api/auth/me", headers=auth(candidate_token))
+
+        assert response.status_code == 403
+        assert response.json()["detail"]["code"] == "ACCOUNT_DEACTIVATED"
+
+
+class TestReactivateAccount:
+    def test_reactivates_with_correct_credentials(self, client, candidate_token):
+        client.delete("/api/auth/me", headers=auth(candidate_token))
+
+        response = client.post(
+            "/api/auth/reactivate",
+            json={
+                "email": "candidate@test.com",
+                "password": "password123",
+                "role": "candidate",
+            },
+        )
+
+        assert response.status_code == 200
+        assert "access_token" in response.json()
+
+    def test_reactivated_account_can_login_normally(self, client, candidate_token):
+        client.delete("/api/auth/me", headers=auth(candidate_token))
+        client.post(
+            "/api/auth/reactivate",
+            json={
+                "email": "candidate@test.com",
+                "password": "password123",
+                "role": "candidate",
+            },
+        )
+
+        response = client.post(
+            "/api/auth/login",
+            json={
+                "email": "candidate@test.com",
+                "password": "password123",
+                "role": "candidate",
+            },
+        )
+
+        assert response.status_code == 200
+
+    def test_rejects_wrong_password(self, client, candidate_token):
+        client.delete("/api/auth/me", headers=auth(candidate_token))
+
+        response = client.post(
+            "/api/auth/reactivate",
+            json={
+                "email": "candidate@test.com",
+                "password": "wrongpassword",
+                "role": "candidate",
+            },
+        )
+
+        assert response.status_code == 401
+        assert response.json()["detail"]["code"] == "INVALID_CREDENTIALS"
+
+    def test_rejects_role_mismatch(self, client, candidate_token):
+        client.delete("/api/auth/me", headers=auth(candidate_token))
+
+        response = client.post(
+            "/api/auth/reactivate",
+            json={
+                "email": "candidate@test.com",
+                "password": "password123",
+                "role": "employer",
+            },
+        )
+
+        assert response.status_code == 401
+        assert response.json()["detail"]["code"] == "ROLE_MISMATCH"
+
+    def test_reactivating_active_account_still_works(
+        self, client, candidate_token
+    ):
+        response = client.post(
+            "/api/auth/reactivate",
+            json={
+                "email": "candidate@test.com",
+                "password": "password123",
+                "role": "candidate",
+            },
+        )
+
+        assert response.status_code == 200
