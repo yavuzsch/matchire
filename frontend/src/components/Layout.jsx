@@ -46,6 +46,13 @@ export default function Layout({ children }) {
             ))}
           </nav>
 
+          <Link
+            to="/account"
+            className="text-sm text-slate-400 hover:text-white"
+          >
+            {t.menu.myAccount}
+          </Link>
+
           <button
             type="button"
             onClick={logout}

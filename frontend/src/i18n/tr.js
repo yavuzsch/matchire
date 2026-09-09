@@ -36,6 +36,7 @@ export default {
     jobs: "İlanlar",
     myApplications: "Başvurularım",
     myResume: "Özgeçmişim",
+    myAccount: "Hesabım",
     logout: "Çıkış",
   },
 
@@ -53,6 +54,21 @@ export default {
     projectSummary: "Proje özeti (işverene gösterilir)",
     certifications: "Sertifikalar",
     saved: "Özgeçmiş kaydedildi",
+  },
+
+  account: {
+    title: "Hesabım",
+    profile: "Profil Bilgileri",
+    profileSaved: "Bilgileriniz güncellendi",
+    changePassword: "Şifre Değiştir",
+    passwordSaved: "Şifreniz güncellendi",
+    currentPassword: "Mevcut şifre",
+    newPassword: "Yeni şifre",
+    dangerZone: "Hesabı Devre Dışı Bırak",
+    deactivateHint: "Hesabınızı devre dışı bırakırsanız giriş yapamazsınız. Daha sonra aynı bilgilerle tekrar aktifleştirebilirsiniz.",
+    deactivate: "Hesabımı Devre Dışı Bırak",
+    deactivating: "İşleniyor...",
+    deactivateConfirm: "Hesabınızı devre dışı bırakmak istediğinize emin misiniz?",
   },
 
   job: {
