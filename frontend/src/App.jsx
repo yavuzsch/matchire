@@ -4,6 +4,7 @@ import Layout from "./components/Layout"
 import ProtectedRoute from "./components/ProtectedRoute"
 import Login from "./pages/auth/Login"
 import Register from "./pages/auth/Register"
+import ApplicationList from "./pages/candidate/ApplicationList"
 import AssessmentTake from "./pages/candidate/AssessmentTake"
 import JobBrowse from "./pages/candidate/JobBrowse"
 import ResumeForm from "./pages/candidate/ResumeForm"
@@ -47,6 +48,10 @@ export default function App() {
         <Route
           path="/candidate/jobs"
           element={<Protected role="candidate"><JobBrowse /></Protected>}
+        />
+        <Route
+          path="/candidate/applications"
+          element={<Protected role="candidate"><ApplicationList /></Protected>}
         />
         <Route
           path="/candidate/resume"

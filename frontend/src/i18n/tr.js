@@ -26,6 +26,7 @@ export default {
     newJob: "Yeni ilan",
     myJobs: "İlanlarım",
     jobs: "İlanlar",
+    myApplications: "Başvurularım",
     myResume: "Özgeçmişim",
     logout: "Çıkış",
   },
@@ -85,6 +86,15 @@ export default {
     statusRejected: "Bu başvuru olumsuz sonuçlandı",
     notEligible: "Bu ilan için yetkinlik testi kontenjanı dolu",
     goToResume: "Özgeçmişimi güncelle",
+  },
+
+  applications: {
+    title: "Başvurularım",
+    empty: "Henüz başvurunuz yok",
+    jobRemoved: "İlan kaldırıldı",
+    withdraw: "Başvuruyu sil",
+    withdrawing: "Siliniyor...",
+    withdrawConfirm: "Bu başvuruyu silmek istediğinize emin misiniz?",
   },
 
   jobList: {
