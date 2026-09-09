@@ -75,6 +75,7 @@ export default {
     inactive: "Bu ilan yayından kaldırıldı",
     compatibility: "Uyumluluk",
     assessmentClosed: "Yetkinlik testi kapalı",
+    withdrawnNotice: "Bu ilana daha önce başvurmuş ve geri çekmiştiniz, tekrar başvuramazsınız",
     apply: "Başvur",
     applying: "Gönderiliyor...",
     applied: "Başvurunuz alındı",
