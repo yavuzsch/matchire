@@ -47,10 +47,3 @@ class AnswerReview(BaseModel):
     answer_text: str
     is_correct: bool | None
     score: float
-
-
-class AssessmentResult(BaseModel):
-    application_id: int
-    total_questions: int
-    answered_count: int
-    completed: bool

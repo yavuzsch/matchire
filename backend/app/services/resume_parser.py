@@ -1,27 +1,14 @@
+from typing import get_args
+
 from sqlalchemy.orm import Session
 
 from app.prompts import get_prompts
+from app.schemas.common import EducationLevel, TechField
 from app.services.llm_client import generate_json
 from app.services.skill_resolver import record_unknown, resolve
 
-EDUCATION_LEVELS = {
-    "high_school",
-    "associate",
-    "bachelor",
-    "master",
-    "doctorate",
-}
-
-FIELDS = {
-    "software_development",
-    "data_science",
-    "artificial_intelligence",
-    "cyber_security",
-    "mobile_development",
-    "data_engineering",
-    "devops",
-    "quality_assurance",
-}
+EDUCATION_LEVELS = set(get_args(EducationLevel))
+FIELDS = set(get_args(TechField))
 
 MAX_SKILLS = 40
 
