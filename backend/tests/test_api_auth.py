@@ -86,3 +86,90 @@ class TestMe:
 
     def test_rejects_missing_token(self, client):
         assert client.get("/api/auth/me").status_code == 401
+
+
+class TestUpdateProfile:
+    def test_updates_full_name(self, client, candidate_token):
+        response = client.put(
+            "/api/auth/me",
+            json={"full_name": "New Name"},
+            headers=auth(candidate_token),
+        )
+
+        assert response.status_code == 200
+        assert response.json()["full_name"] == "New Name"
+
+    def test_requires_authentication(self, client):
+        response = client.put("/api/auth/me", json={"full_name": "New Name"})
+
+        assert response.status_code == 401
+
+    def test_rejects_short_name(self, client, candidate_token):
+        response = client.put(
+            "/api/auth/me",
+            json={"full_name": "A"},
+            headers=auth(candidate_token),
+        )
+
+        assert response.status_code == 422
+
+
+class TestChangePassword:
+    def test_changes_password_with_correct_current(self, client, candidate_token):
+        response = client.put(
+            "/api/auth/me/password",
+            json={
+                "current_password": "password123",
+                "new_password": "newpassword456",
+            },
+            headers=auth(candidate_token),
+        )
+
+        assert response.status_code == 204
+
+    def test_new_password_works_for_login(self, client, candidate_token):
+        client.put(
+            "/api/auth/me/password",
+            json={
+                "current_password": "password123",
+                "new_password": "newpassword456",
+            },
+            headers=auth(candidate_token),
+        )
+
+        response = client.post(
+            "/api/auth/login",
+            json={"email": "candidate@test.com", "password": "newpassword456"},
+        )
+
+        assert response.status_code == 200
+
+    def test_rejects_wrong_current_password(self, client, candidate_token):
+        response = client.put(
+            "/api/auth/me/password",
+            json={
+                "current_password": "wrongpassword",
+                "new_password": "newpassword456",
+            },
+            headers=auth(candidate_token),
+        )
+
+        assert response.status_code == 400
+        assert response.json()["detail"]["code"] == "INCORRECT_PASSWORD"
+
+    def test_requires_authentication(self, client):
+        response = client.put(
+            "/api/auth/me/password",
+            json={"current_password": "x", "new_password": "newpassword456"},
+        )
+
+        assert response.status_code == 401
+
+    def test_rejects_short_new_password(self, client, candidate_token):
+        response = client.put(
+            "/api/auth/me/password",
+            json={"current_password": "password123", "new_password": "short"},
+            headers=auth(candidate_token),
+        )
+
+        assert response.status_code == 422
