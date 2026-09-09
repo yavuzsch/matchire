@@ -12,6 +12,7 @@ import CandidateList from "./pages/employer/CandidateList"
 import JobCreate from "./pages/employer/JobCreate"
 import JobList from "./pages/employer/JobList"
 import QuestionManage from "./pages/employer/QuestionManage"
+import AccountSettings from "./pages/shared/AccountSettings"
 
 function Protected({ role, children }) {
   return (
@@ -27,6 +28,11 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+
+        <Route
+          path="/account"
+          element={<Protected><AccountSettings /></Protected>}
+        />
 
         <Route
           path="/employer/jobs"

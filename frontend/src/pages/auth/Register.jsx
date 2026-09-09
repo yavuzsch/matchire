@@ -6,10 +6,10 @@ import { t } from "../../i18n"
 
 export default function Register() {
   const navigate = useNavigate()
+  const [role, setRole] = useState(null)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [fullName, setFullName] = useState("")
-  const [role, setRole] = useState("candidate")
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
 
@@ -37,13 +37,60 @@ export default function Register() {
     }
   }
 
+  if (!role) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-slate-900 px-4">
+        <div className="w-full max-w-sm space-y-4 rounded-lg bg-slate-800 p-8">
+          <h1 className="text-2xl font-bold text-white">{t.auth.register}</h1>
+          <p className="text-sm text-slate-400">{t.auth.chooseRole}</p>
+
+          <div className="space-y-3">
+            <button
+              type="button"
+              onClick={() => setRole("candidate")}
+              className="w-full rounded bg-slate-700 py-3 font-medium text-white hover:bg-slate-600"
+            >
+              {t.auth.registerAsCandidate}
+            </button>
+            <button
+              type="button"
+              onClick={() => setRole("employer")}
+              className="w-full rounded bg-slate-700 py-3 font-medium text-white hover:bg-slate-600"
+            >
+              {t.auth.registerAsEmployer}
+            </button>
+          </div>
+
+          <p className="text-sm text-slate-400">
+            {t.auth.hasAccount}{" "}
+            <Link to="/login" className="text-blue-400">
+              {t.auth.goLogin}
+            </Link>
+          </p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-slate-900 px-4">
       <form
         onSubmit={handleSubmit}
         className="w-full max-w-sm space-y-4 rounded-lg bg-slate-800 p-8"
       >
-        <h1 className="text-2xl font-bold text-white">{t.auth.register}</h1>
+        <button
+          type="button"
+          onClick={() => setRole(null)}
+          className="text-sm text-slate-400"
+        >
+          ← {t.auth.changeRole}
+        </button>
+
+        <h1 className="text-2xl font-bold text-white">
+          {role === "employer"
+            ? t.auth.registerAsEmployer
+            : t.auth.registerAsCandidate}
+        </h1>
 
         {error && <p className="text-sm text-red-400">{error}</p>}
 
@@ -74,15 +121,6 @@ export default function Register() {
           minLength={8}
           className="w-full rounded bg-slate-700 px-3 py-2 text-white placeholder-slate-400"
         />
-
-        <select
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          className="w-full rounded bg-slate-700 px-3 py-2 text-white"
-        >
-          <option value="candidate">{t.auth.candidate}</option>
-          <option value="employer">{t.auth.employer}</option>
-        </select>
 
         <button
           type="submit"
