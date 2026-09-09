@@ -5,7 +5,7 @@ from app.core import errors
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.deps import get_current_user, require_employer
-from app.models import Application, AssessmentQuestion, Job, JobSkill, Resume, Skill, User, UserRole
+from app.models import Application, ApplicationStatus, AssessmentQuestion, Job, JobSkill, Resume, Skill, User, UserRole
 from app.schemas.job import (
     JobCreate,
     JobFull,
@@ -128,14 +128,27 @@ def list_jobs(
     )
 
     resume = None
+    withdrawn_job_ids = set()
+
     if current_user.role == UserRole.CANDIDATE:
         resume = db.query(Resume).filter(Resume.candidate_id == current_user.id).first()
+
+        withdrawn_job_ids = {
+            row.job_id
+            for row in db.query(Application.job_id)
+            .filter(
+                Application.candidate_id == current_user.id,
+                Application.status == ApplicationStatus.WITHDRAWN,
+            )
+            .all()
+        }
 
     results = []
     for job in jobs:
         data = JobPublic.model_validate(job)
         if resume is not None:
             data.compatibility_score = calculate_compatibility(job, resume)
+        data.withdrawn = job.id in withdrawn_job_ids
         results.append(data)
 
     results.sort(key=lambda item: (item.is_closed, -(item.compatibility_score or 0)))
