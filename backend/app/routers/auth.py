@@ -43,6 +43,12 @@ def login(body: UserLogin, db: Session = Depends(get_db)):
             detail={"code": errors.INVALID_CREDENTIALS},
         )
 
+    if user.role != body.role:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail={"code": errors.ROLE_MISMATCH},
+        )
+
     token = create_access_token({"sub": str(user.id), "role": user.role.value})
     return Token(access_token=token)
 

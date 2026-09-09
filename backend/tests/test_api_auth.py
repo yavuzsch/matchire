@@ -61,7 +61,11 @@ class TestLogin:
     def test_returns_token_for_valid_credentials(self, client, candidate_token):
         response = client.post(
             "/api/auth/login",
-            json={"email": "candidate@test.com", "password": "password123"},
+            json={
+                "email": "candidate@test.com",
+                "password": "password123",
+                "role": "candidate",
+            },
         )
 
         assert response.status_code == 200
@@ -70,7 +74,39 @@ class TestLogin:
     def test_rejects_wrong_password(self, client, candidate_token):
         response = client.post(
             "/api/auth/login",
-            json={"email": "candidate@test.com", "password": "wrongpassword"},
+            json={
+                "email": "candidate@test.com",
+                "password": "wrongpassword",
+                "role": "candidate",
+            },
+        )
+
+        assert response.status_code == 401
+        assert response.json()["detail"]["code"] == "INVALID_CREDENTIALS"
+
+    def test_rejects_role_mismatch(self, client, candidate_token):
+        response = client.post(
+            "/api/auth/login",
+            json={
+                "email": "candidate@test.com",
+                "password": "password123",
+                "role": "employer",
+            },
+        )
+
+        assert response.status_code == 401
+        assert response.json()["detail"]["code"] == "ROLE_MISMATCH"
+
+    def test_wrong_password_takes_priority_over_role_mismatch(
+        self, client, candidate_token
+    ):
+        response = client.post(
+            "/api/auth/login",
+            json={
+                "email": "candidate@test.com",
+                "password": "wrongpassword",
+                "role": "employer",
+            },
         )
 
         assert response.status_code == 401
@@ -139,7 +175,11 @@ class TestChangePassword:
 
         response = client.post(
             "/api/auth/login",
-            json={"email": "candidate@test.com", "password": "newpassword456"},
+            json={
+                "email": "candidate@test.com",
+                "password": "newpassword456",
+                "role": "candidate",
+            },
         )
 
         assert response.status_code == 200
