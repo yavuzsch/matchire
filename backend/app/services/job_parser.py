@@ -6,6 +6,7 @@ from app.services.llm_client import generate_json
 from app.services.resume_parser import (
     EDUCATION_LEVELS,
     FIELDS,
+    clean_block,
     clean_choice,
     clean_experience,
     clean_text,
@@ -74,7 +75,7 @@ def parse_job(db: Session, text: str, language: str) -> dict:
         "title": clean_text(result.get("title")),
         "company_name": clean_text(result.get("company_name")),
         "location": clean_text(result.get("location")),
-        "description": clean_text(result.get("description")),
+        "description": clean_block(result.get("description")),
         "skills": skills,
         "unmatched_skills": unmatched,
         "experience_years": clean_experience(result.get("experience_years")),
