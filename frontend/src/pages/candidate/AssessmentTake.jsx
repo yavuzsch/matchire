@@ -78,14 +78,20 @@ export default function AssessmentTake() {
     }
   }
 
+  const unansweredQuestions = questions.filter((q) => !answeredIds.includes(q.id))
+  const hasFilledAnswer = unansweredQuestions.some(
+    (q) => (answers[q.id] || "").trim().length > 0
+  )
+  const completed = questions.length > 0 && answeredIds.length === questions.length
+
   useEffect(() => {
-    if (!timeLimitMinutes || notStarted) {
+    if (!timeLimitMinutes || notStarted || completed) {
       return
     }
 
     const interval = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(interval)
-  }, [timeLimitMinutes, notStarted])
+  }, [timeLimitMinutes, notStarted, completed])
 
   const remainingSeconds = useMemo(() => {
     if (!timeLimitMinutes || !startedAt) {
@@ -97,13 +103,16 @@ export default function AssessmentTake() {
   }, [startedAt, timeLimitMinutes, now])
 
   const clientTimeExpired =
-    timeLimitMinutes !== null && remainingSeconds !== null && remainingSeconds <= 0
+    !completed &&
+    timeLimitMinutes !== null &&
+    remainingSeconds !== null &&
+    remainingSeconds <= 0
 
   const timeExpired = serverTimeExpired || clientTimeExpired
 
   useEffect(() => {
     function handleBeforeUnload(event) {
-      if (timeLimitMinutes && !notStarted && !timeExpired) {
+      if (timeLimitMinutes && !notStarted && !timeExpired && !completed) {
         event.preventDefault()
         event.returnValue = ""
       }
@@ -111,16 +120,11 @@ export default function AssessmentTake() {
 
     window.addEventListener("beforeunload", handleBeforeUnload)
     return () => window.removeEventListener("beforeunload", handleBeforeUnload)
-  }, [timeLimitMinutes, notStarted, timeExpired])
+  }, [timeLimitMinutes, notStarted, timeExpired, completed])
 
   function setAnswer(questionId, text) {
     setAnswers({ ...answers, [questionId]: text })
   }
-
-  const unansweredQuestions = questions.filter((q) => !answeredIds.includes(q.id))
-  const hasFilledAnswer = unansweredQuestions.some(
-    (q) => (answers[q.id] || "").trim().length > 0
-  )
 
   async function submitAll() {
     setError(null)
@@ -130,34 +134,31 @@ export default function AssessmentTake() {
       (q) => (answers[q.id] || "").trim().length > 0
     )
 
-    const newlyAnswered = []
-
-    for (const question of toSubmit) {
-      try {
-        await post(`/assessments/applications/${applicationId}/answers`, {
-          question_id: question.id,
-          answer_text: answers[question.id],
-        })
-        newlyAnswered.push(question.id)
-      } catch (err) {
-        if (err.code === "ASSESSMENT_TIME_EXPIRED") {
-          setAnsweredIds([...answeredIds, ...newlyAnswered])
-          setServerTimeExpired(true)
-          setSubmitting(false)
-          return
-        }
-        setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
-        setAnsweredIds([...answeredIds, ...newlyAnswered])
-        setSubmitting(false)
-        return
-      }
+    if (toSubmit.length === 0) {
+      setSubmitting(false)
+      return
     }
 
-    setAnsweredIds([...answeredIds, ...newlyAnswered])
-    setSubmitting(false)
-  }
+    try {
+      const saved = await post(`/assessments/applications/${applicationId}/answers`, {
+        answers: toSubmit.map((q) => ({
+          question_id: q.id,
+          answer_text: answers[q.id],
+        })),
+      })
 
-  const completed = questions.length > 0 && answeredIds.length === questions.length
+      const savedIds = saved.map((item) => item.question_id)
+      setAnsweredIds([...answeredIds, ...savedIds])
+    } catch (err) {
+      if (err.code === "ASSESSMENT_TIME_EXPIRED") {
+        setServerTimeExpired(true)
+      } else {
+        setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
+      }
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   if (notReady) {
     return (
