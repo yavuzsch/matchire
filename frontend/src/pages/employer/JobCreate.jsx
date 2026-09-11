@@ -1,11 +1,14 @@
 import { useState } from "react"
 
 import { post } from "../../api/client"
+import { Field, inputClass, Section } from "../../components/FormElements"
+import Message from "../../components/Message"
 import SkillSelect from "../../components/SkillSelect"
+import Spinner from "../../components/Spinner"
 import { t, EDUCATION_LEVELS, FIELDS } from "../../i18n"
 
-const inputClass =
-  "w-full rounded bg-slate-700 px-3 py-2 text-white placeholder-slate-400"
+const selectClass =
+  "rounded-lg bg-surface-2 px-2 py-1.5 text-sm text-ink outline-none ring-blue-500 focus:ring-2"
 
 const REQUIREMENTS = ["mandatory", "required", "optional"]
 const WEIGHTS = [1, 2, 3]
@@ -133,180 +136,202 @@ export default function JobCreate() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl p-8">
-      <h1 className="mb-6 text-2xl font-bold text-white">{t.job.title}</h1>
+    <div className="max-w-2xl">
+      <h1 className="text-2xl font-extrabold text-ink">{t.job.title}</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {error && <p className="text-sm text-red-400">{error}</p>}
-        {message && <p className="text-sm text-green-400">{message}</p>}
+      <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+        <Message error={error} info={message} />
 
-        <div className="space-y-2 rounded bg-slate-800 p-3">
-          <p className="text-sm text-slate-300">{t.job.rawTextHint}</p>
-
-          <textarea
-            value={rawText}
-            onChange={(e) => setRawText(e.target.value)}
-            placeholder={t.job.rawText}
-            rows="5"
-            className={inputClass}
-          />
+        <Section title={t.job.autofillTitle}>
+          <Field label={t.job.rawText} hint={t.job.rawTextHint}>
+            <textarea
+              value={rawText}
+              onChange={(e) => setRawText(e.target.value)}
+              rows="5"
+              className={inputClass}
+            />
+          </Field>
 
           <button
             type="button"
             onClick={handleParse}
             disabled={parsing || !rawText.trim()}
-            className="rounded bg-blue-600 px-4 py-1 text-sm text-white disabled:opacity-50"
+            className="flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-1.5 text-sm font-semibold text-white transition-colors hover:bg-blue-600 disabled:opacity-50"
           >
+            {parsing && <Spinner />}
             {parsing ? t.job.parsing : t.job.parse}
           </button>
 
           {unmatched.length > 0 && (
-            <p className="text-xs text-amber-400">
+            <p className="text-xs text-blue-400">
               {t.job.unmatched} {unmatched.join(", ")}
             </p>
           )}
-        </div>
+        </Section>
 
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder={t.job.jobTitle}
-          required
-          className={inputClass}
-        />
+        <Section title={t.job.basicInfoTitle}>
+          <Field label={t.job.jobTitle}>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              className={inputClass}
+            />
+          </Field>
 
-        <input
-          type="text"
-          value={companyName}
-          onChange={(e) => setCompanyName(e.target.value)}
-          placeholder={t.job.companyName}
-          required
-          className={inputClass}
-        />
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label={t.job.companyName}>
+              <input
+                type="text"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                required
+                className={inputClass}
+              />
+            </Field>
 
-        <input
-          type="text"
-          value={location}
-          onChange={(e) => setLocation(e.target.value)}
-          placeholder={t.job.location}
-          className={inputClass}
-        />
+            <Field label={t.job.location}>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className={inputClass}
+              />
+            </Field>
+          </div>
 
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder={t.job.description}
-          rows="3"
-          className={inputClass}
-        />
+          <Field label={t.job.description}>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              rows="3"
+              className={inputClass}
+            />
+          </Field>
+        </Section>
 
-        <div>
-          <p className="mb-2 text-sm text-slate-300">{t.job.skills}</p>
+        <Section title={t.job.requirementsTitle}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label={t.resume.experienceYears}>
+              <input
+                type="number"
+                min="0"
+                value={experienceYears}
+                onChange={(e) => setExperienceYears(e.target.value)}
+                className={inputClass}
+              />
+            </Field>
+
+            <Field label={t.job.educationLevelLabel}>
+              <select
+                value={educationLevel}
+                onChange={(e) => setEducationLevel(e.target.value)}
+                className={inputClass}
+              >
+                {EDUCATION_LEVELS.map((value) => (
+                  <option key={value} value={value}>
+                    {t.educationLevels[value]}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          </div>
+
+          <Field label={t.job.fieldLabel}>
+            <select
+              value={field}
+              onChange={(e) => setField(e.target.value)}
+              className={inputClass}
+            >
+              {FIELDS.map((value) => (
+                <option key={value} value={value}>
+                  {t.fields[value]}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </Section>
+
+        <Section title={t.job.skills}>
           <SkillSelect selected={skillIds} onChange={handleSkillsChange} />
-        </div>
 
-        {skillIds.length > 0 && (
-          <div className="space-y-2 rounded bg-slate-800 p-3">
-            <p className="text-sm text-slate-300">{t.job.skillsHint}</p>
+          {skillIds.length > 0 && (
+            <div className="space-y-3 border-t border-line pt-4">
+              <p className="text-xs text-ink-soft">{t.job.skillsHint}</p>
 
-            {skillIds.map((id) => (
-              <div key={id} className="flex items-center gap-3">
-                <span className="w-40 truncate text-sm text-white">
-                  {skillNames[id]}
-                </span>
+              {skillIds.map((id) => (
+                <div key={id} className="flex items-center gap-3">
+                  <span className="w-40 truncate text-sm text-ink">
+                    {skillNames[id]}
+                  </span>
 
-                <select
-                  value={settings[id]?.requirement || "required"}
-                  onChange={(e) =>
-                    updateSetting(id, "requirement", e.target.value)
-                  }
-                  className="rounded bg-slate-700 px-2 py-1 text-sm text-white"
-                >
-                  {REQUIREMENTS.map((value) => (
-                    <option key={value} value={value}>
-                      {t.skills.requirement[value]}
-                    </option>
-                  ))}
-                </select>
-
-                {settings[id]?.requirement !== "optional" && (
                   <select
-                    value={settings[id]?.weight || 2}
+                    value={settings[id]?.requirement || "required"}
                     onChange={(e) =>
-                      updateSetting(id, "weight", Number(e.target.value))
+                      updateSetting(id, "requirement", e.target.value)
                     }
-                    className="rounded bg-slate-700 px-2 py-1 text-sm text-white"
+                    className={selectClass}
                   >
-                    {WEIGHTS.map((value) => (
+                    {REQUIREMENTS.map((value) => (
                       <option key={value} value={value}>
-                        {t.skills.weight[value]}
+                        {t.skills.requirement[value]}
                       </option>
                     ))}
                   </select>
-                )}
-              </div>
-            ))}
+
+                  {settings[id]?.requirement !== "optional" && (
+                    <select
+                      value={settings[id]?.weight || 2}
+                      onChange={(e) =>
+                        updateSetting(id, "weight", Number(e.target.value))
+                      }
+                      className={selectClass}
+                    >
+                      {WEIGHTS.map((value) => (
+                        <option key={value} value={value}>
+                          {t.skills.weight[value]}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </Section>
+
+        <Section title={t.job.assessmentSettingsTitle}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label={t.job.assessmentSlots}>
+              <input
+                type="number"
+                min="1"
+                value={assessmentSlots}
+                onChange={(e) => setAssessmentSlots(e.target.value)}
+                className={inputClass}
+              />
+            </Field>
+
+            <Field label={t.job.assessmentWeight}>
+              <input
+                type="number"
+                min="20"
+                max="80"
+                value={assessmentWeight}
+                onChange={(e) => setAssessmentWeight(e.target.value)}
+                className={inputClass}
+              />
+            </Field>
           </div>
-        )}
-
-        <input
-          type="number"
-          min="0"
-          value={experienceYears}
-          onChange={(e) => setExperienceYears(e.target.value)}
-          placeholder={t.resume.experienceYears}
-          className={inputClass}
-        />
-
-        <input
-          type="number"
-          min="1"
-          value={assessmentSlots}
-          onChange={(e) => setAssessmentSlots(e.target.value)}
-          placeholder={t.job.assessmentSlots}
-          className={inputClass}
-        />
-
-        <input
-          type="number"
-          min="20"
-          max="80"
-          value={assessmentWeight}
-          onChange={(e) => setAssessmentWeight(e.target.value)}
-          placeholder={t.job.assessmentWeight}
-          className={inputClass}
-        />
-
-        <select
-          value={educationLevel}
-          onChange={(e) => setEducationLevel(e.target.value)}
-          className={inputClass}
-        >
-          {EDUCATION_LEVELS.map((value) => (
-            <option key={value} value={value}>
-              {t.educationLevels[value]}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={field}
-          onChange={(e) => setField(e.target.value)}
-          className={inputClass}
-        >
-          {FIELDS.map((value) => (
-            <option key={value} value={value}>
-              {t.fields[value]}
-            </option>
-          ))}
-        </select>
+        </Section>
 
         <button
           type="submit"
           disabled={loading}
-          className="rounded bg-blue-600 px-6 py-2 font-medium text-white disabled:opacity-50"
+          className="flex w-full items-center justify-center gap-2 rounded-lg bg-blue-500 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-600 disabled:opacity-50"
         >
+          {loading && <Spinner />}
           {loading ? t.job.submitting : t.job.submit}
         </button>
       </form>

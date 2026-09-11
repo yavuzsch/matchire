@@ -1,1 +1,35 @@
 @import "tailwindcss";
+
+@theme {
+  --font-sans: "Manrope", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --color-base: #1e2530;
+  --color-surface: #262e3b;
+  --color-surface-2: #2f3847;
+  --color-ink: #f1f3f6;
+  --color-ink-soft: #a3adbd;
+  --color-line: #3a4453;
+
+  --color-blue-500: #3b82f6;
+  --color-blue-400: #60a0f8;
+  --color-blue-600: #2563eb;
+
+  --color-green-400: #4ade80;
+  --color-red-400: #f87171;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-base);
+  color: var(--color-ink);
+}
+
+.font-mono {
+  font-family: var(--font-mono);
+}
+
+::selection {
+  background-color: var(--color-blue-500);
+  color: white;
+}

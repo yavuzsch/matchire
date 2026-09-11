@@ -2,7 +2,14 @@ import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 
 import { del, get } from "../../api/client"
+import Message from "../../components/Message"
 import { t } from "../../i18n"
+
+function compatibilityTone(score) {
+  if (score >= 70) return "text-green-400"
+  if (score >= 40) return "text-blue-400"
+  return "text-ink-soft"
+}
 
 export default function ApplicationList() {
   const [applications, setApplications] = useState([])
@@ -14,33 +21,16 @@ export default function ApplicationList() {
   }, [])
 
   function statusText(application) {
-    if (application.status === "accepted") {
-      return t.jobBrowse.statusAccepted
-    }
-
-    if (application.status === "completed") {
-      return t.jobBrowse.statusCompleted
-    }
-
-    if (application.status === "assessment") {
-      return t.jobBrowse.statusAssessment
-    }
-
-    if (application.status === "rejected") {
-      return t.jobBrowse.statusRejected
-    }
-
-    if (application.assessment_eligible) {
-      return t.jobBrowse.statusReadyForAssessment
-    }
-
+    if (application.status === "accepted") return t.jobBrowse.statusAccepted
+    if (application.status === "completed") return t.jobBrowse.statusCompleted
+    if (application.status === "assessment") return t.jobBrowse.statusAssessment
+    if (application.status === "rejected") return t.jobBrowse.statusRejected
+    if (application.assessment_eligible) return t.jobBrowse.statusReadyForAssessment
     return t.jobBrowse.statusPending
   }
 
   async function withdraw(applicationId) {
-    if (!window.confirm(t.applications.withdrawConfirm)) {
-      return
-    }
+    if (!window.confirm(t.applications.withdrawConfirm)) return
 
     setError(null)
     setPendingId(applicationId)
@@ -56,51 +46,60 @@ export default function ApplicationList() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl p-8">
-      <h1 className="mb-6 text-2xl font-bold text-white">{t.applications.title}</h1>
+    <div>
+      <h1 className="text-2xl font-extrabold text-ink">{t.applications.title}</h1>
 
-      {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
+      <Message error={error} className="mt-4" />
 
       {applications.length === 0 && (
-        <p className="text-slate-400">{t.applications.empty}</p>
+        <div className="mt-6">
+          <p className="text-sm text-ink-soft">{t.applications.empty}</p>
+          <Link
+            to="/candidate/jobs"
+            className="mt-2 inline-block text-sm font-semibold text-blue-400 hover:text-blue-500"
+          >
+            {t.applications.emptyCta} →
+          </Link>
+        </div>
       )}
 
-      <div className="space-y-3">
+      <div className="mt-6 space-y-3">
         {applications.map((application) => {
           const job = application.job
+          const score = Math.round(application.compatibility_score)
 
           return (
-            <div key={application.id} className="rounded bg-slate-800 p-4">
-              <div className="flex items-start justify-between gap-3">
+            <div key={application.id} className="rounded-xl bg-surface p-5">
+              <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="font-medium text-white">
+                  <h2 className="font-semibold text-ink">
                     {job ? job.title : t.applications.jobRemoved}
                   </h2>
                   {job && (
-                    <p className="text-sm text-slate-400">
+                    <p className="mt-1 text-sm text-ink-soft">
                       {job.company_name}
-                      {job.location ? ` · ${job.location}` : ""}
+                      {job.location && ` · ${job.location}`}
                     </p>
                   )}
                 </div>
 
-                <span className="shrink-0 rounded bg-slate-700 px-2 py-1 text-xs font-medium text-emerald-400">
-                  %{Math.round(application.compatibility_score)}{" "}
-                  {t.jobBrowse.compatibility}
-                </span>
+                <div className="shrink-0 text-right">
+                  <span className={`font-mono text-sm font-medium ${compatibilityTone(score)}`}>
+                    {score}%
+                  </span>
+                  <p className="text-[10px] text-ink-soft">{t.applications.scoreAtApply}</p>
+                </div>
               </div>
 
               {job && !job.is_active && (
-                <p className="mt-2 text-xs text-amber-400">
-                  {t.jobBrowse.inactive}
-                </p>
+                <p className="mt-2 text-xs text-ink-soft">{t.jobBrowse.inactive}</p>
               )}
 
-              <div className="mt-3 space-y-1">
+              <div className="mt-4 space-y-1">
                 <p
                   className={
                     application.status === "rejected"
-                      ? "text-sm text-slate-400"
+                      ? "text-sm text-ink-soft"
                       : "text-sm text-green-400"
                   }
                 >
@@ -111,9 +110,9 @@ export default function ApplicationList() {
                   application.status !== "completed" && (
                     <Link
                       to={`/candidate/assessments/${application.id}`}
-                      className="text-sm text-blue-400"
+                      className="text-sm font-medium text-blue-400 hover:text-blue-500"
                     >
-                      {t.assessment.start}
+                      {t.assessment.start} →
                     </Link>
                   )}
               </div>
@@ -123,7 +122,7 @@ export default function ApplicationList() {
                   type="button"
                   onClick={() => withdraw(application.id)}
                   disabled={pendingId === application.id}
-                  className="mt-3 text-sm text-red-400 disabled:opacity-50"
+                  className="mt-4 text-sm font-medium text-red-400 transition-colors hover:text-red-500 disabled:opacity-50"
                 >
                   {pendingId === application.id
                     ? t.applications.withdrawing

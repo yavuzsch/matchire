@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from "react"
 import { useParams } from "react-router-dom"
 
 import { get, post } from "../../api/client"
+import Message from "../../components/Message"
+import Spinner from "../../components/Spinner"
 import { t } from "../../i18n"
 
 function formatRemaining(seconds) {
@@ -20,7 +22,7 @@ export default function AssessmentTake() {
   const [now, setNow] = useState(() => Date.now())
   const [answers, setAnswers] = useState({})
   const [answeredIds, setAnsweredIds] = useState([])
-  const [pendingId, setPendingId] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
   const [starting, setStarting] = useState(false)
   const [error, setError] = useState(null)
   const [notReady, setNotReady] = useState(false)
@@ -115,60 +117,77 @@ export default function AssessmentTake() {
     setAnswers({ ...answers, [questionId]: text })
   }
 
-  async function submit(questionId) {
-    setError(null)
-    setPendingId(questionId)
+  const unansweredQuestions = questions.filter((q) => !answeredIds.includes(q.id))
+  const hasFilledAnswer = unansweredQuestions.some(
+    (q) => (answers[q.id] || "").trim().length > 0
+  )
 
-    try {
-      await post(`/assessments/applications/${applicationId}/answers`, {
-        question_id: questionId,
-        answer_text: answers[questionId] || "",
-      })
-      setAnsweredIds([...answeredIds, questionId])
-    } catch (err) {
-      if (err.code === "ASSESSMENT_TIME_EXPIRED") {
-        setServerTimeExpired(true)
-      } else {
+  async function submitAll() {
+    setError(null)
+    setSubmitting(true)
+
+    const toSubmit = unansweredQuestions.filter(
+      (q) => (answers[q.id] || "").trim().length > 0
+    )
+
+    const newlyAnswered = []
+
+    for (const question of toSubmit) {
+      try {
+        await post(`/assessments/applications/${applicationId}/answers`, {
+          question_id: question.id,
+          answer_text: answers[question.id],
+        })
+        newlyAnswered.push(question.id)
+      } catch (err) {
+        if (err.code === "ASSESSMENT_TIME_EXPIRED") {
+          setAnsweredIds([...answeredIds, ...newlyAnswered])
+          setServerTimeExpired(true)
+          setSubmitting(false)
+          return
+        }
         setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
+        setAnsweredIds([...answeredIds, ...newlyAnswered])
+        setSubmitting(false)
+        return
       }
-    } finally {
-      setPendingId(null)
     }
+
+    setAnsweredIds([...answeredIds, ...newlyAnswered])
+    setSubmitting(false)
   }
 
   const completed = questions.length > 0 && answeredIds.length === questions.length
 
   if (notReady) {
     return (
-      <div className="mx-auto max-w-3xl p-8">
-        <h1 className="mb-6 text-2xl font-bold text-white">{t.assessment.title}</h1>
-        <p className="text-slate-400">{t.assessment.notReady}</p>
+      <div>
+        <h1 className="text-2xl font-extrabold text-ink">{t.assessment.title}</h1>
+        <p className="mt-4 text-sm text-ink-soft">{t.assessment.notReady}</p>
       </div>
     )
   }
 
   if (timeExpired) {
     return (
-      <div className="mx-auto max-w-3xl p-8">
-        <h1 className="mb-6 text-2xl font-bold text-white">{t.assessment.title}</h1>
-        <p className="text-amber-400">{t.assessment.timeExpired}</p>
+      <div>
+        <h1 className="text-2xl font-extrabold text-ink">{t.assessment.title}</h1>
+        <p className="mt-4 text-sm text-blue-400">{t.assessment.timeExpired}</p>
       </div>
     )
   }
 
   if (notStarted) {
     return (
-      <div className="mx-auto max-w-3xl p-8">
-        <h1 className="mb-6 text-2xl font-bold text-white">{t.assessment.title}</h1>
+      <div>
+        <h1 className="text-2xl font-extrabold text-ink">{t.assessment.title}</h1>
 
-        {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
+        <Message error={error} className="mt-4" />
 
-        <div className="rounded bg-slate-800 p-6">
-          <h2 className="mb-3 text-lg font-medium text-white">
-            {t.assessment.beforeStartTitle}
-          </h2>
+        <div className="mt-6 rounded-xl bg-surface p-6">
+          <h2 className="font-semibold text-ink">{t.assessment.beforeStartTitle}</h2>
 
-          <p className="mb-6 text-sm text-slate-300">
+          <p className="mt-3 text-sm text-ink-soft">
             {timeLimitMinutes
               ? t.assessment.beforeStartWithLimit.replace(
                   "{minutes}",
@@ -181,8 +200,9 @@ export default function AssessmentTake() {
             type="button"
             onClick={start}
             disabled={starting}
-            className="rounded bg-blue-600 px-6 py-2 font-medium text-white disabled:opacity-50"
+            className="mt-6 flex items-center gap-2 rounded-lg bg-blue-500 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-600 disabled:opacity-50"
           >
+            {starting && <Spinner />}
             {starting ? t.assessment.starting : t.assessment.start}
           </button>
         </div>
@@ -191,71 +211,72 @@ export default function AssessmentTake() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl p-8">
-      <h1 className="mb-6 text-2xl font-bold text-white">{t.assessment.title}</h1>
+    <div>
+      <h1 className="text-2xl font-extrabold text-ink">{t.assessment.title}</h1>
 
-      {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
+      <Message error={error} className="mt-4" />
 
-      <div className="mb-4 rounded bg-slate-800 p-3">
+      <div className="mt-4 rounded-xl bg-surface p-4">
         {timeLimitMinutes && remainingSeconds !== null ? (
           <>
-            <p className="text-sm text-slate-300">
+            <p className="text-sm text-ink-soft">
               {t.assessment.timeRemaining}:{" "}
-              <span className="font-mono text-amber-400">
+              <span className="font-mono font-medium text-blue-400">
                 {formatRemaining(remainingSeconds)}
               </span>
             </p>
-            <p className="mt-1 text-xs text-slate-500">{t.assessment.leaveWarning}</p>
+            <p className="mt-1 text-xs text-ink-soft">{t.assessment.leaveWarning}</p>
           </>
         ) : (
-          <p className="text-sm text-slate-400">{t.assessment.noTimeLimit}</p>
+          <p className="text-sm text-ink-soft">{t.assessment.noTimeLimit}</p>
         )}
       </div>
 
       {questions.length > 0 && (
-        <p className="mb-4 text-sm text-slate-400">
+        <p className="mt-4 text-sm text-ink-soft">
           {answeredIds.length}/{questions.length} {t.assessment.progress}
         </p>
       )}
 
       {completed && (
-        <p className="mb-4 text-sm text-green-400">{t.assessment.completed}</p>
+        <p className="mt-4 text-sm text-green-400">{t.assessment.completed}</p>
       )}
 
-      <div className="space-y-4">
+      <div className="mt-4 space-y-3">
         {questions.map((question, index) => (
-          <div key={question.id} className="rounded bg-slate-800 p-4">
-            <p className="mb-3 text-sm text-slate-200">
+          <div key={question.id} className="rounded-xl bg-surface p-5">
+            <p className="text-sm text-ink">
               {index + 1}. {question.question_text}
             </p>
 
             {answeredIds.includes(question.id) ? (
-              <span className="text-sm text-green-400">{t.assessment.answered}</span>
+              <span className="mt-3 inline-block text-sm text-green-400">
+                {t.assessment.answered}
+              </span>
             ) : (
-              <>
-                <textarea
-                  value={answers[question.id] || ""}
-                  onChange={(e) => setAnswer(question.id, e.target.value)}
-                  placeholder={t.assessment.answerPlaceholder}
-                  rows="3"
-                  className="w-full rounded bg-slate-700 px-3 py-2 text-white placeholder-slate-400"
-                />
-
-                <button
-                  type="button"
-                  onClick={() => submit(question.id)}
-                  disabled={pendingId === question.id}
-                  className="mt-2 rounded bg-blue-600 px-4 py-1 text-sm text-white disabled:opacity-50"
-                >
-                  {pendingId === question.id
-                    ? t.assessment.submitting
-                    : t.assessment.submit}
-                </button>
-              </>
+              <textarea
+                value={answers[question.id] || ""}
+                onChange={(e) => setAnswer(question.id, e.target.value)}
+                placeholder={t.assessment.answerPlaceholder}
+                rows="3"
+                className="mt-3 w-full rounded-lg bg-surface-2 px-3 py-2 text-sm text-ink placeholder-ink-soft outline-none ring-blue-500 focus:ring-2"
+              />
             )}
           </div>
         ))}
       </div>
+
+      {!completed && questions.length > 0 && (
+        <button
+          type="button"
+          onClick={submitAll}
+          disabled={submitting || !hasFilledAnswer}
+          className="mt-6 flex items-center gap-2 rounded-lg bg-blue-500 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-600 disabled:opacity-50"
+        >
+          {submitting && <Spinner />}
+          {submitting ? t.assessment.submitting : t.assessment.submit}
+        </button>
+      )}
     </div>
   )
 }
