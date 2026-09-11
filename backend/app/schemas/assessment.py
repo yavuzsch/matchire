@@ -29,9 +29,13 @@ class QuestionSelect(BaseModel):
     question_ids: list[int]
 
 
-class AnswerSubmit(BaseModel):
+class AnswerItem(BaseModel):
     question_id: int
     answer_text: str
+
+
+class AnswerSubmit(BaseModel):
+    answers: list[AnswerItem]
 
 
 class AnswerOut(BaseModel):

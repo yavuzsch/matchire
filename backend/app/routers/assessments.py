@@ -55,7 +55,9 @@ def ensure_no_answers(db: Session, job: Job) -> None:
         )
 
 
-def is_time_expired(application: Application, job: Job) -> bool:
+def is_time_expired(
+    application: Application, job: Job, grace_seconds: int = 0
+) -> bool:
     if job.assessment_time_limit_minutes is None:
         return False
 
@@ -63,7 +65,7 @@ def is_time_expired(application: Application, job: Job) -> bool:
         return False
 
     deadline = application.assessment_started_at + timedelta(
-        minutes=job.assessment_time_limit_minutes
+        minutes=job.assessment_time_limit_minutes, seconds=grace_seconds
     )
     return datetime.now(timezone.utc) > deadline
 
@@ -330,7 +332,7 @@ def review_answers(
     ]
 
 
-@router.post("/applications/{application_id}/answers", response_model=AnswerOut)
+@router.post("/applications/{application_id}/answers", response_model=list[AnswerOut])
 def submit_answer(
     application_id: int,
     body: AnswerSubmit,
@@ -359,64 +361,70 @@ def submit_answer(
             detail={"code": errors.ASSESSMENT_NOT_ELIGIBLE},
         )
 
-    if is_time_expired(application, job):
+    if is_time_expired(application, job, grace_seconds=15):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={"code": errors.ASSESSMENT_TIME_EXPIRED},
         )
 
-    question = (
-        db.query(AssessmentQuestion)
-        .filter(
-            AssessmentQuestion.id == body.question_id,
-            AssessmentQuestion.job_id == job.id,
-            AssessmentQuestion.is_selected.is_(True),
-        )
-        .first()
-    )
-    if question is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail={"code": errors.QUESTION_NOT_FOUND},
-        )
+    saved_answers = []
 
-    existing = (
-        db.query(AssessmentAnswer)
-        .filter(
-            AssessmentAnswer.application_id == application.id,
-            AssessmentAnswer.question_id == question.id,
+    for item in body.answers:
+        question = (
+            db.query(AssessmentQuestion)
+            .filter(
+                AssessmentQuestion.id == item.question_id,
+                AssessmentQuestion.job_id == job.id,
+                AssessmentQuestion.is_selected.is_(True),
+            )
+            .first()
         )
-        .first()
-    )
-    if existing:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail={"code": errors.ALREADY_ANSWERED},
-        )
+        if question is None:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={"code": errors.QUESTION_NOT_FOUND},
+            )
 
-    try:
-        is_correct, score = evaluate_answer(question, body.answer_text, job.language)
-    except LLMUnavailableError:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail={"code": errors.LLM_UNAVAILABLE},
+        existing = (
+            db.query(AssessmentAnswer)
+            .filter(
+                AssessmentAnswer.application_id == application.id,
+                AssessmentAnswer.question_id == question.id,
+            )
+            .first()
         )
+        if existing:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail={"code": errors.ALREADY_ANSWERED},
+            )
 
-    answer = AssessmentAnswer(
-        application_id=application.id,
-        question_id=question.id,
-        answer_text=body.answer_text,
-        is_correct=is_correct,
-        score=score,
-    )
-    db.add(answer)
-    db.flush()
+        try:
+            is_correct, score = evaluate_answer(question, item.answer_text, job.language)
+        except LLMUnavailableError:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail={"code": errors.LLM_UNAVAILABLE},
+            )
+
+        answer = AssessmentAnswer(
+            application_id=application.id,
+            question_id=question.id,
+            answer_text=item.answer_text,
+            is_correct=is_correct,
+            score=score,
+        )
+        db.add(answer)
+        db.flush()
+        saved_answers.append(answer)
 
     if application.status == ApplicationStatus.PENDING:
         application.status = ApplicationStatus.ASSESSMENT
 
     update_assessment_score(db, application, job)
     db.commit()
-    db.refresh(answer)
 
-    return answer
+    for answer in saved_answers:
+        db.refresh(answer)
+
+    return saved_answers

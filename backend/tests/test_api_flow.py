@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta, timezone
 from unittest.mock import patch
 
+from app.services.llm_client import LLMUnavailableError
 from tests.conftest import auth
 
 
@@ -153,14 +154,14 @@ class TestAssessmentFlow:
             return_value={"score": 80},
         ):
             for question in candidate_view:
-                answer = client.post(
+                answers = client.post(
                     f"/api/assessments/applications/{application['id']}/answers",
-                    json={"question_id": question["id"], "answer_text": "An answer"},
+                    json={"answers": [{"question_id": question["id"], "answer_text": "An answer"}]},
                     headers=auth(candidate_token),
                 ).json()
 
-        assert "score" not in answer
-        assert "is_correct" not in answer
+        assert "score" not in answers[0]
+        assert "is_correct" not in answers[0]
 
         candidates = client.get(
             f"/api/applications/job/{job['id']}", headers=auth(employer_token)
@@ -219,7 +220,7 @@ class TestAssessmentFlow:
         ):
             client.post(
                 f"/api/assessments/applications/{application['id']}/answers",
-                json={"question_id": questions[0]["id"], "answer_text": "An answer"},
+                json={"answers": [{"question_id": questions[0]["id"], "answer_text": "An answer"}]},
                 headers=auth(candidate_token),
             )
 
@@ -500,7 +501,7 @@ class TestApplicationStatus:
         ):
             client.post(
                 f"/api/assessments/applications/{application['id']}/answers",
-                json={"question_id": questions[0]["id"], "answer_text": "An answer"},
+                json={"answers": [{"question_id": questions[0]["id"], "answer_text": "An answer"}]},
                 headers=auth(candidate_token),
             )
 
@@ -547,7 +548,7 @@ class TestApplicationStatus:
         ):
             client.post(
                 f"/api/assessments/applications/{application['id']}/answers",
-                json={"question_id": questions[0]["id"], "answer_text": "An answer"},
+                json={"answers": [{"question_id": questions[0]["id"], "answer_text": "An answer"}]},
                 headers=auth(candidate_token),
             )
 
@@ -598,7 +599,7 @@ class TestApplicationStatus:
         ):
             client.post(
                 f"/api/assessments/applications/{application['id']}/answers",
-                json={"question_id": questions[0]["id"], "answer_text": "An answer"},
+                json={"answers": [{"question_id": questions[0]["id"], "answer_text": "An answer"}]},
                 headers=auth(candidate_token),
             )
 
@@ -765,7 +766,7 @@ class TestAssessmentTimeLimit:
 
         response = client.post(
             f"/api/assessments/applications/{application['id']}/answers",
-            json={"question_id": questions[0]["id"], "answer_text": "An answer"},
+            json={"answers": [{"question_id": questions[0]["id"], "answer_text": "An answer"}]},
             headers=auth(candidate_token),
         )
 
@@ -790,7 +791,7 @@ class TestAssessmentTimeLimit:
         ):
             response = client.post(
                 f"/api/assessments/applications/{application['id']}/answers",
-                json={"question_id": questions[0]["id"], "answer_text": "An answer"},
+                json={"answers": [{"question_id": questions[0]["id"], "answer_text": "An answer"}]},
                 headers=auth(candidate_token),
             )
 
@@ -1002,7 +1003,7 @@ class TestApplicationWithdrawal:
         ):
             client.post(
                 f"/api/assessments/applications/{application['id']}/answers",
-                json={"question_id": questions[0]["id"], "answer_text": "An answer"},
+                json={"answers": [{"question_id": questions[0]["id"], "answer_text": "An answer"}]},
                 headers=auth(candidate_token),
             )
 
@@ -1064,3 +1065,301 @@ class TestApplicationWithdrawal:
         ).json()
 
         assert applications[0]["compatibility_score"] is not None
+
+class TestBulkAnswerSubmission:
+    def _prepare_two_questions(self, client, employer_token, candidate_token, skills):
+        job = create_job(client, employer_token, skills)
+        create_resume(client, candidate_token, skills)
+        application = client.post(
+            "/api/applications",
+            json={"job_id": job["id"]},
+            headers=auth(candidate_token),
+        ).json()
+
+        with patch(
+            "app.services.question_service.generate_json",
+            return_value=["Question 1", "Question 2"],
+        ):
+            questions = client.post(
+                f"/api/assessments/jobs/{job['id']}/questions",
+                json={},
+                headers=auth(employer_token),
+            ).json()
+
+        client.put(
+            f"/api/assessments/jobs/{job['id']}/questions",
+            json={"question_ids": [q["id"] for q in questions]},
+            headers=auth(employer_token),
+        )
+
+        client.post(
+            f"/api/assessments/applications/{application['id']}/start",
+            headers=auth(candidate_token),
+        )
+
+        return job, application, questions
+
+    def test_submits_multiple_answers_in_one_request(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application, questions = self._prepare_two_questions(
+            client, employer_token, candidate_token, skills
+        )
+
+        with patch(
+            "app.services.evaluation_service.generate_json",
+            return_value={"score": 80},
+        ):
+            response = client.post(
+                f"/api/assessments/applications/{application['id']}/answers",
+                json={
+                    "answers": [
+                        {"question_id": questions[0]["id"], "answer_text": "Answer 1"},
+                        {"question_id": questions[1]["id"], "answer_text": "Answer 2"},
+                    ]
+                },
+                headers=auth(candidate_token),
+            )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data) == 2
+
+    def test_rejects_whole_batch_if_one_already_answered(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application, questions = self._prepare_two_questions(
+            client, employer_token, candidate_token, skills
+        )
+
+        with patch(
+            "app.services.evaluation_service.generate_json",
+            return_value={"score": 80},
+        ):
+            client.post(
+                f"/api/assessments/applications/{application['id']}/answers",
+                json={
+                    "answers": [
+                        {"question_id": questions[0]["id"], "answer_text": "First try"},
+                    ]
+                },
+                headers=auth(candidate_token),
+            )
+
+            response = client.post(
+                f"/api/assessments/applications/{application['id']}/answers",
+                json={
+                    "answers": [
+                        {"question_id": questions[0]["id"], "answer_text": "Second try"},
+                        {"question_id": questions[1]["id"], "answer_text": "Answer 2"},
+                    ]
+                },
+                headers=auth(candidate_token),
+            )
+
+        assert response.status_code == 400
+        assert response.json()["detail"]["code"] == "ALREADY_ANSWERED"
+
+    def test_updates_score_after_batch_submission(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application, questions = self._prepare_two_questions(
+            client, employer_token, candidate_token, skills
+        )
+
+        with patch(
+            "app.services.evaluation_service.generate_json",
+            return_value={"score": 80},
+        ):
+            client.post(
+                f"/api/assessments/applications/{application['id']}/answers",
+                json={
+                    "answers": [
+                        {"question_id": questions[0]["id"], "answer_text": "Answer 1"},
+                        {"question_id": questions[1]["id"], "answer_text": "Answer 2"},
+                    ]
+                },
+                headers=auth(candidate_token),
+            )
+
+        candidates = client.get(
+            f"/api/applications/job/{job['id']}", headers=auth(employer_token)
+        ).json()
+
+        assert candidates[0]["assessment_score"] == 80.0
+        assert candidates[0]["status"] == "completed"
+
+    def test_accepts_answers_within_grace_period(
+        self, client, employer_token, candidate_token, skills, db
+    ):
+        job = create_job(client, employer_token, skills)
+        client.patch(
+            f"/api/jobs/{job['id']}/settings",
+            json={"assessment_time_limit_minutes": 30},
+            headers=auth(employer_token),
+        )
+        create_resume(client, candidate_token, skills)
+        application = client.post(
+            "/api/applications",
+            json={"job_id": job["id"]},
+            headers=auth(candidate_token),
+        ).json()
+
+        with patch(
+            "app.services.question_service.generate_json",
+            return_value=["Question 1"],
+        ):
+            questions = client.post(
+                f"/api/assessments/jobs/{job['id']}/questions",
+                json={},
+                headers=auth(employer_token),
+            ).json()
+
+        client.put(
+            f"/api/assessments/jobs/{job['id']}/questions",
+            json={"question_ids": [questions[0]["id"]]},
+            headers=auth(employer_token),
+        )
+
+        client.post(
+            f"/api/assessments/applications/{application['id']}/start",
+            headers=auth(candidate_token),
+        )
+
+        from app.models import Application as ApplicationModel
+
+        app_row = (
+            db.query(ApplicationModel)
+            .filter(ApplicationModel.id == application["id"])
+            .first()
+        )
+        app_row.assessment_started_at = app_row.assessment_started_at - timedelta(
+            minutes=30, seconds=10
+        )
+        db.commit()
+
+        with patch(
+            "app.services.evaluation_service.generate_json",
+            return_value={"score": 80},
+        ):
+            response = client.post(
+                f"/api/assessments/applications/{application['id']}/answers",
+                json={
+                    "answers": [
+                        {"question_id": questions[0]["id"], "answer_text": "Answer"},
+                    ]
+                },
+                headers=auth(candidate_token),
+            )
+
+        assert response.status_code == 200
+
+    def test_rejects_answers_beyond_grace_period(
+        self, client, employer_token, candidate_token, skills, db
+    ):
+        job = create_job(client, employer_token, skills)
+        client.patch(
+            f"/api/jobs/{job['id']}/settings",
+            json={"assessment_time_limit_minutes": 30},
+            headers=auth(employer_token),
+        )
+        create_resume(client, candidate_token, skills)
+        application = client.post(
+            "/api/applications",
+            json={"job_id": job["id"]},
+            headers=auth(candidate_token),
+        ).json()
+
+        with patch(
+            "app.services.question_service.generate_json",
+            return_value=["Question 1"],
+        ):
+            questions = client.post(
+                f"/api/assessments/jobs/{job['id']}/questions",
+                json={},
+                headers=auth(employer_token),
+            ).json()
+
+        client.put(
+            f"/api/assessments/jobs/{job['id']}/questions",
+            json={"question_ids": [questions[0]["id"]]},
+            headers=auth(employer_token),
+        )
+
+        client.post(
+            f"/api/assessments/applications/{application['id']}/start",
+            headers=auth(candidate_token),
+        )
+
+        from app.models import Application as ApplicationModel
+
+        app_row = (
+            db.query(ApplicationModel)
+            .filter(ApplicationModel.id == application["id"])
+            .first()
+        )
+        app_row.assessment_started_at = app_row.assessment_started_at - timedelta(
+            minutes=30, seconds=30
+        )
+        db.commit()
+
+        response = client.post(
+            f"/api/assessments/applications/{application['id']}/answers",
+            json={
+                "answers": [
+                    {"question_id": questions[0]["id"], "answer_text": "Answer"},
+                ]
+            },
+            headers=auth(candidate_token),
+        )
+
+        assert response.status_code == 403
+        assert response.json()["detail"]["code"] == "ASSESSMENT_TIME_EXPIRED"
+    def test_rejects_batch_with_unknown_question(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application, questions = self._prepare_two_questions(
+            client, employer_token, candidate_token, skills
+        )
+
+        with patch(
+            "app.services.evaluation_service.generate_json",
+            return_value={"score": 80},
+        ):
+            response = client.post(
+                f"/api/assessments/applications/{application['id']}/answers",
+                json={
+                    "answers": [
+                        {"question_id": questions[0]["id"], "answer_text": "Answer 1"},
+                        {"question_id": 999999, "answer_text": "Answer 2"},
+                    ]
+                },
+                headers=auth(candidate_token),
+            )
+
+        assert response.status_code == 404
+        assert response.json()["detail"]["code"] == "QUESTION_NOT_FOUND"
+
+    def test_rejects_batch_when_llm_unavailable(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job, application, questions = self._prepare_two_questions(
+            client, employer_token, candidate_token, skills
+        )
+
+        with patch(
+            "app.services.evaluation_service.generate_json",
+            side_effect=LLMUnavailableError(),
+        ):
+            response = client.post(
+                f"/api/assessments/applications/{application['id']}/answers",
+                json={
+                    "answers": [
+                        {"question_id": questions[0]["id"], "answer_text": "Answer 1"},
+                    ]
+                },
+                headers=auth(candidate_token),
+            )
+
+        assert response.status_code == 503
+        assert response.json()["detail"]["code"] == "LLM_UNAVAILABLE"
