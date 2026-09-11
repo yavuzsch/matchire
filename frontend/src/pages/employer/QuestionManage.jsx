@@ -2,6 +2,8 @@ import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 
 import { get, patch, post, put } from "../../api/client"
+import Message from "../../components/Message"
+import Spinner from "../../components/Spinner"
 import { t } from "../../i18n"
 
 export default function QuestionManage() {
@@ -94,21 +96,20 @@ export default function QuestionManage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl p-8">
-      <Link to="/employer/jobs" className="text-sm text-blue-400">
-        {t.questions.back}
+    <div>
+      <Link to="/employer/jobs" className="text-sm font-medium text-blue-400 hover:text-blue-500">
+        ← {t.questions.back}
       </Link>
 
-      <h1 className="mb-6 mt-2 text-2xl font-bold text-white">
+      <h1 className="mt-2 text-2xl font-extrabold text-ink">
         {t.questions.title}
       </h1>
 
-      {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
-      {message && <p className="mb-4 text-sm text-green-400">{message}</p>}
+      <Message error={error} info={message} className="mt-4" />
 
-      <div className="mb-4 flex items-end gap-3 rounded bg-slate-800 p-3">
+      <div className="mt-6 flex items-end gap-3 rounded-xl bg-surface p-4">
         <div className="flex-1">
-          <label className="mb-1 block text-sm text-slate-300">
+          <label className="mb-2 block text-sm font-medium text-ink">
             {t.questions.timeLimit}
           </label>
           <input
@@ -118,7 +119,7 @@ export default function QuestionManage() {
             value={timeLimit}
             onChange={(e) => setTimeLimit(e.target.value)}
             placeholder={t.questions.timeLimitPlaceholder}
-            className="w-full rounded bg-slate-700 px-3 py-2 text-white placeholder-slate-400"
+            className="w-full rounded-lg bg-surface-2 px-3 py-2 text-sm text-ink placeholder-ink-soft outline-none ring-blue-500 focus:ring-2"
           />
         </div>
 
@@ -126,19 +127,21 @@ export default function QuestionManage() {
           type="button"
           onClick={saveTimeLimit}
           disabled={savingTimeLimit}
-          className="rounded bg-slate-600 px-4 py-2 text-sm text-white disabled:opacity-50"
+          className="flex items-center gap-2 rounded-lg bg-surface-2 px-4 py-2 text-sm font-semibold text-ink transition-colors hover:bg-surface disabled:opacity-50"
         >
+          {savingTimeLimit && <Spinner />}
           {savingTimeLimit ? t.common.saving : t.common.save}
         </button>
       </div>
 
-      <div className="mb-4 flex items-center gap-3">
+      <div className="mt-6 flex items-center gap-3">
         <button
           type="button"
           onClick={generate}
           disabled={generating}
-          className="rounded bg-blue-600 px-4 py-2 text-sm text-white disabled:opacity-50"
+          className="flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-600 disabled:opacity-50"
         >
+          {generating && <Spinner />}
           {generating
             ? t.questions.generating
             : questions.length > 0
@@ -147,25 +150,25 @@ export default function QuestionManage() {
         </button>
 
         {questions.length > 0 && (
-          <span className="text-sm text-slate-400">
+          <span className="text-sm text-ink-soft">
             {checkedIds.length} {t.questions.selectedCount}
           </span>
         )}
       </div>
 
       {questions.length === 0 && !generating && (
-        <p className="text-slate-400">{t.questions.noQuestions}</p>
+        <p className="mt-6 text-sm text-ink-soft">{t.questions.noQuestions}</p>
       )}
 
       {questions.length > 0 && (
         <>
-          <p className="mb-2 text-sm text-slate-300">{t.questions.selectHint}</p>
+          <p className="mt-6 text-sm text-ink-soft">{t.questions.selectHint}</p>
 
-          <div className="space-y-2">
+          <div className="mt-3 space-y-2">
             {questions.map((question) => (
               <label
                 key={question.id}
-                className="flex cursor-pointer items-start gap-3 rounded bg-slate-800 p-3"
+                className="flex cursor-pointer items-start gap-3 rounded-xl bg-surface p-4"
               >
                 <input
                   type="checkbox"
@@ -173,7 +176,7 @@ export default function QuestionManage() {
                   onChange={() => toggle(question.id)}
                   className="mt-1"
                 />
-                <span className="text-sm text-slate-200">
+                <span className="text-sm text-ink">
                   {question.question_text}
                 </span>
               </label>
@@ -184,8 +187,9 @@ export default function QuestionManage() {
             type="button"
             onClick={saveSelection}
             disabled={saving}
-            className="mt-4 rounded bg-blue-600 px-6 py-2 font-medium text-white disabled:opacity-50"
+            className="mt-6 flex items-center gap-2 rounded-lg bg-blue-500 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-600 disabled:opacity-50"
           >
+            {saving && <Spinner />}
             {saving ? t.common.saving : t.questions.save}
           </button>
         </>

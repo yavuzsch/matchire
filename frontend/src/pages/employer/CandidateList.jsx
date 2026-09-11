@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Link, useParams } from "react-router-dom"
 
 import { get, patch } from "../../api/client"
+import Message from "../../components/Message"
 import ScoreBadge from "../../components/ScoreBadge"
 import { t } from "../../i18n"
 
@@ -65,47 +66,47 @@ export default function CandidateList() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl p-8">
-      <Link to="/employer/jobs" className="text-sm text-blue-400">
-        {t.candidates.back}
+    <div>
+      <Link to="/employer/jobs" className="text-sm font-medium text-blue-400 hover:text-blue-500">
+        ← {t.candidates.back}
       </Link>
 
-      <h1 className="mb-6 mt-2 text-2xl font-bold text-white">
+      <h1 className="mt-2 text-2xl font-extrabold text-ink">
         {t.candidates.title}
       </h1>
 
-      {error && <p className="mb-4 text-sm text-red-400">{error}</p>}
-      {message && <p className="mb-4 text-sm text-green-400">{message}</p>}
+      <Message error={error} info={message} className="mt-4" />
+
       {candidates.length === 0 && (
-        <p className="text-slate-400">{t.candidates.empty}</p>
+        <p className="mt-6 text-sm text-ink-soft">{t.candidates.empty}</p>
       )}
 
-      <div className="space-y-3">
+      <div className="mt-6 space-y-3">
         {candidates.map((candidate, index) => (
           <div
             key={candidate.application_id}
             className={
               candidate.status === "rejected"
-                ? "rounded bg-slate-800 p-4 opacity-60"
-                : "rounded bg-slate-800 p-4"
+                ? "rounded-xl bg-surface p-5 opacity-60"
+                : "rounded-xl bg-surface p-5"
             }
           >
-            <div className="flex items-start justify-between">
+            <div className="flex items-start justify-between gap-3">
               <div>
-                <h2 className="font-medium text-white">
+                <h2 className="font-semibold text-ink">
                   {index + 1}. {candidate.full_name}
                 </h2>
-                <p className="text-sm text-slate-400">{candidate.email}</p>
+                <p className="text-sm text-ink-soft">{candidate.email}</p>
               </div>
 
               {candidate.status === "rejected" && (
-                <span className="rounded bg-slate-700 px-2 py-1 text-xs text-slate-300">
+                <span className="shrink-0 rounded-full bg-surface-2 px-2.5 py-1 text-xs text-ink-soft">
                   {t.candidates.rejected}
                 </span>
               )}
 
               {candidate.status === "accepted" && (
-                <span className="rounded bg-green-900 px-2 py-1 text-xs text-green-300">
+                <span className="shrink-0 rounded-full bg-green-500/10 px-2.5 py-1 text-xs text-green-400">
                   {t.candidates.accepted}
                 </span>
               )}
@@ -128,116 +129,114 @@ export default function CandidateList() {
 
             {candidate.project_summary && (
               <div className="mt-3">
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-ink-soft">
                   {t.candidates.projectSummary}
                 </p>
-                <p className="text-sm text-slate-300">
+                <p className="mt-1 text-sm text-ink-soft">
                   {candidate.project_summary}
                 </p>
               </div>
             )}
 
-            <div className="mt-3 flex items-center gap-4">
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
               <button
                 type="button"
                 onClick={() => toggleAnswers(candidate.application_id)}
-                className="text-sm text-blue-400"
+                className="text-sm font-medium text-blue-400 hover:text-blue-500"
               >
                 {openId === candidate.application_id
                   ? t.candidates.hideAnswers
                   : t.candidates.showAnswers}
               </button>
 
-              {candidate.status === "rejected" && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    updateStatus(candidate.application_id, "pending")
-                  }
-                  className="text-sm text-amber-400"
-                >
-                  {t.candidates.undoReject}
-                </button>
-              )}
-
-              {candidate.status === "accepted" && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    updateStatus(candidate.application_id, "pending")
-                  }
-                  className="text-sm text-amber-400"
-                >
-                  {t.candidates.undoAccept}
-                </button>
-              )}
-
-              {candidate.status === "completed" && (
-                <>
+              <div className="flex items-center gap-3">
+                {candidate.status === "rejected" && (
                   <button
                     type="button"
                     onClick={() =>
-                      updateStatus(candidate.application_id, "accepted")
+                      updateStatus(candidate.application_id, "pending")
                     }
-                    className="text-sm text-green-400"
+                    className="rounded-lg bg-surface-2 px-3 py-1.5 text-xs font-medium text-ink-soft transition-colors hover:text-ink"
                   >
-                    {t.candidates.accept}
+                    {t.candidates.undoReject}
                   </button>
+                )}
+
+                {candidate.status === "accepted" && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateStatus(candidate.application_id, "pending")
+                    }
+                    className="rounded-lg bg-surface-2 px-3 py-1.5 text-xs font-medium text-ink-soft transition-colors hover:text-ink"
+                  >
+                    {t.candidates.undoAccept}
+                  </button>
+                )}
+
+                {candidate.status === "completed" && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateStatus(candidate.application_id, "accepted")
+                      }
+                      className="rounded-lg bg-green-500 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-green-600"
+                    >
+                      {t.candidates.accept}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateStatus(candidate.application_id, "rejected")
+                      }
+                      className="px-2 text-xs font-medium text-red-400 hover:text-red-500"
+                    >
+                      {t.candidates.reject}
+                    </button>
+                  </>
+                )}
+
+                {(candidate.status === "pending" ||
+                  candidate.status === "assessment") && (
                   <button
                     type="button"
                     onClick={() =>
                       updateStatus(candidate.application_id, "rejected")
                     }
-                    className="text-sm text-red-400"
+                    className="px-2 text-xs font-medium text-red-400 hover:text-red-500"
                   >
                     {t.candidates.reject}
                   </button>
-                </>
-              )}
-
-              {(candidate.status === "pending" ||
-                candidate.status === "assessment") && (
-                <button
-                  type="button"
-                  onClick={() =>
-                    updateStatus(candidate.application_id, "rejected")
-                  }
-                  className="text-sm text-red-400"
-                >
-                  {t.candidates.reject}
-                </button>
-              )}
+                )}
+              </div>
             </div>
 
             {openId === candidate.application_id && (
-              <div className="mt-3 space-y-3">
+              <div className="mt-4 space-y-3 border-t border-line pt-4">
                 {(reviews[candidate.application_id] || []).length === 0 ? (
-                  <p className="text-sm text-slate-400">
+                  <p className="text-sm text-ink-soft">
                     {t.candidates.noAnswers}
                   </p>
                 ) : (
-                  reviews[candidate.application_id].map((item, itemIndex) => (
-                    <div key={itemIndex} className="rounded bg-slate-900 p-3">
-                      <p className="text-sm text-slate-300">
-                        {item.question_text}
-                      </p>
-                      <p className="mt-1 text-sm text-white">
-                        {item.answer_text}
-                      </p>
-                      <p
-                        className={
-                          item.is_correct
-                            ? "mt-1 text-xs text-green-400"
-                            : "mt-1 text-xs text-red-400"
-                        }
-                      >
-                        {item.is_correct
-                          ? t.candidates.correct
-                          : t.candidates.incorrect}{" "}
-                        · {item.score}
-                      </p>
-                    </div>
-                  ))
+                  reviews[candidate.application_id].map((item, itemIndex) => {
+                    const totalQuestions = reviews[candidate.application_id].length
+                    const contribution = Math.round(item.score / totalQuestions)
+
+                    return (
+                      <div key={itemIndex} className="rounded-lg bg-surface-2 p-3">
+                        <p className="text-sm text-ink-soft">
+                          {item.question_text}
+                        </p>
+                        <p className="mt-1 text-sm text-ink">
+                          {item.answer_text}
+                        </p>
+                        <p className="mt-1 text-xs text-blue-400">
+                          +{contribution} {t.candidates.pointsLabel}
+                        </p>
+                      </div>
+                    )
+                  })
                 )}
               </div>
             )}

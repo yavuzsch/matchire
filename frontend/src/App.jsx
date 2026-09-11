@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
 
 import Layout from "./components/Layout"
 import ProtectedRoute from "./components/ProtectedRoute"
+import Home from "./pages/Home"
 import Login from "./pages/auth/Login"
 import Register from "./pages/auth/Register"
 import ApplicationList from "./pages/candidate/ApplicationList"
@@ -26,6 +27,7 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
@@ -68,7 +70,7 @@ export default function App() {
           element={<Protected role="candidate"><AssessmentTake /></Protected>}
         />
 
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>
   )

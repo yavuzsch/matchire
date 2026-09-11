@@ -1,20 +1,22 @@
 import { useEffect, useState } from "react"
 
 import { get, post, put, upload } from "../../api/client"
+import { Field, inputClass, Section } from "../../components/FormElements"
+import Message from "../../components/Message"
 import SkillSelect from "../../components/SkillSelect"
+import Spinner from "../../components/Spinner"
 import { t, EDUCATION_LEVELS, FIELDS } from "../../i18n"
-
-const inputClass =
-  "w-full rounded bg-slate-700 px-3 py-2 text-white placeholder-slate-400"
 
 export default function ResumeForm() {
   const [exists, setExists] = useState(false)
+  const [editing, setEditing] = useState(false)
+
   const [phone, setPhone] = useState("")
   const [skillIds, setSkillIds] = useState([])
   const [skillNames, setSkillNames] = useState({})
   const [experienceYears, setExperienceYears] = useState(0)
   const [educationLevel, setEducationLevel] = useState("bachelor")
-  const [university, setUniversity] = useState("")
+  const [school, setSchool] = useState("")
   const [field, setField] = useState("software_development")
   const [projects, setProjects] = useState("")
   const [projectSummary, setProjectSummary] = useState("")
@@ -25,6 +27,9 @@ export default function ResumeForm() {
   const [loading, setLoading] = useState(false)
   const [parsing, setParsing] = useState(false)
   const [unmatched, setUnmatched] = useState([])
+
+  const schoolLabel =
+    educationLevel === "high_school" ? t.resume.highSchool : t.resume.university
 
   useEffect(() => {
     get("/resumes/me")
@@ -39,13 +44,16 @@ export default function ResumeForm() {
         )
         setExperienceYears(data.experience_years || 0)
         setEducationLevel(data.education_level || "bachelor")
-        setUniversity(data.university || "")
+        setSchool(data.university || "")
         setField(data.field || "software_development")
         setProjects(data.projects || "")
         setProjectSummary(data.project_summary || "")
         setCertifications(data.certifications || "")
       })
-      .catch(() => setExists(false))
+      .catch(() => {
+        setExists(false)
+        setEditing(true)
+      })
   }, [])
 
   async function handleUpload(event) {
@@ -62,27 +70,26 @@ export default function ResumeForm() {
     try {
       const data = await upload("/resumes/parse", file)
 
-      if (data.phone) setPhone(data.phone)
+      setPhone(data.phone || "")
 
-      if (data.skill_ids.length) {
-        setSkillIds(data.skill_ids)
-        setSkillNames(
-          Object.fromEntries(
-            data.skill_ids.map((id, index) => [id, data.skill_names[index]])
-          )
+      setSkillIds(data.skill_ids || [])
+      setSkillNames(
+        Object.fromEntries(
+          (data.skill_ids || []).map((id, index) => [id, data.skill_names[index]])
         )
-      }
+      )
 
-      if (data.experience_years) setExperienceYears(data.experience_years)
-      if (data.education_level) setEducationLevel(data.education_level)
-      if (data.university) setUniversity(data.university)
-      if (data.field) setField(data.field)
-      if (data.projects) setProjects(data.projects)
-      if (data.project_summary) setProjectSummary(data.project_summary)
-      if (data.certifications) setCertifications(data.certifications)
+      setExperienceYears(data.experience_years || 0)
+      setEducationLevel(data.education_level || "bachelor")
+      setSchool(data.university || "")
+      setField(data.field || "software_development")
+      setProjects(data.projects || "")
+      setProjectSummary(data.project_summary || "")
+      setCertifications(data.certifications || "")
 
       setUnmatched(data.unmatched_skills || [])
       setMessage(t.resume.uploaded)
+      setEditing(true)
     } catch (err) {
       setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
     } finally {
@@ -102,7 +109,7 @@ export default function ResumeForm() {
       skill_ids: skillIds,
       experience_years: Number(experienceYears),
       education_level: educationLevel,
-      university,
+      university: school,
       field,
       projects,
       project_summary: projectSummary || null,
@@ -118,6 +125,7 @@ export default function ResumeForm() {
         setExists(true)
       }
       setMessage(t.resume.saved)
+      setEditing(false)
     } catch (err) {
       setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
     } finally {
@@ -125,122 +133,250 @@ export default function ResumeForm() {
     }
   }
 
+  if (!editing) {
+    return (
+      <div className="max-w-2xl">
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-extrabold text-ink">{t.resume.title}</h1>
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="rounded-lg bg-surface-2 px-4 py-2 text-sm font-semibold text-ink hover:bg-surface"
+          >
+            {t.common.edit}
+          </button>
+        </div>
+
+        <Message info={message} className="mt-4" />
+
+        <div className="mt-6 rounded-xl bg-surface p-6">
+          <div className="space-y-5">
+            {phone && (
+              <div>
+                <p className="text-xs text-ink-soft">{t.resume.phone}</p>
+                <p className="mt-1 text-sm text-ink">{phone}</p>
+              </div>
+            )}
+
+            <div>
+              <p className="text-xs text-ink-soft">{t.resume.skills}</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {skillIds.length === 0 && (
+                  <p className="text-sm text-ink-soft">—</p>
+                )}
+                {skillIds.map((id) => (
+                  <span
+                    key={id}
+                    className="rounded-full bg-surface-2 px-3 py-1 text-xs text-ink-soft"
+                  >
+                    {skillNames[id]}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs text-ink-soft">{t.resume.experienceYears}</p>
+                <p className="mt-1 text-sm text-ink">{experienceYears}</p>
+              </div>
+
+              <div>
+                <p className="text-xs text-ink-soft">{t.job.educationLevelLabel}</p>
+                <p className="mt-1 text-sm text-ink">
+                  {t.educationLevels[educationLevel]}
+                </p>
+              </div>
+            </div>
+
+            {school && (
+              <div>
+                <p className="text-xs text-ink-soft">{schoolLabel}</p>
+                <p className="mt-1 text-sm text-ink">{school}</p>
+              </div>
+            )}
+
+            <div>
+              <p className="text-xs text-ink-soft">{t.job.fieldLabel}</p>
+              <p className="mt-1 text-sm text-ink">{t.fields[field]}</p>
+            </div>
+
+            {projects && (
+              <div>
+                <p className="text-xs text-ink-soft">{t.resume.projects}</p>
+                <p className="mt-1 whitespace-pre-line text-sm text-ink">{projects}</p>
+              </div>
+            )}
+
+            {projectSummary && (
+              <div>
+                <p className="text-xs text-ink-soft">{t.resume.projectSummary}</p>
+                <p className="mt-1 text-sm text-ink">{projectSummary}</p>
+              </div>
+            )}
+
+            {certifications && (
+              <div>
+                <p className="text-xs text-ink-soft">{t.resume.certifications}</p>
+                <p className="mt-1 whitespace-pre-line text-sm text-ink">
+                  {certifications}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="mx-auto max-w-2xl p-8">
-      <h1 className="mb-6 text-2xl font-bold text-white">{t.resume.title}</h1>
+    <div className="max-w-2xl">
+      <h1 className="text-2xl font-extrabold text-ink">{t.resume.title}</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {error && <p className="text-sm text-red-400">{error}</p>}
-        {message && <p className="text-sm text-green-400">{message}</p>}
+      <form onSubmit={handleSubmit} className="mt-6 space-y-6">
+        <Message error={error} info={message} />
 
-        <div className="rounded bg-slate-800 p-3">
-          <label className="block text-sm text-slate-300">
-            {parsing ? t.resume.uploading : t.resume.upload}
+        <Section title={t.resume.uploadSectionTitle}>
+          <label className="block text-sm text-ink-soft">
+            <span className="flex items-center gap-2">
+              {parsing && <Spinner />}
+              {parsing ? t.resume.uploading : t.resume.upload}
+            </span>
             <input
               type="file"
               accept="application/pdf"
               onChange={handleUpload}
               disabled={parsing}
-              className="mt-2 block w-full text-sm text-slate-400 file:mr-3 file:rounded file:border-0 file:bg-blue-600 file:px-3 file:py-1 file:text-sm file:text-white"
+              className="mt-2 block w-full text-sm text-ink-soft file:mr-3 file:rounded-lg file:border-0 file:bg-blue-500 file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-white"
             />
           </label>
 
           {unmatched.length > 0 && (
-            <p className="mt-2 text-xs text-amber-400">
+            <p className="mt-2 text-xs text-blue-400">
               {t.resume.unmatched} {unmatched.join(", ")}
             </p>
           )}
-        </div>
+        </Section>
 
-        <input
-          type="text"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
-          placeholder={t.resume.phone}
-          className={inputClass}
-        />
+        <Section title={t.resume.contactSectionTitle}>
+          <Field label={t.resume.phone}>
+            <input
+              type="text"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className={inputClass}
+            />
+          </Field>
+        </Section>
 
-        <div>
-          <p className="mb-2 text-sm text-slate-300">{t.resume.skills}</p>
+        <Section title={t.resume.skills}>
           <SkillSelect
             selected={skillIds}
             onChange={setSkillIds}
             names={skillNames}
           />
+        </Section>
+
+        <Section title={t.resume.backgroundSectionTitle}>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <Field label={t.resume.experienceYears}>
+              <input
+                type="number"
+                min="0"
+                value={experienceYears}
+                onChange={(e) => setExperienceYears(e.target.value)}
+                className={inputClass}
+              />
+            </Field>
+
+            <Field label={t.job.educationLevelLabel}>
+              <select
+                value={educationLevel}
+                onChange={(e) => setEducationLevel(e.target.value)}
+                className={inputClass}
+              >
+                {EDUCATION_LEVELS.map((value) => (
+                  <option key={value} value={value}>
+                    {t.educationLevels[value]}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          </div>
+
+          <Field label={schoolLabel}>
+            <input
+              type="text"
+              value={school}
+              onChange={(e) => setSchool(e.target.value)}
+              className={inputClass}
+            />
+          </Field>
+
+          <Field label={t.job.fieldLabel}>
+            <select
+              value={field}
+              onChange={(e) => setField(e.target.value)}
+              className={inputClass}
+            >
+              {FIELDS.map((value) => (
+                <option key={value} value={value}>
+                  {t.fields[value]}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </Section>
+
+        <Section title={t.resume.projectsSectionTitle}>
+          <Field label={t.resume.projects}>
+            <textarea
+              value={projects}
+              onChange={(e) => setProjects(e.target.value)}
+              rows="3"
+              className={inputClass}
+            />
+          </Field>
+
+          <Field label={t.resume.projectSummary}>
+            <textarea
+              value={projectSummary}
+              onChange={(e) => setProjectSummary(e.target.value)}
+              rows="2"
+              className={inputClass}
+            />
+          </Field>
+
+          <Field label={t.resume.certifications}>
+            <textarea
+              value={certifications}
+              onChange={(e) => setCertifications(e.target.value)}
+              rows="2"
+              className={inputClass}
+            />
+          </Field>
+        </Section>
+
+        <div className="flex gap-3">
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-blue-500 py-3 text-sm font-semibold text-white transition-colors hover:bg-blue-600 disabled:opacity-50"
+          >
+            {loading && <Spinner />}
+            {loading ? t.common.saving : t.common.save}
+          </button>
+
+          {exists && (
+            <button
+              type="button"
+              onClick={() => setEditing(false)}
+              className="rounded-lg bg-surface-2 px-6 py-3 text-sm font-semibold text-ink hover:bg-surface"
+            >
+              {t.common.cancel}
+            </button>
+          )}
         </div>
-
-        <input
-          type="number"
-          min="0"
-          value={experienceYears}
-          onChange={(e) => setExperienceYears(e.target.value)}
-          placeholder={t.resume.experienceYears}
-          className={inputClass}
-        />
-
-        <select
-          value={educationLevel}
-          onChange={(e) => setEducationLevel(e.target.value)}
-          className={inputClass}
-        >
-          {EDUCATION_LEVELS.map((value) => (
-            <option key={value} value={value}>
-              {t.educationLevels[value]}
-            </option>
-          ))}
-        </select>
-
-        <input
-          type="text"
-          value={university}
-          onChange={(e) => setUniversity(e.target.value)}
-          placeholder={t.resume.university}
-          className={inputClass}
-        />
-
-        <select
-          value={field}
-          onChange={(e) => setField(e.target.value)}
-          className={inputClass}
-        >
-          {FIELDS.map((value) => (
-            <option key={value} value={value}>
-              {t.fields[value]}
-            </option>
-          ))}
-        </select>
-
-        <textarea
-          value={projects}
-          onChange={(e) => setProjects(e.target.value)}
-          placeholder={t.resume.projects}
-          rows="3"
-          className={inputClass}
-        />
-
-        <textarea
-          value={projectSummary}
-          onChange={(e) => setProjectSummary(e.target.value)}
-          placeholder={t.resume.projectSummary}
-          rows="2"
-          className={inputClass}
-        />
-
-        <textarea
-          value={certifications}
-          onChange={(e) => setCertifications(e.target.value)}
-          placeholder={t.resume.certifications}
-          rows="2"
-          className={inputClass}
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="rounded bg-blue-600 px-6 py-2 font-medium text-white disabled:opacity-50"
-        >
-          {loading ? t.common.saving : t.common.save}
-        </button>
       </form>
     </div>
   )
