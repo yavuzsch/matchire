@@ -88,7 +88,8 @@ export default function AssessmentTake() {
   const hasFilledAnswer = unansweredQuestions.some(
     (q) => (answers[q.id] || "").trim().length > 0
   )
-  const completed = questions.length > 0 && answeredIds.length === questions.length
+  const completed =
+    questions.length > 0 && questions.every((q) => answeredIds.includes(q.id))
 
   useEffect(() => {
     if (!timeLimitMinutes || notStarted || completed) {

@@ -235,8 +235,11 @@ export default function CandidateList() {
                   </p>
                 ) : (
                   reviews[candidate.application_id].map((item, itemIndex) => {
-                    const totalQuestions = reviews[candidate.application_id].length
-                    const contribution = Math.round(item.score / totalQuestions)
+                    const reviewList = reviews[candidate.application_id]
+                    const isFinal = candidate.status === "completed"
+                    const contribution = isFinal
+                      ? Math.round(item.score / reviewList.length)
+                      : null
 
                     return (
                       <div key={itemIndex} className="rounded-lg bg-surface-2 p-3">
@@ -246,9 +249,11 @@ export default function CandidateList() {
                         <p className="mt-1 text-sm text-ink">
                           {item.answer_text}
                         </p>
-                        <p className="mt-1 text-xs text-blue-400">
-                          +{contribution} {t.candidates.pointsLabel}
-                        </p>
+                        {contribution !== null && (
+                          <p className="mt-1 text-xs text-blue-400">
+                            +{contribution} {t.candidates.pointsLabel}
+                          </p>
+                        )}
                       </div>
                     )
                   })

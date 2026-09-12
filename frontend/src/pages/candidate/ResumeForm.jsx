@@ -7,20 +7,40 @@ import SkillSelect from "../../components/SkillSelect"
 import Spinner from "../../components/Spinner"
 import { t, EDUCATION_LEVELS, FIELDS } from "../../i18n"
 
+const emptyResume = {
+  phone: "",
+  skillIds: [],
+  skillNames: {},
+  experienceYears: 0,
+  educationLevel: "bachelor",
+  school: "",
+  field: "software_development",
+  projects: "",
+  projectSummary: "",
+  certifications: "",
+}
+
+function fromServer(data) {
+  const items = data.skills || []
+  return {
+    phone: data.phone || "",
+    skillIds: items.map((item) => item.skill_id),
+    skillNames: Object.fromEntries(items.map((item) => [item.skill_id, item.name])),
+    experienceYears: data.experience_years || 0,
+    educationLevel: data.education_level || "bachelor",
+    school: data.university || "",
+    field: data.field || "software_development",
+    projects: data.projects || "",
+    projectSummary: data.project_summary || "",
+    certifications: data.certifications || "",
+  }
+}
+
 export default function ResumeForm() {
   const [exists, setExists] = useState(false)
   const [editing, setEditing] = useState(false)
-
-  const [phone, setPhone] = useState("")
-  const [skillIds, setSkillIds] = useState([])
-  const [skillNames, setSkillNames] = useState({})
-  const [experienceYears, setExperienceYears] = useState(0)
-  const [educationLevel, setEducationLevel] = useState("bachelor")
-  const [school, setSchool] = useState("")
-  const [field, setField] = useState("software_development")
-  const [projects, setProjects] = useState("")
-  const [projectSummary, setProjectSummary] = useState("")
-  const [certifications, setCertifications] = useState("")
+  const [saved, setSaved] = useState(emptyResume)
+  const [draft, setDraft] = useState(emptyResume)
 
   const [message, setMessage] = useState(null)
   const [error, setError] = useState(null)
@@ -29,32 +49,25 @@ export default function ResumeForm() {
   const [unmatched, setUnmatched] = useState([])
 
   const schoolLabel =
-    educationLevel === "high_school" ? t.resume.highSchool : t.resume.university
+    draft.educationLevel === "high_school" ? t.resume.highSchool : t.resume.university
 
   useEffect(() => {
     get("/resumes/me")
       .then((data) => {
-        const items = data.skills || []
-
+        const parsed = fromServer(data)
         setExists(true)
-        setPhone(data.phone || "")
-        setSkillIds(items.map((item) => item.skill_id))
-        setSkillNames(
-          Object.fromEntries(items.map((item) => [item.skill_id, item.name]))
-        )
-        setExperienceYears(data.experience_years || 0)
-        setEducationLevel(data.education_level || "bachelor")
-        setSchool(data.university || "")
-        setField(data.field || "software_development")
-        setProjects(data.projects || "")
-        setProjectSummary(data.project_summary || "")
-        setCertifications(data.certifications || "")
+        setSaved(parsed)
+        setDraft(parsed)
       })
       .catch(() => {
         setExists(false)
         setEditing(true)
       })
   }, [])
+
+  function updateDraft(patch) {
+    setDraft({ ...draft, ...patch })
+  }
 
   async function handleUpload(event) {
     const file = event.target.files?.[0]
@@ -70,22 +83,21 @@ export default function ResumeForm() {
     try {
       const data = await upload("/resumes/parse", file)
 
-      setPhone(data.phone || "")
-
-      setSkillIds(data.skill_ids || [])
-      setSkillNames(
-        Object.fromEntries(
-          (data.skill_ids || []).map((id, index) => [id, data.skill_names[index]])
-        )
-      )
-
-      setExperienceYears(data.experience_years || 0)
-      setEducationLevel(data.education_level || "bachelor")
-      setSchool(data.university || "")
-      setField(data.field || "software_development")
-      setProjects(data.projects || "")
-      setProjectSummary(data.project_summary || "")
-      setCertifications(data.certifications || "")
+      const skillIds = data.skill_ids || []
+      updateDraft({
+        phone: data.phone || draft.phone,
+        skillIds,
+        skillNames: Object.fromEntries(
+          skillIds.map((id, index) => [id, data.skill_names[index]])
+        ),
+        experienceYears: data.experience_years || draft.experienceYears,
+        educationLevel: data.education_level || draft.educationLevel,
+        school: data.university || draft.school,
+        field: data.field || draft.field,
+        projects: data.projects || draft.projects,
+        projectSummary: data.project_summary || draft.projectSummary,
+        certifications: data.certifications || draft.certifications,
+      })
 
       setUnmatched(data.unmatched_skills || [])
       setMessage(t.resume.uploaded)
@@ -105,15 +117,15 @@ export default function ResumeForm() {
     setLoading(true)
 
     const body = {
-      phone,
-      skill_ids: skillIds,
-      experience_years: Number(experienceYears),
-      education_level: educationLevel,
-      university: school,
-      field,
-      projects,
-      project_summary: projectSummary || null,
-      certifications,
+      phone: draft.phone,
+      skill_ids: draft.skillIds,
+      experience_years: Number(draft.experienceYears),
+      education_level: draft.educationLevel,
+      university: draft.school,
+      field: draft.field,
+      projects: draft.projects,
+      project_summary: draft.projectSummary || null,
+      certifications: draft.certifications,
       languages: {},
     }
 
@@ -124,6 +136,7 @@ export default function ResumeForm() {
         await post("/resumes", body)
         setExists(true)
       }
+      setSaved(draft)
       setMessage(t.resume.saved)
       setEditing(false)
     } catch (err) {
@@ -131,6 +144,13 @@ export default function ResumeForm() {
     } finally {
       setLoading(false)
     }
+  }
+
+  function handleCancel() {
+    setDraft(saved)
+    setError(null)
+    setMessage(null)
+    setEditing(false)
   }
 
   if (!editing) {
@@ -151,25 +171,25 @@ export default function ResumeForm() {
 
         <div className="mt-6 rounded-xl bg-surface p-6">
           <div className="space-y-5">
-            {phone && (
+            {saved.phone && (
               <div>
                 <p className="text-xs text-ink-soft">{t.resume.phone}</p>
-                <p className="mt-1 text-sm text-ink">{phone}</p>
+                <p className="mt-1 text-sm text-ink">{saved.phone}</p>
               </div>
             )}
 
             <div>
               <p className="text-xs text-ink-soft">{t.resume.skills}</p>
               <div className="mt-2 flex flex-wrap gap-2">
-                {skillIds.length === 0 && (
+                {saved.skillIds.length === 0 && (
                   <p className="text-sm text-ink-soft">—</p>
                 )}
-                {skillIds.map((id) => (
+                {saved.skillIds.map((id) => (
                   <span
                     key={id}
                     className="rounded-full bg-surface-2 px-3 py-1 text-xs text-ink-soft"
                   >
-                    {skillNames[id]}
+                    {saved.skillNames[id]}
                   </span>
                 ))}
               </div>
@@ -178,48 +198,52 @@ export default function ResumeForm() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <p className="text-xs text-ink-soft">{t.resume.experienceYears}</p>
-                <p className="mt-1 text-sm text-ink">{experienceYears}</p>
+                <p className="mt-1 text-sm text-ink">{saved.experienceYears}</p>
               </div>
 
               <div>
                 <p className="text-xs text-ink-soft">{t.job.educationLevelLabel}</p>
                 <p className="mt-1 text-sm text-ink">
-                  {t.educationLevels[educationLevel]}
+                  {t.educationLevels[saved.educationLevel]}
                 </p>
               </div>
             </div>
 
-            {school && (
+            {saved.school && (
               <div>
-                <p className="text-xs text-ink-soft">{schoolLabel}</p>
-                <p className="mt-1 text-sm text-ink">{school}</p>
+                <p className="text-xs text-ink-soft">
+                  {saved.educationLevel === "high_school"
+                    ? t.resume.highSchool
+                    : t.resume.university}
+                </p>
+                <p className="mt-1 text-sm text-ink">{saved.school}</p>
               </div>
             )}
 
             <div>
               <p className="text-xs text-ink-soft">{t.job.fieldLabel}</p>
-              <p className="mt-1 text-sm text-ink">{t.fields[field]}</p>
+              <p className="mt-1 text-sm text-ink">{t.fields[saved.field]}</p>
             </div>
 
-            {projects && (
+            {saved.projects && (
               <div>
                 <p className="text-xs text-ink-soft">{t.resume.projects}</p>
-                <p className="mt-1 whitespace-pre-line text-sm text-ink">{projects}</p>
+                <p className="mt-1 whitespace-pre-line text-sm text-ink">{saved.projects}</p>
               </div>
             )}
 
-            {projectSummary && (
+            {saved.projectSummary && (
               <div>
                 <p className="text-xs text-ink-soft">{t.resume.projectSummary}</p>
-                <p className="mt-1 text-sm text-ink">{projectSummary}</p>
+                <p className="mt-1 text-sm text-ink">{saved.projectSummary}</p>
               </div>
             )}
 
-            {certifications && (
+            {saved.certifications && (
               <div>
                 <p className="text-xs text-ink-soft">{t.resume.certifications}</p>
                 <p className="mt-1 whitespace-pre-line text-sm text-ink">
-                  {certifications}
+                  {saved.certifications}
                 </p>
               </div>
             )}
@@ -262,8 +286,8 @@ export default function ResumeForm() {
           <Field label={t.resume.phone}>
             <input
               type="text"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              value={draft.phone}
+              onChange={(e) => updateDraft({ phone: e.target.value })}
               className={inputClass}
             />
           </Field>
@@ -271,9 +295,9 @@ export default function ResumeForm() {
 
         <Section title={t.resume.skills}>
           <SkillSelect
-            selected={skillIds}
-            onChange={setSkillIds}
-            names={skillNames}
+            selected={draft.skillIds}
+            onChange={(ids, names) => updateDraft({ skillIds: ids, skillNames: names })}
+            names={draft.skillNames}
           />
         </Section>
 
@@ -283,16 +307,16 @@ export default function ResumeForm() {
               <input
                 type="number"
                 min="0"
-                value={experienceYears}
-                onChange={(e) => setExperienceYears(e.target.value)}
+                value={draft.experienceYears}
+                onChange={(e) => updateDraft({ experienceYears: e.target.value })}
                 className={inputClass}
               />
             </Field>
 
             <Field label={t.job.educationLevelLabel}>
               <select
-                value={educationLevel}
-                onChange={(e) => setEducationLevel(e.target.value)}
+                value={draft.educationLevel}
+                onChange={(e) => updateDraft({ educationLevel: e.target.value })}
                 className={inputClass}
               >
                 {EDUCATION_LEVELS.map((value) => (
@@ -307,16 +331,16 @@ export default function ResumeForm() {
           <Field label={schoolLabel}>
             <input
               type="text"
-              value={school}
-              onChange={(e) => setSchool(e.target.value)}
+              value={draft.school}
+              onChange={(e) => updateDraft({ school: e.target.value })}
               className={inputClass}
             />
           </Field>
 
           <Field label={t.job.fieldLabel}>
             <select
-              value={field}
-              onChange={(e) => setField(e.target.value)}
+              value={draft.field}
+              onChange={(e) => updateDraft({ field: e.target.value })}
               className={inputClass}
             >
               {FIELDS.map((value) => (
@@ -331,8 +355,8 @@ export default function ResumeForm() {
         <Section title={t.resume.projectsSectionTitle}>
           <Field label={t.resume.projects}>
             <textarea
-              value={projects}
-              onChange={(e) => setProjects(e.target.value)}
+              value={draft.projects}
+              onChange={(e) => updateDraft({ projects: e.target.value })}
               rows="3"
               className={inputClass}
             />
@@ -340,8 +364,8 @@ export default function ResumeForm() {
 
           <Field label={t.resume.projectSummary}>
             <textarea
-              value={projectSummary}
-              onChange={(e) => setProjectSummary(e.target.value)}
+              value={draft.projectSummary}
+              onChange={(e) => updateDraft({ projectSummary: e.target.value })}
               rows="2"
               className={inputClass}
             />
@@ -349,8 +373,8 @@ export default function ResumeForm() {
 
           <Field label={t.resume.certifications}>
             <textarea
-              value={certifications}
-              onChange={(e) => setCertifications(e.target.value)}
+              value={draft.certifications}
+              onChange={(e) => updateDraft({ certifications: e.target.value })}
               rows="2"
               className={inputClass}
             />
@@ -370,7 +394,7 @@ export default function ResumeForm() {
           {exists && (
             <button
               type="button"
-              onClick={() => setEditing(false)}
+              onClick={handleCancel}
               className="rounded-lg bg-surface-2 px-6 py-3 text-sm font-semibold text-ink hover:bg-surface"
             >
               {t.common.cancel}

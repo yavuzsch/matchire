@@ -5,70 +5,6 @@ import { del, get, patch } from "../../api/client"
 import Message from "../../components/Message"
 import { getLanguage, t } from "../../i18n"
 
-function JobCard({ job, updateStatus, handleDelete }) {
-  return (
-    <div className="rounded-xl bg-surface p-5">
-      <div className="flex items-start justify-between gap-3">
-        <h2 className="font-semibold text-ink">{job.title}</h2>
-      </div>
-
-      <p className="mt-1 text-sm text-ink-soft">
-        {job.company_name}
-        {job.location && ` · ${job.location}`}
-      </p>
-      <p className="mt-2 text-xs text-ink-soft">
-        {job.assessment_slots} {t.jobList.slots} · {t.jobList.postedAt}:{" "}
-        {new Date(job.created_at).toLocaleDateString(
-          getLanguage() === "tr" ? "tr-TR" : "en-US"
-        )}
-      </p>
-
-      <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex gap-4">
-          <Link
-            to={`/employer/jobs/${job.id}/questions`}
-            className="text-sm font-medium text-blue-400 hover:text-blue-500"
-          >
-            {t.jobList.manageQuestions}
-          </Link>
-          <Link
-            to={`/employer/jobs/${job.id}/candidates`}
-            className="text-sm font-medium text-blue-400 hover:text-blue-500"
-          >
-            {t.jobList.viewCandidates}
-          </Link>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => updateStatus(job.id, { is_active: !job.is_active })}
-            className="rounded-lg bg-surface-2 px-3 py-1.5 text-xs font-medium text-ink-soft transition-colors hover:text-ink"
-          >
-            {job.is_active ? t.jobList.deactivate : t.jobList.activate}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => updateStatus(job.id, { is_closed: !job.is_closed })}
-            className="rounded-lg bg-surface-2 px-3 py-1.5 text-xs font-medium text-ink-soft transition-colors hover:text-ink"
-          >
-            {job.is_closed ? t.jobList.reopen : t.jobList.close}
-          </button>
-
-          <button
-            type="button"
-            onClick={() => handleDelete(job.id)}
-            className="px-2 text-xs font-medium text-red-400 hover:text-red-500"
-          >
-            {t.jobList.delete}
-          </button>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 export default function JobList() {
   const [jobs, setJobs] = useState([])
   const [message, setMessage] = useState(null)
@@ -108,17 +44,9 @@ export default function JobList() {
     }
   }
 
-  const activeOpen = jobs.filter((job) => job.is_active && !job.is_closed)
-  const activeClosed = jobs.filter((job) => job.is_active && job.is_closed)
-  const inactiveOpen = jobs.filter((job) => !job.is_active && !job.is_closed)
-  const inactiveClosed = jobs.filter((job) => !job.is_active && job.is_closed)
-
-  const groups = [
-    { key: "activeOpen", label: t.jobList.groupActiveOpen, items: activeOpen, dot: "bg-green-500" },
-    { key: "activeClosed", label: t.jobList.groupActiveClosed, items: activeClosed, dot: "bg-blue-500" },
-    { key: "inactiveOpen", label: t.jobList.groupInactiveOpen, items: inactiveOpen, dot: "bg-amber-500" },
-    { key: "inactiveClosed", label: t.jobList.groupInactiveClosed, items: inactiveClosed, dot: "bg-ink-soft" },
-  ]
+  const sortedJobs = [...jobs].sort(
+    (a, b) => Number(!a.is_active) - Number(!b.is_active)
+  )
 
   return (
     <div>
@@ -127,39 +55,91 @@ export default function JobList() {
       <Message error={error} info={message} className="mt-4" />
 
       {jobs.length === 0 && (
-        <div className="mt-6">
-          <p className="text-sm text-ink-soft">{t.jobList.empty}</p>
-          <Link
-            to="/employer/jobs/new"
-            className="mt-2 inline-block text-sm font-semibold text-blue-400 hover:text-blue-500"
-          >
-            {t.jobList.emptyCta} →
-          </Link>
-        </div>
+        <p className="mt-6 text-sm text-ink-soft">{t.jobList.empty}</p>
       )}
 
-      {groups.map(
-        (group) =>
-          group.items.length > 0 && (
-            <div key={group.key} className="mt-8 first:mt-6">
-              <h2 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-ink-soft">
-                <span className={`h-1.5 w-1.5 rounded-full ${group.dot}`} />
-                {group.label} · {group.items.length}
-              </h2>
-
-              <div className="mt-3 space-y-3">
-                {group.items.map((job) => (
-                  <JobCard
-                    key={job.id}
-                    job={job}
-                    updateStatus={updateStatus}
-                    handleDelete={handleDelete}
-                  />
-                ))}
+      <div className="mt-6 space-y-3">
+        {sortedJobs.map((job) => (
+          <div
+            key={job.id}
+            className={
+              job.is_active
+                ? "rounded-xl bg-surface p-5"
+                : "rounded-xl bg-surface p-5 opacity-60"
+            }
+          >
+            <div className="flex items-start justify-between gap-3">
+              <h2 className="font-semibold text-ink">{job.title}</h2>
+              <div className="flex shrink-0 gap-2">
+                {!job.is_active && (
+                  <span className="rounded-full bg-surface-2 px-2.5 py-1 text-xs text-ink-soft">
+                    {t.jobList.inactive}
+                  </span>
+                )}
+                {job.is_closed && (
+                  <span className="rounded-full bg-amber-500/10 px-2.5 py-1 text-xs text-amber-400">
+                    {t.jobList.closed}
+                  </span>
+                )}
               </div>
             </div>
-          )
-      )}
+
+            <p className="mt-1 text-sm text-ink-soft">
+              {job.company_name}
+              {job.location && ` · ${job.location}`}
+            </p>
+            <p className="mt-2 text-xs text-ink-soft">
+              {job.assessment_slots} {t.jobList.slots} · {t.jobList.postedAt}:{" "}
+              {new Date(job.created_at).toLocaleDateString(
+                getLanguage() === "tr" ? "tr-TR" : "en-US"
+              )}
+            </p>
+
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-4">
+              <div className="flex gap-4">
+                <Link
+                  to={`/employer/jobs/${job.id}/questions`}
+                  className="text-sm font-medium text-blue-400 hover:text-blue-500"
+                >
+                  {t.jobList.manageQuestions}
+                </Link>
+                <Link
+                  to={`/employer/jobs/${job.id}/candidates`}
+                  className="text-sm font-medium text-blue-400 hover:text-blue-500"
+                >
+                  {t.jobList.viewCandidates}
+                </Link>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => updateStatus(job.id, { is_active: !job.is_active })}
+                  className="rounded-lg bg-surface-2 px-3 py-1.5 text-xs font-medium text-ink-soft transition-colors hover:text-ink"
+                >
+                  {job.is_active ? t.jobList.deactivate : t.jobList.activate}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => updateStatus(job.id, { is_closed: !job.is_closed })}
+                  className="rounded-lg bg-surface-2 px-3 py-1.5 text-xs font-medium text-ink-soft transition-colors hover:text-ink"
+                >
+                  {job.is_closed ? t.jobList.reopen : t.jobList.close}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => handleDelete(job.id)}
+                  className="px-2 text-xs font-medium text-red-400 hover:text-red-500"
+                >
+                  {t.jobList.delete}
+                </button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
