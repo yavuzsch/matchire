@@ -15,12 +15,20 @@ function formatRemaining(seconds) {
 
 export default function AssessmentTake() {
   const { applicationId } = useParams()
+  const draftKey = `assessment-draft-${applicationId}`
 
   const [questions, setQuestions] = useState([])
   const [startedAt, setStartedAt] = useState(null)
   const [timeLimitMinutes, setTimeLimitMinutes] = useState(null)
   const [now, setNow] = useState(() => Date.now())
-  const [answers, setAnswers] = useState({})
+  const [answers, setAnswers] = useState(() => {
+    try {
+      const saved = localStorage.getItem(draftKey)
+      return saved ? JSON.parse(saved) : {}
+    } catch {
+      return {}
+    }
+  })
   const [answeredIds, setAnsweredIds] = useState([])
   const [savedAnswers, setSavedAnswers] = useState({})
   const [submitting, setSubmitting] = useState(false)
@@ -130,7 +138,13 @@ export default function AssessmentTake() {
   }, [timeLimitMinutes, notStarted, timeExpired, completed])
 
   function setAnswer(questionId, text) {
-    setAnswers({ ...answers, [questionId]: text })
+    const updated = { ...answers, [questionId]: text }
+    setAnswers(updated)
+    try {
+      localStorage.setItem(draftKey, JSON.stringify(updated))
+    } catch {
+      // localStorage unavailable, fail silently
+    }
   }
 
   async function submitAll() {
@@ -155,11 +169,20 @@ export default function AssessmentTake() {
       })
 
       const savedIds = saved.map((item) => item.question_id)
-      setAnsweredIds([...answeredIds, ...savedIds])
+      const nextAnsweredIds = [...answeredIds, ...savedIds]
+      setAnsweredIds(nextAnsweredIds)
       setSavedAnswers({
         ...savedAnswers,
         ...Object.fromEntries(saved.map((item) => [item.question_id, item.answer_text])),
       })
+
+      if (questions.length > 0 && questions.every((q) => nextAnsweredIds.includes(q.id))) {
+        try {
+          localStorage.removeItem(draftKey)
+        } catch {
+          // localStorage unavailable, fail silently
+        }
+      }
     } catch (err) {
       if (err.code === "ASSESSMENT_TIME_EXPIRED") {
         setServerTimeExpired(true)
