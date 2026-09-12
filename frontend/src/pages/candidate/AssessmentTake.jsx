@@ -15,13 +15,22 @@ function formatRemaining(seconds) {
 
 export default function AssessmentTake() {
   const { applicationId } = useParams()
+  const draftKey = `assessment-draft-${applicationId}`
 
   const [questions, setQuestions] = useState([])
   const [startedAt, setStartedAt] = useState(null)
   const [timeLimitMinutes, setTimeLimitMinutes] = useState(null)
   const [now, setNow] = useState(() => Date.now())
-  const [answers, setAnswers] = useState({})
+  const [answers, setAnswers] = useState(() => {
+    try {
+      const saved = localStorage.getItem(draftKey)
+      return saved ? JSON.parse(saved) : {}
+    } catch {
+      return {}
+    }
+  })
   const [answeredIds, setAnsweredIds] = useState([])
+  const [savedAnswers, setSavedAnswers] = useState({})
   const [submitting, setSubmitting] = useState(false)
   const [starting, setStarting] = useState(false)
   const [error, setError] = useState(null)
@@ -53,7 +62,12 @@ export default function AssessmentTake() {
       })
 
     get(`/assessments/applications/${applicationId}/answers`)
-      .then((data) => setAnsweredIds(data.map((item) => item.question_id)))
+      .then((data) => {
+        setAnsweredIds(data.map((item) => item.question_id))
+        setSavedAnswers(
+          Object.fromEntries(data.map((item) => [item.question_id, item.answer_text]))
+        )
+      })
       .catch(() => setAnsweredIds([]))
   }, [applicationId])
 
@@ -82,7 +96,8 @@ export default function AssessmentTake() {
   const hasFilledAnswer = unansweredQuestions.some(
     (q) => (answers[q.id] || "").trim().length > 0
   )
-  const completed = questions.length > 0 && answeredIds.length === questions.length
+  const completed =
+    questions.length > 0 && questions.every((q) => answeredIds.includes(q.id))
 
   useEffect(() => {
     if (!timeLimitMinutes || notStarted || completed) {
@@ -123,7 +138,13 @@ export default function AssessmentTake() {
   }, [timeLimitMinutes, notStarted, timeExpired, completed])
 
   function setAnswer(questionId, text) {
-    setAnswers({ ...answers, [questionId]: text })
+    const updated = { ...answers, [questionId]: text }
+    setAnswers(updated)
+    try {
+      localStorage.setItem(draftKey, JSON.stringify(updated))
+    } catch {
+      // localStorage unavailable, fail silently
+    }
   }
 
   async function submitAll() {
@@ -148,7 +169,20 @@ export default function AssessmentTake() {
       })
 
       const savedIds = saved.map((item) => item.question_id)
-      setAnsweredIds([...answeredIds, ...savedIds])
+      const nextAnsweredIds = [...answeredIds, ...savedIds]
+      setAnsweredIds(nextAnsweredIds)
+      setSavedAnswers({
+        ...savedAnswers,
+        ...Object.fromEntries(saved.map((item) => [item.question_id, item.answer_text])),
+      })
+
+      if (questions.length > 0 && questions.every((q) => nextAnsweredIds.includes(q.id))) {
+        try {
+          localStorage.removeItem(draftKey)
+        } catch {
+          // localStorage unavailable, fail silently
+        }
+      }
     } catch (err) {
       if (err.code === "ASSESSMENT_TIME_EXPIRED") {
         setServerTimeExpired(true)
@@ -217,30 +251,32 @@ export default function AssessmentTake() {
 
       <Message error={error} className="mt-4" />
 
-      <div className="mt-4 rounded-xl bg-surface p-4">
-        {timeLimitMinutes && remainingSeconds !== null ? (
-          <>
-            <p className="text-sm text-ink-soft">
-              {t.assessment.timeRemaining}:{" "}
-              <span className="font-mono font-medium text-blue-400">
-                {formatRemaining(remainingSeconds)}
-              </span>
-            </p>
-            <p className="mt-1 text-xs text-ink-soft">{t.assessment.leaveWarning}</p>
-          </>
-        ) : (
-          <p className="text-sm text-ink-soft">{t.assessment.noTimeLimit}</p>
-        )}
-      </div>
+      {completed ? (
+        <div className="mt-4 rounded-xl bg-green-500/10 p-4">
+          <p className="text-sm font-medium text-green-400">{t.assessment.completed}</p>
+        </div>
+      ) : (
+        <div className="mt-4 rounded-xl bg-surface p-4">
+          {timeLimitMinutes && remainingSeconds !== null ? (
+            <>
+              <p className="text-sm text-ink-soft">
+                {t.assessment.timeRemaining}:{" "}
+                <span className="font-mono font-medium text-blue-400">
+                  {formatRemaining(remainingSeconds)}
+                </span>
+              </p>
+              <p className="mt-1 text-xs text-ink-soft">{t.assessment.leaveWarning}</p>
+            </>
+          ) : (
+            <p className="text-sm text-ink-soft">{t.assessment.noTimeLimit}</p>
+          )}
+        </div>
+      )}
 
       {questions.length > 0 && (
         <p className="mt-4 text-sm text-ink-soft">
           {answeredIds.length}/{questions.length} {t.assessment.progress}
         </p>
-      )}
-
-      {completed && (
-        <p className="mt-4 text-sm text-green-400">{t.assessment.completed}</p>
       )}
 
       <div className="mt-4 space-y-3">
@@ -251,9 +287,12 @@ export default function AssessmentTake() {
             </p>
 
             {answeredIds.includes(question.id) ? (
-              <span className="mt-3 inline-block text-sm text-green-400">
-                {t.assessment.answered}
-              </span>
+              <div className="mt-3 rounded-lg bg-surface-2 p-3">
+                <p className="text-sm text-ink">{savedAnswers[question.id]}</p>
+                <span className="mt-2 inline-block text-xs text-green-400">
+                  {t.assessment.answered}
+                </span>
+              </div>
             ) : (
               <textarea
                 value={answers[question.id] || ""}

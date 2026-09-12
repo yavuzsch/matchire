@@ -21,6 +21,15 @@ export default function CandidateList() {
       .catch((err) => setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR))
   }, [jobId])
 
+  const sortedCandidates = [...candidates].sort((a, b) => {
+    const score = (c) => {
+      if (c.status === "withdrawn") return 2
+      if (c.status === "rejected") return 1
+      return 0
+    }
+    return score(a) - score(b)
+  })
+
   async function toggleAnswers(applicationId) {
     if (openId === applicationId) {
       setOpenId(null)
@@ -82,11 +91,11 @@ export default function CandidateList() {
       )}
 
       <div className="mt-6 space-y-3">
-        {candidates.map((candidate, index) => (
+        {sortedCandidates.map((candidate, index) => (
           <div
             key={candidate.application_id}
             className={
-              candidate.status === "rejected"
+              candidate.status === "rejected" || candidate.status === "withdrawn"
                 ? "rounded-xl bg-surface p-5 opacity-60"
                 : "rounded-xl bg-surface p-5"
             }
@@ -102,6 +111,12 @@ export default function CandidateList() {
               {candidate.status === "rejected" && (
                 <span className="shrink-0 rounded-full bg-surface-2 px-2.5 py-1 text-xs text-ink-soft">
                   {t.candidates.rejected}
+                </span>
+              )}
+
+              {candidate.status === "withdrawn" && (
+                <span className="shrink-0 rounded-full bg-surface-2 px-2.5 py-1 text-xs text-ink-soft">
+                  {t.candidates.withdrawn}
                 </span>
               )}
 
@@ -220,8 +235,11 @@ export default function CandidateList() {
                   </p>
                 ) : (
                   reviews[candidate.application_id].map((item, itemIndex) => {
-                    const totalQuestions = reviews[candidate.application_id].length
-                    const contribution = Math.round(item.score / totalQuestions)
+                    const reviewList = reviews[candidate.application_id]
+                    const isFinal = candidate.status === "completed"
+                    const contribution = isFinal
+                      ? Math.round(item.score / reviewList.length)
+                      : null
 
                     return (
                       <div key={itemIndex} className="rounded-lg bg-surface-2 p-3">
@@ -231,9 +249,11 @@ export default function CandidateList() {
                         <p className="mt-1 text-sm text-ink">
                           {item.answer_text}
                         </p>
-                        <p className="mt-1 text-xs text-blue-400">
-                          +{contribution} {t.candidates.pointsLabel}
-                        </p>
+                        {contribution !== null && (
+                          <p className="mt-1 text-xs text-blue-400">
+                            +{contribution} {t.candidates.pointsLabel}
+                          </p>
+                        )}
                       </div>
                     )
                   })

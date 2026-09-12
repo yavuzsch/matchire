@@ -215,6 +215,7 @@ export default {
     undoReject: "Reddi geri al",
     rejected: "Reddedildi",
     statusUpdated: "Aday durumu güncellendi",
+    withdrawn: "Başvuru geri çekildi",
   },
 
   assessment: {
@@ -235,6 +236,7 @@ export default {
     submitting: "Gönderiliyor...",
     answered: "Cevaplandı",
     completed: "Yetkinlik testi tamamlandı",
+    viewResult: "Sonucu görüntüle",
   },
 
   educationLevels: {

@@ -215,6 +215,7 @@ export default {
     undoReject: "Undo rejection",
     rejected: "Rejected",
     statusUpdated: "Candidate status updated",
+    withdrawn: "Application withdrawn",
   },
 
   assessment: {
@@ -235,6 +236,7 @@ export default {
     submitting: "Submitting...",
     answered: "Answered",
     completed: "Assessment completed",
+    viewResult: "View result",
   },
 
   educationLevels: {

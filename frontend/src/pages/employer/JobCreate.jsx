@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 import { post } from "../../api/client"
 import { Field, inputClass, Section } from "../../components/FormElements"
@@ -14,6 +15,8 @@ const REQUIREMENTS = ["mandatory", "required", "optional"]
 const WEIGHTS = [1, 2, 3]
 
 export default function JobCreate() {
+  const navigate = useNavigate()
+
   const [title, setTitle] = useState("")
   const [companyName, setCompanyName] = useState("")
   const [location, setLocation] = useState("")
@@ -127,7 +130,7 @@ export default function JobCreate() {
         assessment_slots: Number(assessmentSlots),
         assessment_weight: Number(assessmentWeight),
       })
-      setMessage(t.job.created)
+      navigate("/employer/jobs")
     } catch (err) {
       setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
     } finally {

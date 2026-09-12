@@ -12,6 +12,10 @@ function compatibilityTone(score) {
   return { bar: "bg-line", text: "text-ink-soft" }
 }
 
+function isAssessmentPending(status) {
+  return status === "pending" || status === "assessment"
+}
+
 export default function JobBrowse() {
   const [jobs, setJobs] = useState([])
   const [applications, setApplications] = useState([])
@@ -104,7 +108,7 @@ export default function JobBrowse() {
                 {job.field && ` · ${t.fields[job.field]}`}
               </p>
 
-              <p className="mt-1 font-mono text-xs text-ink-soft">
+              <p className="mt-1 text-xs text-ink-soft">
                 {new Date(job.created_at).toLocaleDateString(
                   getLanguage() === "tr" ? "tr-TR" : "en-US"
                 )}
@@ -127,15 +131,17 @@ export default function JobBrowse() {
                       {statusText(application)}
                     </p>
 
-                    {application.assessment_eligible &&
-                      application.status !== "completed" && (
-                        <Link
-                          to={`/candidate/assessments/${application.id}`}
-                          className="text-sm font-medium text-blue-400 hover:text-blue-500"
-                        >
-                          {t.assessment.start} →
-                        </Link>
-                      )}
+                    {application.assessment_eligible && (
+                      <Link
+                        to={`/candidate/assessments/${application.id}`}
+                        className="text-sm font-medium text-blue-400 hover:text-blue-500"
+                      >
+                        {isAssessmentPending(application.status)
+                          ? t.assessment.start
+                          : t.assessment.viewResult}{" "}
+                        →
+                      </Link>
+                    )}
                   </div>
                 ) : job.withdrawn ? (
                   <p className="text-xs text-ink-soft">{t.jobBrowse.withdrawnNotice}</p>
@@ -144,9 +150,8 @@ export default function JobBrowse() {
                     type="button"
                     onClick={() => apply(job.id)}
                     disabled={pendingId === job.id}
-                    className="flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-600 disabled:opacity-50"
+                    className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-600 disabled:opacity-50"
                   >
-                    {pendingId === job.id && <Spinner />}
                     {pendingId === job.id ? t.jobBrowse.applying : t.jobBrowse.apply}
                   </button>
                 )}
