@@ -235,6 +235,7 @@ export default {
     submitting: "Gönderiliyor...",
     answered: "Cevaplandı",
     completed: "Yetkinlik testi tamamlandı",
+    viewResult: "Sonucu görüntüle",
   },
 
   educationLevels: {

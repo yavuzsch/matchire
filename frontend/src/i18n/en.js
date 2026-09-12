@@ -235,6 +235,7 @@ export default {
     submitting: "Submitting...",
     answered: "Answered",
     completed: "Assessment completed",
+    viewResult: "View result",
   },
 
   educationLevels: {

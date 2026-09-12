@@ -127,15 +127,17 @@ export default function JobBrowse() {
                       {statusText(application)}
                     </p>
 
-                    {application.assessment_eligible &&
-                      application.status !== "completed" && (
-                        <Link
-                          to={`/candidate/assessments/${application.id}`}
-                          className="text-sm font-medium text-blue-400 hover:text-blue-500"
-                        >
-                          {t.assessment.start} →
-                        </Link>
-                      )}
+                    {application.assessment_eligible && (
+                      <Link
+                        to={`/candidate/assessments/${application.id}`}
+                        className="text-sm font-medium text-blue-400 hover:text-blue-500"
+                      >
+                        {application.status === "completed"
+                          ? t.assessment.viewResult
+                          : t.assessment.start}{" "}
+                        →
+                      </Link>
+                    )}
                   </div>
                 ) : job.withdrawn ? (
                   <p className="text-xs text-ink-soft">{t.jobBrowse.withdrawnNotice}</p>
@@ -144,9 +146,8 @@ export default function JobBrowse() {
                     type="button"
                     onClick={() => apply(job.id)}
                     disabled={pendingId === job.id}
-                    className="flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-600 disabled:opacity-50"
+                    className="rounded-lg bg-blue-500 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-blue-600 disabled:opacity-50"
                   >
-                    {pendingId === job.id && <Spinner />}
                     {pendingId === job.id ? t.jobBrowse.applying : t.jobBrowse.apply}
                   </button>
                 )}
