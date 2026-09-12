@@ -258,7 +258,14 @@ def list_assessment_questions(
             time_limit_minutes=job.assessment_time_limit_minutes,
         )
 
-    if is_time_expired(application, job):
+    answered_count = (
+        db.query(AssessmentAnswer)
+        .filter(AssessmentAnswer.application_id == application.id)
+        .count()
+    )
+    already_completed = answered_count >= len(questions)
+
+    if not already_completed and is_time_expired(application, job):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail={"code": errors.ASSESSMENT_TIME_EXPIRED},
