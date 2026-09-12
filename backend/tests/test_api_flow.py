@@ -835,6 +835,78 @@ class TestAssessmentTimeLimit:
         assert data["started_at"] is not None
         assert len(data["questions"]) == 1
 
+    def test_completed_assessment_visible_after_time_expires(
+        self, client, employer_token, candidate_token, skills, db
+    ):
+        job = create_job(client, employer_token, skills)
+        client.patch(
+            f"/api/jobs/{job['id']}/settings",
+            json={"assessment_time_limit_minutes": 30},
+            headers=auth(employer_token),
+        )
+        create_resume(client, candidate_token, skills)
+        application = client.post(
+            "/api/applications",
+            json={"job_id": job["id"]},
+            headers=auth(candidate_token),
+        ).json()
+
+        with patch(
+            "app.services.question_service.generate_json",
+            return_value=["Question 1"],
+        ):
+            questions = client.post(
+                f"/api/assessments/jobs/{job['id']}/questions",
+                json={},
+                headers=auth(employer_token),
+            ).json()
+
+        client.put(
+            f"/api/assessments/jobs/{job['id']}/questions",
+            json={"question_ids": [questions[0]["id"]]},
+            headers=auth(employer_token),
+        )
+
+        client.post(
+            f"/api/assessments/applications/{application['id']}/start",
+            headers=auth(candidate_token),
+        )
+
+        with patch(
+            "app.services.evaluation_service.generate_json",
+            return_value={"score": 80},
+        ):
+            client.post(
+                f"/api/assessments/applications/{application['id']}/answers",
+                json={
+                    "answers": [
+                        {"question_id": questions[0]["id"], "answer_text": "Answer"},
+                    ]
+                },
+                headers=auth(candidate_token),
+            )
+
+        from app.models import Application as ApplicationModel
+
+        app_row = (
+            db.query(ApplicationModel)
+            .filter(ApplicationModel.id == application["id"])
+            .first()
+        )
+        app_row.assessment_started_at = app_row.assessment_started_at - timedelta(
+            minutes=60
+        )
+        db.commit()
+
+        response = client.get(
+            f"/api/assessments/applications/{application['id']}/questions",
+            headers=auth(candidate_token),
+        )
+
+        assert response.status_code == 200
+        data = response.json()
+        assert len(data["questions"]) == 1
+
 
 class TestJobSettingsLock:
     def _start_assessment(
