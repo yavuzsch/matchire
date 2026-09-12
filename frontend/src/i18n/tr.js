@@ -215,6 +215,7 @@ export default {
     undoReject: "Reddi geri al",
     rejected: "Reddedildi",
     statusUpdated: "Aday durumu güncellendi",
+    withdrawn: "Başvuru geri çekildi",
   },
 
   assessment: {
