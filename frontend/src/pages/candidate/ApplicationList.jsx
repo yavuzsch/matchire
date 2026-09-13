@@ -11,8 +11,11 @@ function compatibilityTone(score) {
   return "text-ink-soft"
 }
 
-function isAssessmentPending(status) {
-  return status === "pending" || status === "assessment"
+function isAssessmentPending(application) {
+  return (
+    (application.status === "pending" || application.status === "assessment") &&
+    !application.assessment_time_expired
+  )
 }
 
 export default function ApplicationList() {
@@ -111,12 +114,12 @@ export default function ApplicationList() {
                   {statusText(application)}
                 </p>
 
-                {application.assessment_eligible && !application.assessment_time_expired && (
+                {application.assessment_eligible && (
                   <Link
                     to={`/candidate/assessments/${application.id}`}
                     className="text-sm font-medium text-blue-400 hover:text-blue-500"
                   >
-                    {isAssessmentPending(application.status)
+                    {isAssessmentPending(application)
                       ? t.assessment.start
                       : t.assessment.viewResult}{" "}
                     →

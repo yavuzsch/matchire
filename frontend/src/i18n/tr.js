@@ -222,6 +222,7 @@ export default {
   assessment: {
     title: "Yetkinlik Testi",
     start: "Yetkinlik testine başla",
+    viewResult: "Sonucu görüntüle",
     starting: "Başlatılıyor...",
     notReady: "İşveren henüz yetkinlik sorularını hazırlamadı. Lütfen daha sonra tekrar deneyin.",
     beforeStartTitle: "Teste başlamak üzeresiniz",
@@ -230,6 +231,7 @@ export default {
     progress: "cevaplandı",
     timeRemaining: "Kalan süre",
     timeExpired: "Süreniz doldu. O ana kadarki cevaplarınız değerlendirmeye alındı.",
+    noAnswerGiven: "Bu soruya cevap verilmedi",
     leaveWarning: "Bu sayfadan ayrılırsanız süreniz işlemeye devam eder",
     noTimeLimit: "Bu yetkinlik testi için süre sınırı yok",
     answerPlaceholder: "Cevabınızı yazın",
@@ -237,7 +239,6 @@ export default {
     submitting: "Gönderiliyor...",
     answered: "Cevaplandı",
     completed: "Yetkinlik testi tamamlandı",
-    viewResult: "Sonucu görüntüle",
   },
 
   educationLevels: {

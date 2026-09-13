@@ -222,6 +222,7 @@ export default {
   assessment: {
     title: "Assessment",
     start: "Start assessment",
+    viewResult: "View result",
     starting: "Starting...",
     notReady: "The employer hasn't prepared the assessment questions yet. Please check back later.",
     beforeStartTitle: "You're about to start the assessment",
@@ -230,6 +231,7 @@ export default {
     progress: "answered",
     timeRemaining: "Time remaining",
     timeExpired: "Your time is up. Your answers so far have been submitted for review.",
+    noAnswerGiven: "No answer was given",
     leaveWarning: "If you leave this page, your timer will keep running",
     noTimeLimit: "This assessment has no time limit",
     answerPlaceholder: "Write your answer",
@@ -237,7 +239,6 @@ export default {
     submitting: "Submitting...",
     answered: "Answered",
     completed: "Assessment completed",
-    viewResult: "View result",
   },
 
   educationLevels: {
