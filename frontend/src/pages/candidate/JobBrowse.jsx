@@ -36,6 +36,7 @@ export default function JobBrowse() {
     if (application.status === "completed") return t.jobBrowse.statusCompleted
     if (application.status === "assessment") return t.jobBrowse.statusAssessment
     if (application.status === "rejected") return t.jobBrowse.statusRejected
+    if (application.assessment_time_expired) return t.jobBrowse.statusTimeExpired
     if (application.assessment_eligible) return t.jobBrowse.statusReadyForAssessment
     return t.jobBrowse.statusPending
   }
@@ -131,7 +132,7 @@ export default function JobBrowse() {
                       {statusText(application)}
                     </p>
 
-                    {application.assessment_eligible && (
+                    {application.assessment_eligible && !application.assessment_time_expired && (
                       <Link
                         to={`/candidate/assessments/${application.id}`}
                         className="text-sm font-medium text-blue-400 hover:text-blue-500"

@@ -142,6 +142,7 @@ export default {
     statusCompleted: "Your assessment is complete, the result is with the employer",
     statusAccepted: "Congratulations, you've been invited to interview. You'll be contacted soon.",
     statusRejected: "This application was not successful",
+    statusTimeExpired: "Your assessment time has expired",
   },
 
   applications: {
