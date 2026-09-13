@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 from sqlalchemy.orm import Session
 
 from app.models import (
@@ -31,6 +33,43 @@ def is_eligible(db: Session, job: Job, application: Application) -> bool:
         return True
 
     return application.id in get_eligible_application_ids(db, job)
+
+
+def has_completed_assessment(db: Session, application: Application, job: Job) -> bool:
+    total_selected = (
+        db.query(AssessmentQuestion)
+        .filter(
+            AssessmentQuestion.job_id == job.id,
+            AssessmentQuestion.is_selected.is_(True),
+        )
+        .count()
+    )
+
+    if total_selected == 0:
+        return False
+
+    answered_count = (
+        db.query(AssessmentAnswer)
+        .filter(AssessmentAnswer.application_id == application.id)
+        .count()
+    )
+
+    return answered_count >= total_selected
+
+
+def is_time_expired(
+    application: Application, job: Job, grace_seconds: int = 0
+) -> bool:
+    if job.assessment_time_limit_minutes is None:
+        return False
+
+    if application.assessment_started_at is None:
+        return False
+
+    deadline = application.assessment_started_at + timedelta(
+        minutes=job.assessment_time_limit_minutes, seconds=grace_seconds
+    )
+    return datetime.now(timezone.utc) > deadline
 
 
 def update_assessment_score(db: Session, application: Application, job: Job) -> None:

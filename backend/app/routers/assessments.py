@@ -16,7 +16,7 @@ from app.schemas.assessment import (
     QuestionOut,
     QuestionSelect,
 )
-from app.services.assessment_service import is_eligible, update_assessment_score
+from app.services.assessment_service import has_completed_assessment, is_eligible, is_time_expired, update_assessment_score
 from app.services.evaluation_service import evaluate_answer
 from app.services.llm_client import LLMUnavailableError
 from app.services.question_service import generate_questions
@@ -53,21 +53,6 @@ def ensure_no_answers(db: Session, job: Job) -> None:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail={"code": errors.ASSESSMENT_ALREADY_STARTED},
         )
-
-
-def is_time_expired(
-    application: Application, job: Job, grace_seconds: int = 0
-) -> bool:
-    if job.assessment_time_limit_minutes is None:
-        return False
-
-    if application.assessment_started_at is None:
-        return False
-
-    deadline = application.assessment_started_at + timedelta(
-        minutes=job.assessment_time_limit_minutes, seconds=grace_seconds
-    )
-    return datetime.now(timezone.utc) > deadline
 
 
 @router.post("/jobs/{job_id}/questions", response_model=list[QuestionOut])
@@ -263,7 +248,7 @@ def list_assessment_questions(
         .filter(AssessmentAnswer.application_id == application.id)
         .count()
     )
-    already_completed = answered_count >= len(questions)
+    already_completed = has_completed_assessment(db, application, job)
 
     if not already_completed and is_time_expired(application, job):
         raise HTTPException(

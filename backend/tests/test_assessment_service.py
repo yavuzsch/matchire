@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+
 import pytest
 
 from app.models import (
@@ -11,7 +13,9 @@ from app.models import (
 )
 from app.services.assessment_service import (
     get_eligible_application_ids,
+    has_completed_assessment,
     is_eligible,
+    is_time_expired,
     update_assessment_score,
 )
 
@@ -226,3 +230,154 @@ class TestUpdateAssessmentScore:
         update_assessment_score(db, application, job)
 
         assert application.assessment_score == 50.0
+
+class TestHasCompletedAssessment:
+    def test_false_when_no_questions_selected(self, db, employer):
+        job = make_job(db, employer)
+        application = make_application(db, job, 80)
+
+        assert has_completed_assessment(db, application, job) is False
+
+    def test_false_when_not_all_questions_answered(self, db, employer):
+        job = make_job(db, employer)
+        application = make_application(db, job, 80)
+
+        questions = [
+            AssessmentQuestion(
+                job_id=job.id,
+                question_text=f"Question {index}",
+                is_selected=True,
+            )
+            for index in range(3)
+        ]
+        db.add_all(questions)
+        db.commit()
+
+        db.add(
+            AssessmentAnswer(
+                application_id=application.id,
+                question_id=questions[0].id,
+                answer_text="answer",
+                is_correct=True,
+                score=100,
+            )
+        )
+        db.commit()
+
+        assert has_completed_assessment(db, application, job) is False
+
+    def test_true_when_all_questions_answered(self, db, employer):
+        job = make_job(db, employer)
+        application = make_application(db, job, 80)
+
+        questions = [
+            AssessmentQuestion(
+                job_id=job.id,
+                question_text=f"Question {index}",
+                is_selected=True,
+            )
+            for index in range(2)
+        ]
+        db.add_all(questions)
+        db.commit()
+
+        for question in questions:
+            db.add(
+                AssessmentAnswer(
+                    application_id=application.id,
+                    question_id=question.id,
+                    answer_text="answer",
+                    is_correct=True,
+                    score=100,
+                )
+            )
+        db.commit()
+
+        assert has_completed_assessment(db, application, job) is True
+
+    def test_ignores_unselected_questions(self, db, employer):
+        job = make_job(db, employer)
+        application = make_application(db, job, 80)
+
+        selected = AssessmentQuestion(
+            job_id=job.id,
+            question_text="Selected question",
+            is_selected=True,
+        )
+        unselected = AssessmentQuestion(
+            job_id=job.id,
+            question_text="Unselected question",
+            is_selected=False,
+        )
+        db.add_all([selected, unselected])
+        db.commit()
+
+        db.add(
+            AssessmentAnswer(
+                application_id=application.id,
+                question_id=selected.id,
+                answer_text="answer",
+                is_correct=True,
+                score=100,
+            )
+        )
+        db.commit()
+
+        assert has_completed_assessment(db, application, job) is True
+
+
+class TestIsTimeExpired:
+    def test_false_when_no_time_limit(self, db, employer):
+        job = make_job(db, employer, assessment_time_limit_minutes=None)
+        application = make_application(db, job, 80)
+        application.assessment_started_at = datetime.now(timezone.utc)
+        db.commit()
+
+        assert is_time_expired(application, job) is False
+
+    def test_false_when_not_started(self, db, employer):
+        job = make_job(db, employer, assessment_time_limit_minutes=10)
+        application = make_application(db, job, 80)
+
+        assert is_time_expired(application, job) is False
+
+    def test_false_within_time_limit(self, db, employer):
+        job = make_job(db, employer, assessment_time_limit_minutes=10)
+        application = make_application(db, job, 80)
+        application.assessment_started_at = datetime.now(timezone.utc) - timedelta(
+            minutes=5
+        )
+        db.commit()
+
+        assert is_time_expired(application, job) is False
+
+    def test_true_after_time_limit(self, db, employer):
+        job = make_job(db, employer, assessment_time_limit_minutes=10)
+        application = make_application(db, job, 80)
+        application.assessment_started_at = datetime.now(timezone.utc) - timedelta(
+            minutes=15
+        )
+        db.commit()
+
+        assert is_time_expired(application, job) is True
+
+    def test_grace_period_extends_deadline(self, db, employer):
+        job = make_job(db, employer, assessment_time_limit_minutes=10)
+        application = make_application(db, job, 80)
+        application.assessment_started_at = datetime.now(timezone.utc) - timedelta(
+            minutes=10, seconds=10
+        )
+        db.commit()
+
+        assert is_time_expired(application, job) is True
+        assert is_time_expired(application, job, grace_seconds=15) is False
+
+    def test_grace_period_does_not_prevent_old_expiry(self, db, employer):
+        job = make_job(db, employer, assessment_time_limit_minutes=10)
+        application = make_application(db, job, 80)
+        application.assessment_started_at = datetime.now(timezone.utc) - timedelta(
+            minutes=30
+        )
+        db.commit()
+
+        assert is_time_expired(application, job, grace_seconds=15) is True
