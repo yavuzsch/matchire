@@ -1,0 +1,94 @@
+const BASE_URL = import.meta.env.VITE_API_URL
+
+function getToken() {
+  return localStorage.getItem("token")
+}
+
+export function setToken(token) {
+  localStorage.setItem("token", token)
+}
+
+export function clearToken() {
+  localStorage.removeItem("token")
+}
+
+async function request(path, options = {}) {
+  const token = getToken()
+
+  const headers = { "Content-Type": "application/json", ...options.headers }
+  if (token) {
+    headers.Authorization = `Bearer ${token}`
+  }
+
+  const response = await fetch(`${BASE_URL}${path}`, { ...options, headers })
+  const data = await response.json().catch(() => null)
+
+  const isSessionInvalid =
+    response.status === 401 ||
+    (response.status === 403 && data?.detail?.code === "ACCOUNT_DEACTIVATED")
+
+  if (isSessionInvalid && !path.startsWith("/auth/")) {
+    clearToken()
+    window.location.href = "/login"
+    return
+  }
+
+  if (!response.ok) {
+    const code = data?.detail?.code || "UNKNOWN_ERROR"
+    const error = new Error(code)
+    error.code = code
+    error.data = data?.detail
+    throw error
+  }
+
+  return data
+}
+
+export function get(path) {
+  return request(path)
+}
+
+export function post(path, body) {
+  return request(path, { method: "POST", body: JSON.stringify(body) })
+}
+
+export function patch(path, body) {
+  return request(path, { method: "PATCH", body: JSON.stringify(body) })
+}
+
+export function put(path, body) {
+  return request(path, { method: "PUT", body: JSON.stringify(body) })
+}
+
+export function del(path) {
+  return request(path, { method: "DELETE" })
+}
+
+export async function upload(path, file) {
+  const token = getToken()
+  const headers = {}
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`
+  }
+
+  const form = new FormData()
+  form.append("file", file)
+
+  const response = await fetch(`${BASE_URL}${path}`, {
+    method: "POST",
+    headers,
+    body: form,
+  })
+
+  const data = await response.json().catch(() => null)
+
+  if (!response.ok) {
+    const code = data?.detail?.code || "UNKNOWN_ERROR"
+    const error = new Error(code)
+    error.code = code
+    throw error
+  }
+
+  return data
+}

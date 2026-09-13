@@ -1,0 +1,3557 @@
+{
+  "groups": [
+    {
+      "key": "programming_languages",
+      "labels": {
+        "tr": "Programlama Dilleri",
+        "en": "Programming Languages"
+      }
+    },
+    {
+      "key": "backend_frameworks",
+      "labels": {
+        "tr": "Backend Çerçeveleri",
+        "en": "Backend Frameworks"
+      }
+    },
+    {
+      "key": "frontend_technologies",
+      "labels": {
+        "tr": "Frontend Teknolojileri",
+        "en": "Frontend Technologies"
+      }
+    },
+    {
+      "key": "data_and_storage",
+      "labels": {
+        "tr": "Veri ve Depolama",
+        "en": "Data and Storage"
+      }
+    },
+    {
+      "key": "cloud_and_infrastructure",
+      "labels": {
+        "tr": "Bulut ve Altyapı",
+        "en": "Cloud and Infrastructure"
+      }
+    },
+    {
+      "key": "devops_and_ci_cd",
+      "labels": {
+        "tr": "DevOps ve CI/CD",
+        "en": "DevOps and CI/CD"
+      }
+    },
+    {
+      "key": "mobile_development",
+      "labels": {
+        "tr": "Mobil Geliştirme",
+        "en": "Mobile Development"
+      }
+    },
+    {
+      "key": "artificial_intelligence_and_data",
+      "labels": {
+        "tr": "Yapay Zeka ve Veri",
+        "en": "AI and Data Science"
+      }
+    },
+    {
+      "key": "security_and_compliance",
+      "labels": {
+        "tr": "Güvenlik ve Uyumluluk",
+        "en": "Security and Compliance"
+      }
+    },
+    {
+      "key": "testing_and_qa",
+      "labels": {
+        "tr": "Test ve Kalite Güvence",
+        "en": "Testing and QA"
+      }
+    },
+    {
+      "key": "design_and_prototyping",
+      "labels": {
+        "tr": "Tasarım ve Prototipleme",
+        "en": "Design and Prototyping"
+      }
+    },
+    {
+      "key": "system_architecture_and_messaging",
+      "labels": {
+        "tr": "Sistem Mimarisi ve Mesajlaşma",
+        "en": "System Architecture and Messaging"
+      }
+    }
+  ],
+  "skills": [
+    {
+      "name": "JavaScript",
+      "group": "programming_languages",
+      "aliases": [
+        "JS"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "TypeScript",
+      "group": "programming_languages",
+      "aliases": [
+        "TS"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Python",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Java",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "C#",
+      "group": "programming_languages",
+      "aliases": [
+        "CSharp"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "C++",
+      "group": "programming_languages",
+      "aliases": [
+        "CPP"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "C",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Go",
+      "group": "programming_languages",
+      "aliases": [
+        "Golang"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Rust",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "PHP",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Swift",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Kotlin",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Ruby",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Dart",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Scala",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Shell",
+      "group": "programming_languages",
+      "aliases": [
+        "Bash",
+        "Sh",
+        "Zsh"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "PowerShell",
+      "group": "programming_languages",
+      "aliases": [
+        "PS"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "SQL",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "HTML",
+      "group": "programming_languages",
+      "aliases": [
+        "HTML5"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "CSS",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "R",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Objective-C",
+      "group": "programming_languages",
+      "aliases": [
+        "Obj-C"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Lua",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Perl",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Haskell",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Elixir",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Erlang",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Clojure",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "F#",
+      "group": "programming_languages",
+      "aliases": [
+        "FSharp"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "MATLAB",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Groovy",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Assembly",
+      "group": "programming_languages",
+      "aliases": [
+        "ASM"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Solidity",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Julia",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Visual Basic .NET",
+      "group": "programming_languages",
+      "aliases": [
+        "VB.NET"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Ada",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "OCaml",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Delphi",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Apex",
+      "group": "programming_languages",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Node.js",
+      "group": "backend_frameworks",
+      "aliases": [
+        "Node"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Express.js",
+      "group": "backend_frameworks",
+      "aliases": [
+        "Express"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "NestJS",
+      "group": "backend_frameworks",
+      "aliases": [
+        "Nest"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Django",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Flask",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "FastAPI",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Spring Boot",
+      "group": "backend_frameworks",
+      "aliases": [
+        "Spring"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "ASP.NET Core",
+      "group": "backend_frameworks",
+      "aliases": [
+        ".NET Core",
+        "ASP.NET"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Ruby on Rails",
+      "group": "backend_frameworks",
+      "aliases": [
+        "Rails"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Laravel",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Go Gin",
+      "group": "backend_frameworks",
+      "aliases": [
+        "Gin"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Echo",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Phoenix",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Fiber",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Symfony",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Ktor",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Micronaut",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Quarkus",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Helidon",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Pyramid",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Fastify",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "AdonisJS",
+      "group": "backend_frameworks",
+      "aliases": [
+        "Adonis"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Sails.js",
+      "group": "backend_frameworks",
+      "aliases": [
+        "Sails"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "CakePHP",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "CodeIgniter",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Slim",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Strapi",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Meteor.js",
+      "group": "backend_frameworks",
+      "aliases": [
+        "Meteor"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Hapi.js",
+      "group": "backend_frameworks",
+      "aliases": [
+        "Hapi"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Play Framework",
+      "group": "backend_frameworks",
+      "aliases": [
+        "Play"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Vert.x",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Dropwizard",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Bottle",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Sanic",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Litestar",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Masonite",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Buffalo",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Revel",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Beego",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "ActiveSupport",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Deno",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Bun",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Actix Web",
+      "group": "backend_frameworks",
+      "aliases": [
+        "Actix"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Axum",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Rocket",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Iron",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Tornado",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Falcon",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "CherryPy",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Hanami",
+      "group": "backend_frameworks",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "React",
+      "group": "frontend_technologies",
+      "aliases": [
+        "React.js",
+        "ReactJS"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Vue.js",
+      "group": "frontend_technologies",
+      "aliases": [
+        "Vue",
+        "Vuejs"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Angular",
+      "group": "frontend_technologies",
+      "aliases": [
+        "AngularJS"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Svelte",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "SolidJS",
+      "group": "frontend_technologies",
+      "aliases": [
+        "Solid"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Next.js",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Nuxt",
+      "group": "frontend_technologies",
+      "aliases": [
+        "Nuxt.js"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Remix",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Astro",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Tailwind CSS",
+      "group": "frontend_technologies",
+      "aliases": [
+        "Tailwind"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Bootstrap",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Material UI",
+      "group": "frontend_technologies",
+      "aliases": [
+        "MUI"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Chakra UI",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Styled Components",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Emotion",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Redux",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Zustand",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Recoil",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Pinia",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "TanStack Query",
+      "group": "frontend_technologies",
+      "aliases": [
+        "React Query"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Axios",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Webpack",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Vite",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Rollup",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Parcel",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Babel",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "PostCSS",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "HTML5",
+      "group": "frontend_technologies",
+      "aliases": [
+        "HTML"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "CSS3",
+      "group": "frontend_technologies",
+      "aliases": [
+        "CSS"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Framer Motion",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "GSAP",
+      "group": "frontend_technologies",
+      "aliases": [
+        "GreenSock"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Three.js",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Playwright",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Cypress",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Jest",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Vitest",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Storybook",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Qwik",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Lit",
+      "group": "frontend_technologies",
+      "aliases": [
+        "LitElement"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Preact",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Alpine.js",
+      "group": "frontend_technologies",
+      "aliases": [
+        "Alpine"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "D3.js",
+      "group": "frontend_technologies",
+      "aliases": [
+        "D3"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Chart.js",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Radix UI",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Shadcn UI",
+      "group": "frontend_technologies",
+      "aliases": [
+        "shadcn/ui"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Headless UI",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "RxJS",
+      "group": "frontend_technologies",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "PostgreSQL",
+      "group": "data_and_storage",
+      "aliases": [
+        "Postgres",
+        "psql"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "MySQL",
+      "group": "data_and_storage",
+      "aliases": [
+        "mySQL"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "MongoDB",
+      "group": "data_and_storage",
+      "aliases": [
+        "Mongo"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Redis",
+      "group": "data_and_storage",
+      "aliases": [
+        "redis-server"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Elasticsearch",
+      "group": "data_and_storage",
+      "aliases": [
+        "ES"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Cassandra",
+      "group": "data_and_storage",
+      "aliases": [
+        "Apache Cassandra"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "MariaDB",
+      "group": "data_and_storage",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "SQLite",
+      "group": "data_and_storage",
+      "aliases": [
+        "sqlite3"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Oracle Database",
+      "group": "data_and_storage",
+      "aliases": [
+        "Oracle DB",
+        "Oracle"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Microsoft SQL Server",
+      "group": "data_and_storage",
+      "aliases": [
+        "MSSQL",
+        "SQL Server"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Amazon DynamoDB",
+      "group": "data_and_storage",
+      "aliases": [
+        "DynamoDB"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Google Cloud Spanner",
+      "group": "data_and_storage",
+      "aliases": [
+        "Spanner"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Snowflake",
+      "group": "data_and_storage",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Apache Kafka",
+      "group": "data_and_storage",
+      "aliases": [
+        "Kafka"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Memcached",
+      "group": "data_and_storage",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Neo4j",
+      "group": "data_and_storage",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Amazon RDS",
+      "group": "data_and_storage",
+      "aliases": [
+        "AWS RDS"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Amazon Aurora",
+      "group": "data_and_storage",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Couchbase",
+      "group": "data_and_storage",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "CockroachDB",
+      "group": "data_and_storage",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "InfluxDB",
+      "group": "data_and_storage",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "ClickHouse",
+      "group": "data_and_storage",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Apache Cassandra",
+      "group": "data_and_storage",
+      "aliases": [
+        "Cassandra"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Firebase Realtime Database",
+      "group": "data_and_storage",
+      "aliases": [
+        "Firebase DB"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Google BigQuery",
+      "group": "data_and_storage",
+      "aliases": [
+        "BigQuery"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Redshift",
+      "group": "data_and_storage",
+      "aliases": [
+        "Amazon Redshift"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "TimescaleDB",
+      "group": "data_and_storage",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Solr",
+      "group": "data_and_storage",
+      "aliases": [
+        "Apache Solr"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "ArangoDB",
+      "group": "data_and_storage",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "IBM Db2",
+      "group": "data_and_storage",
+      "aliases": [
+        "Db2"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Cosmos DB",
+      "group": "data_and_storage",
+      "aliases": [
+        "Azure Cosmos DB"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Hazelcast",
+      "group": "data_and_storage",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Valkey",
+      "group": "data_and_storage",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "DragonflyDB",
+      "group": "data_and_storage",
+      "aliases": [
+        "Dragonfly"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "DuckDB",
+      "group": "data_and_storage",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "SurrealDB",
+      "group": "data_and_storage",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Pinecone",
+      "group": "data_and_storage",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Milvus",
+      "group": "data_and_storage",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Weaviate",
+      "group": "data_and_storage",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Chroma",
+      "group": "data_and_storage",
+      "aliases": [
+        "ChromaDB"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Amazon Web Services",
+      "group": "cloud_and_infrastructure",
+      "aliases": [
+        "AWS"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Microsoft Azure",
+      "group": "cloud_and_infrastructure",
+      "aliases": [
+        "Azure"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Google Cloud Platform",
+      "group": "cloud_and_infrastructure",
+      "aliases": [
+        "GCP"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Kubernetes",
+      "group": "cloud_and_infrastructure",
+      "aliases": [
+        "K8s"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Docker",
+      "group": "cloud_and_infrastructure",
+      "aliases": [
+        "Docker Engine"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Terraform",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Ansible",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Helm",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "OpenStack",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "VMware vSphere",
+      "group": "cloud_and_infrastructure",
+      "aliases": [
+        "vSphere"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Prometheus",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Grafana",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Istio",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "HashiCorp Consul",
+      "group": "cloud_and_infrastructure",
+      "aliases": [
+        "Consul"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "HashiCorp Vault",
+      "group": "cloud_and_infrastructure",
+      "aliases": [
+        "Vault"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Nomad",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "DigitalOcean",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Oracle Cloud Infrastructure",
+      "group": "cloud_and_infrastructure",
+      "aliases": [
+        "OCI"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "IBM Cloud",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Cloudflare",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Heroku",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Pulumi",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Crossplane",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Argo CD",
+      "group": "cloud_and_infrastructure",
+      "aliases": [
+        "ArgoCD"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Flux",
+      "group": "cloud_and_infrastructure",
+      "aliases": [
+        "FluxCD"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Linkerd",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Knative",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "OpenShift",
+      "group": "cloud_and_infrastructure",
+      "aliases": [
+        "Red Hat OpenShift"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Proxmox VE",
+      "group": "cloud_and_infrastructure",
+      "aliases": [
+        "Proxmox"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Packer",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Vagrant",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Containerd",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "CRI-O",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Traefik",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "NGINX",
+      "group": "cloud_and_infrastructure",
+      "aliases": [
+        "Nginx"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "HAProxy",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "CloudFront",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Fastly",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Linode",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Scaleway",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "OVHcloud",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "K3s",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "MicroK8s",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Minikube",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Kind",
+      "group": "cloud_and_infrastructure",
+      "aliases": [
+        "KIND"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Tailscale",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "WireGuard",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Cilium",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Calico",
+      "group": "cloud_and_infrastructure",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Envoy",
+      "group": "cloud_and_infrastructure",
+      "aliases": [
+        "Envoy Proxy"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Jenkins",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "jenkins"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "GitLab CI",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "GitLab CI/CD"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "GitHub Actions",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "gh-actions"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "AWS CodePipeline",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "CodePipeline"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "CircleCI",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "circleci"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Datadog",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "datadog"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Splunk",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "splunk"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "New Relic",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "newrelic"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Chef",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "chef"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Puppet",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "puppet"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Nagios",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "nagios"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Logstash",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "logstash"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Kibana",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "kibana"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Drone",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "drone ci"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Bamboo",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "atlassian bamboo"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Travis CI",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "travisci"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Azure DevOps",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "ADO"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Google Cloud Build",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "Cloud Build"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Consul",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "consul"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Spinnaker",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "spinnaker"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "SaltStack",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "salt"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Jaeger",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "jaeger"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "OpenTelemetry",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "otel"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Sentry",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "sentry"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Tanzu",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "vmware tanzu"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Octopus Deploy",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "octopus"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "TeamCity",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "teamcity"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "CloudFormation",
+      "group": "devops_and_ci_cd",
+      "aliases": [
+        "aws cloudformation"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "React Native",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Flutter",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Xamarin",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": ".NET MAUI",
+      "group": "mobile_development",
+      "aliases": [
+        "MAUI"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Capacitor",
+      "group": "mobile_development",
+      "aliases": [
+        "Ionic Capacitor"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Ionic",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Jetpack Compose",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "SwiftUI",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "UIKit",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "AppKit",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Cocoa Touch",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Android SDK",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Android NDK",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Expo",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Fastlane",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Xcode",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Android Studio",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "TestFlight",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Google Play Console",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "App Store Connect",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Firebase",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Core Data",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Room",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Realm",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "RxSwift",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "RxJava",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Combine",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Coroutines",
+      "group": "mobile_development",
+      "aliases": [
+        "Kotlin Coroutines"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Flutter Bloc",
+      "group": "mobile_development",
+      "aliases": [
+        "Bloc"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Provider",
+      "group": "mobile_development",
+      "aliases": [
+        "Flutter Provider"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Riverpod",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "MobX",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Hilt",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Dagger",
+      "group": "mobile_development",
+      "aliases": [
+        "Dagger 2"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Koin",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "CocoaPods",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Swift Package Manager",
+      "group": "mobile_development",
+      "aliases": [
+        "SPM"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Gradle",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Detox",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Appium",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Espresso",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "XCUITest",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Honeybadger",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Crashlytics",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Codemagic",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Bitrise",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "HockeyApp",
+      "group": "mobile_development",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "PyTorch",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [
+        "pytorch"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "TensorFlow",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [
+        "tensorflow"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Scikit-learn",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [
+        "sklearn"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Pandas",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "NumPy",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [
+        "numpy"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Apache Spark",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [
+        "Spark"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Apache Flink",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [
+        "Flink"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Keras",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Hugging Face Transformers",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [
+        "Transformers"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "LangChain",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "JAX",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "XGBoost",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "LightGBM",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "CatBoost",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "OpenAI API",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Anthropic API",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "ChromaDB",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [
+        "Chroma"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Apache Airflow",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [
+        "Airflow"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Databricks",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "dbt",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [
+        "Data Build Tool"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "MLflow",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Kubeflow",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Ray",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Dask",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Seaborn",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Matplotlib",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Plotly",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Statsmodels",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Polars",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Weights & Biases",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [
+        "W&B"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "LlamaIndex",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "DeepSpeed",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "ONNX",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [
+        "Open Neural Network Exchange"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "TensorRT",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Apache Beam",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [
+        "Beam"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "BigQuery",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Faiss",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Optuna",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Spearmint",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "NLTK",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [
+        "Natural Language Toolkit"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "SpaCy",
+      "group": "artificial_intelligence_and_data",
+      "aliases": [
+        "spacy"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Auth0",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Okta",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Keycloak",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "OpenID Connect",
+      "group": "security_and_compliance",
+      "aliases": [
+        "OIDC"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "OAuth 2.0",
+      "group": "security_and_compliance",
+      "aliases": [
+        "OAuth2"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "SAML",
+      "group": "security_and_compliance",
+      "aliases": [
+        "SAML 2.0"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "JWT",
+      "group": "security_and_compliance",
+      "aliases": [
+        "JSON Web Token"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "AWS IAM",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "CyberArk",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Burp Suite",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "OWASP ZAP",
+      "group": "security_and_compliance",
+      "aliases": [
+        "ZAP"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Nessus",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Metasploit",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "SonarQube",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Snyk",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Prisma Cloud",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Cloudflare Access",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "CrowdStrike Falcon",
+      "group": "security_and_compliance",
+      "aliases": [
+        "CrowdStrike"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Datadog Security",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Wazuh",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Tenable",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Qualys",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Check Point",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Palo Alto Prisma",
+      "group": "security_and_compliance",
+      "aliases": [
+        "Prisma Access"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Fortinet FortiGate",
+      "group": "security_and_compliance",
+      "aliases": [
+        "FortiGate"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "GuardDuty",
+      "group": "security_and_compliance",
+      "aliases": [
+        "AWS GuardDuty"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Security Hub",
+      "group": "security_and_compliance",
+      "aliases": [
+        "AWS Security Hub"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Azure Sentinel",
+      "group": "security_and_compliance",
+      "aliases": [
+        "Microsoft Sentinel"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Microsoft Defender",
+      "group": "security_and_compliance",
+      "aliases": [
+        "MS Defender"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Google Cloud Security Command Center",
+      "group": "security_and_compliance",
+      "aliases": [
+        "SCC"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Symantec Endpoint Security",
+      "group": "security_and_compliance",
+      "aliases": [
+        "Symantec"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Rapid7 InsightVM",
+      "group": "security_and_compliance",
+      "aliases": [
+        "InsightVM"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Veracode",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Checkmarx",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Lacework",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Wiz",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Aqua Security",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Sysdig",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Falco",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Shields.io",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Terraform Sentinel",
+      "group": "security_and_compliance",
+      "aliases": [
+        "Sentinel"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "OPA",
+      "group": "security_and_compliance",
+      "aliases": [
+        "Open Policy Agent"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Kyverno",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Certbot",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Let's Encrypt",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "ACME protocol",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "TLS",
+      "group": "security_and_compliance",
+      "aliases": [
+        "Transport Layer Security"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "IPsec",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "OpenVPN",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Duo Security",
+      "group": "security_and_compliance",
+      "aliases": [
+        "Duo"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Ping Identity",
+      "group": "security_and_compliance",
+      "aliases": [
+        "Ping"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "SailPoint",
+      "group": "security_and_compliance",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "JUnit",
+      "group": "testing_and_qa",
+      "aliases": [
+        "JUnit 5"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Pytest",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Selenium",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "K6",
+      "group": "testing_and_qa",
+      "aliases": [
+        "k6"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "JMeter",
+      "group": "testing_and_qa",
+      "aliases": [
+        "Apache JMeter"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Gatling",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Mocha",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Chai",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Enzyme",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Testing Library",
+      "group": "testing_and_qa",
+      "aliases": [
+        "React Testing Library"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "NUnit",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "xUnit",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "TestNG",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Puppeteer",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Locust",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Artillery",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Cypress.io",
+      "group": "testing_and_qa",
+      "aliases": [
+        "Cypress"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Cucumber",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "SpecFlow",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Karate",
+      "group": "testing_and_qa",
+      "aliases": [
+        "Karate DSL"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "MSW",
+      "group": "testing_and_qa",
+      "aliases": [
+        "Mock Service Worker"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Cavy",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Nightwatch.js",
+      "group": "testing_and_qa",
+      "aliases": [
+        "Nightwatch"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "WebdriverIO",
+      "group": "testing_and_qa",
+      "aliases": [
+        "WDIO"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Protractor",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Tox",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Ginkgo",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "GoConvey",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Spock",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "TestComplete",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Tricentis Tosca",
+      "group": "testing_and_qa",
+      "aliases": [
+        "Tosca"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Katalon Studio",
+      "group": "testing_and_qa",
+      "aliases": [
+        "Katalon"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "BlazeMeter",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "LoadRunner",
+      "group": "testing_and_qa",
+      "aliases": [
+        "Micro Focus LoadRunner"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "NeoLoad",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Autofac",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Factory Bot",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "RSpec",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Minitest",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Capybara",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Codeception",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "PHPUnit",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Karma",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Jasmine",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Ava",
+      "group": "testing_and_qa",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Figma",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Adobe XD",
+      "group": "design_and_prototyping",
+      "aliases": [
+        "Adobe Experience Design"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Sketch",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Framer",
+      "group": "design_and_prototyping",
+      "aliases": [
+        "Framer Motion"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "InVision",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Axure RP",
+      "group": "design_and_prototyping",
+      "aliases": [
+        "Axure"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Principle",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Proto.io",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Marvel",
+      "group": "design_and_prototyping",
+      "aliases": [
+        "Marvel App"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Balsamiq",
+      "group": "design_and_prototyping",
+      "aliases": [
+        "Balsamiq Wireframes"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Zeplin",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Webflow",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Penpot",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Origami Studio",
+      "group": "design_and_prototyping",
+      "aliases": [
+        "Origami"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "UXPin",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Abstract",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Justinmind",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Fluid UI",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Modulz",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Anima",
+      "group": "design_and_prototyping",
+      "aliases": [
+        "AnimaApp"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Framer X",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Mockplus",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Uizard",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Overflow",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Flinto",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Lunacy",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Adobe Illustrator",
+      "group": "design_and_prototyping",
+      "aliases": [
+        "Illustrator"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Adobe Photoshop",
+      "group": "design_and_prototyping",
+      "aliases": [
+        "Photoshop"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Affinity Designer",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Figma Dev Mode",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Design Tokens",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Locofy",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Builder.io",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Plasmic",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Relume",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Maze",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Optimal Workshop",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Hotjar",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Lookback",
+      "group": "design_and_prototyping",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "RabbitMQ",
+      "group": "system_architecture_and_messaging",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Apache Pulsar",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "Pulsar"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Amazon SQS",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "SQS"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Amazon SNS",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "SNS"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "NATS",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "NATS.io"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Kong",
+      "group": "system_architecture_and_messaging",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Apigee",
+      "group": "system_architecture_and_messaging",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Google Cloud Pub/Sub",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "Pub/Sub"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Azure Service Bus",
+      "group": "system_architecture_and_messaging",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Apache RocketMQ",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "RocketMQ"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "gRPC",
+      "group": "system_architecture_and_messaging",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "GraphQL",
+      "group": "system_architecture_and_messaging",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Apache NiFi",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "NiFi"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Confluent Platform",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "Confluent"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "ZeroMQ",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "0MQ",
+        "ZMQ"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Amazon Kinesis",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "Kinesis"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Redpanda",
+      "group": "system_architecture_and_messaging",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Solace PubSub+",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "Solace"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "ActiveMQ",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "Apache ActiveMQ"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Mosquitto",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "Eclipse Mosquitto"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "EMQX",
+      "group": "system_architecture_and_messaging",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Tyk",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "Tyk API Gateway"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Gravitee.io",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "Gravitee"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Micro",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "Go Micro"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Dapr",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "Distributed Application Runtime"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Temporal",
+      "group": "system_architecture_and_messaging",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Vector",
+      "group": "system_architecture_and_messaging",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Akka",
+      "group": "system_architecture_and_messaging",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Orleans",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "Microsoft Orleans"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Ballerina",
+      "group": "system_architecture_and_messaging",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Avro",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "Apache Avro"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Protobuf",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "Protocol Buffers"
+      ],
+      "source": "llm"
+    },
+    {
+      "name": "Conduit",
+      "group": "system_architecture_and_messaging",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Etcd",
+      "group": "system_architecture_and_messaging",
+      "aliases": [],
+      "source": "llm"
+    },
+    {
+      "name": "Zookeeper",
+      "group": "system_architecture_and_messaging",
+      "aliases": [
+        "Apache Zookeeper"
+      ],
+      "source": "llm"
+    }
+  ]
+}
