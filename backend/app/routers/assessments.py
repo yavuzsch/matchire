@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -243,23 +243,14 @@ def list_assessment_questions(
             time_limit_minutes=job.assessment_time_limit_minutes,
         )
 
-    answered_count = (
-        db.query(AssessmentAnswer)
-        .filter(AssessmentAnswer.application_id == application.id)
-        .count()
-    )
     already_completed = has_completed_assessment(db, application, job)
-
-    if not already_completed and is_time_expired(application, job):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail={"code": errors.ASSESSMENT_TIME_EXPIRED},
-        )
+    time_expired = not already_completed and is_time_expired(application, job)
 
     return AssessmentSession(
         questions=questions,
         started_at=application.assessment_started_at,
         time_limit_minutes=job.assessment_time_limit_minutes,
+        time_expired=time_expired,
     )
 
 

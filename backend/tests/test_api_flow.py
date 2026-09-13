@@ -846,7 +846,7 @@ class TestAssessmentTimeLimit:
 
         assert first["started_at"] == second["started_at"]
 
-    def test_expired_time_blocks_question_access(
+    def test_expired_time_flag_shown_on_question_access(
         self, client, employer_token, candidate_token, skills, db
     ):
         job, application, questions = self._prepare_with_time_limit(
@@ -875,8 +875,10 @@ class TestAssessmentTimeLimit:
             headers=auth(candidate_token),
         )
 
-        assert response.status_code == 403
-        assert response.json()["detail"]["code"] == "ASSESSMENT_TIME_EXPIRED"
+        assert response.status_code == 200
+        data = response.json()
+        assert data["time_expired"] is True
+        assert len(data["questions"]) == 1
 
     def test_expired_time_blocks_answer_submission(
         self, client, employer_token, candidate_token, skills, db
