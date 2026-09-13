@@ -142,6 +142,7 @@ export default {
     statusCompleted: "Yetkinlik testiniz tamamlandı, sonuç işverende",
     statusAccepted: "Tebrikler, mülakata davet edildiniz. Sizinle iletişime geçilecektir.",
     statusRejected: "Bu başvuru olumsuz sonuçlandı",
+    statusTimeExpired: "Yetkinlik testi süreniz doldu",
   },
 
   applications: {
