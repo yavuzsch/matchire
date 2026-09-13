@@ -23,6 +23,7 @@ class AssessmentSession(BaseModel):
     questions: list[QuestionForCandidate]
     started_at: datetime | None
     time_limit_minutes: int | None
+    time_expired: bool = False
 
 
 class QuestionSelect(BaseModel):
