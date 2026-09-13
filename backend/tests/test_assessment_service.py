@@ -148,6 +148,23 @@ class TestIsEligible:
 
         assert is_eligible(db, job, application) is False
 
+    def test_pending_candidate_keeps_access_once_started(self, db, employer):
+        job = make_job(db, employer, assessment_slots=1)
+        low = make_application(db, job, 40)
+        make_application(db, job, 90)
+        low.assessment_started_at = datetime.now(timezone.utc)
+        db.commit()
+
+        assert is_eligible(db, job, low) is True
+
+    def test_closed_job_blocks_pending_candidate_even_if_started(self, db, employer):
+        job = make_job(db, employer, assessment_slots=5, is_closed=True)
+        application = make_application(db, job, 90)
+        application.assessment_started_at = datetime.now(timezone.utc)
+        db.commit()
+
+        assert is_eligible(db, job, application) is False
+
 
 class TestUpdateAssessmentScore:
     def _setup(self, db, employer, question_count=4, weight=50, compatibility=80):

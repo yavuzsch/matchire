@@ -32,6 +32,9 @@ def is_eligible(db: Session, job: Job, application: Application) -> bool:
     if application.status in (ApplicationStatus.ASSESSMENT, ApplicationStatus.COMPLETED):
         return True
 
+    if application.assessment_started_at is not None:
+        return True
+
     return application.id in get_eligible_application_ids(db, job)
 
 
