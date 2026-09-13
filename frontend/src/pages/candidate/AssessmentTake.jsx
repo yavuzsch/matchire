@@ -50,12 +50,11 @@ export default function AssessmentTake() {
 
         setQuestions(data.questions)
         setStartedAt(new Date(data.started_at).getTime())
+        setServerTimeExpired(data.time_expired)
       })
       .catch((err) => {
         if (err.code === "NO_QUESTIONS_SELECTED") {
           setNotReady(true)
-        } else if (err.code === "ASSESSMENT_TIME_EXPIRED") {
-          setServerTimeExpired(true)
         } else {
           setError(t.errors[err.code] || t.errors.UNKNOWN_ERROR)
         }
@@ -123,7 +122,7 @@ export default function AssessmentTake() {
     remainingSeconds !== null &&
     remainingSeconds <= 0
 
-  const timeExpired = serverTimeExpired || clientTimeExpired
+  const timeExpired = !completed && (serverTimeExpired || clientTimeExpired)
 
   useEffect(() => {
     function handleBeforeUnload(event) {
@@ -203,15 +202,6 @@ export default function AssessmentTake() {
     )
   }
 
-  if (timeExpired) {
-    return (
-      <div>
-        <h1 className="text-2xl font-extrabold text-ink">{t.assessment.title}</h1>
-        <p className="mt-4 text-sm text-blue-400">{t.assessment.timeExpired}</p>
-      </div>
-    )
-  }
-
   if (notStarted) {
     return (
       <div>
@@ -255,6 +245,10 @@ export default function AssessmentTake() {
         <div className="mt-4 rounded-xl bg-green-500/10 p-4">
           <p className="text-sm font-medium text-green-400">{t.assessment.completed}</p>
         </div>
+      ) : timeExpired ? (
+        <div className="mt-4 rounded-xl bg-blue-500/10 p-4">
+          <p className="text-sm font-medium text-blue-400">{t.assessment.timeExpired}</p>
+        </div>
       ) : (
         <div className="mt-4 rounded-xl bg-surface p-4">
           {timeLimitMinutes && remainingSeconds !== null ? (
@@ -293,6 +287,8 @@ export default function AssessmentTake() {
                   {t.assessment.answered}
                 </span>
               </div>
+            ) : timeExpired ? (
+              <p className="mt-3 text-sm text-ink-soft">{t.assessment.noAnswerGiven}</p>
             ) : (
               <textarea
                 value={answers[question.id] || ""}
@@ -306,7 +302,7 @@ export default function AssessmentTake() {
         ))}
       </div>
 
-      {!completed && questions.length > 0 && (
+      {!completed && !timeExpired && questions.length > 0 && (
         <button
           type="button"
           onClick={submitAll}
