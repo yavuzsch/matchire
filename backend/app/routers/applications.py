@@ -6,7 +6,7 @@ from app.core.database import get_db
 from app.core.deps import require_candidate, require_employer
 from app.models import Application, ApplicationStatus, Job, Resume, User
 from app.schemas.application import ApplicationCreate, ApplicationOut, ApplicationStatusUpdate, CandidateRow
-from app.services.assessment_service import is_eligible
+from app.services.assessment_service import has_completed_assessment, is_eligible, is_time_expired
 from app.services.matching_service import calculate_compatibility, find_missing_mandatory_skills
 
 router = APIRouter(prefix="/applications", tags=["applications"])
@@ -18,6 +18,16 @@ VALID_TRANSITIONS = {
     ApplicationStatus.ACCEPTED: {ApplicationStatus.PENDING, ApplicationStatus.REJECTED},
     ApplicationStatus.REJECTED: {ApplicationStatus.PENDING},
 }
+
+
+def compute_assessment_time_expired(db: Session, application: Application, job: Job) -> bool:
+    if application.assessment_started_at is None:
+        return False
+
+    if has_completed_assessment(db, application, job):
+        return False
+
+    return is_time_expired(application, job)
 
 
 @router.post("", response_model=ApplicationOut, status_code=status.HTTP_201_CREATED)
@@ -99,6 +109,7 @@ def list_my_applications(
         job = db.query(Job).filter(Job.id == application.job_id).first()
         row = ApplicationOut.model_validate(application)
         row.assessment_eligible = is_eligible(db, job, application)
+        row.assessment_time_expired = compute_assessment_time_expired(db, application, job)
         rows.append(row)
 
     return rows

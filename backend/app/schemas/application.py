@@ -17,6 +17,7 @@ class ApplicationOut(BaseModel):
     status: ApplicationStatus
     compatibility_score: float
     assessment_eligible: bool = False
+    assessment_time_expired: bool = False
     job: JobPublic | None = None
 
 

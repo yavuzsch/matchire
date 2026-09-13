@@ -101,6 +101,144 @@ class TestApplicationFlow:
         assert response.status_code == 400
         assert response.json()["detail"]["code"] == "ALREADY_APPLIED"
 
+    def test_assessment_time_expired_flag_false_before_starting(
+        self, client, employer_token, candidate_token, skills
+    ):
+        job = create_job(client, employer_token, skills)
+        create_resume(client, candidate_token, skills)
+        client.post(
+            "/api/applications",
+            json={"job_id": job["id"]},
+            headers=auth(candidate_token),
+        )
+
+        response = client.get("/api/applications/mine", headers=auth(candidate_token))
+
+        assert response.status_code == 200
+        assert response.json()[0]["assessment_time_expired"] is False
+
+    def test_assessment_time_expired_flag_true_when_expired_unanswered(
+        self, client, employer_token, candidate_token, skills, db
+    ):
+        job = create_job(client, employer_token, skills)
+        client.patch(
+            f"/api/jobs/{job['id']}/settings",
+            json={"assessment_time_limit_minutes": 10},
+            headers=auth(employer_token),
+        )
+        create_resume(client, candidate_token, skills)
+        application = client.post(
+            "/api/applications",
+            json={"job_id": job["id"]},
+            headers=auth(candidate_token),
+        ).json()
+
+        with patch(
+            "app.services.question_service.generate_json",
+            return_value=["Question 1"],
+        ):
+            questions = client.post(
+                f"/api/assessments/jobs/{job['id']}/questions",
+                json={},
+                headers=auth(employer_token),
+            ).json()
+
+        client.put(
+            f"/api/assessments/jobs/{job['id']}/questions",
+            json={"question_ids": [questions[0]["id"]]},
+            headers=auth(employer_token),
+        )
+
+        client.post(
+            f"/api/assessments/applications/{application['id']}/start",
+            headers=auth(candidate_token),
+        )
+
+        from app.models import Application as ApplicationModel
+
+        app_row = (
+            db.query(ApplicationModel)
+            .filter(ApplicationModel.id == application["id"])
+            .first()
+        )
+        app_row.assessment_started_at = app_row.assessment_started_at - timedelta(
+            minutes=30
+        )
+        db.commit()
+
+        response = client.get("/api/applications/mine", headers=auth(candidate_token))
+
+        assert response.status_code == 200
+        assert response.json()[0]["assessment_time_expired"] is True
+
+    def test_assessment_time_expired_flag_false_when_completed(
+        self, client, employer_token, candidate_token, skills, db
+    ):
+        job = create_job(client, employer_token, skills)
+        client.patch(
+            f"/api/jobs/{job['id']}/settings",
+            json={"assessment_time_limit_minutes": 10},
+            headers=auth(employer_token),
+        )
+        create_resume(client, candidate_token, skills)
+        application = client.post(
+            "/api/applications",
+            json={"job_id": job["id"]},
+            headers=auth(candidate_token),
+        ).json()
+
+        with patch(
+            "app.services.question_service.generate_json",
+            return_value=["Question 1"],
+        ):
+            questions = client.post(
+                f"/api/assessments/jobs/{job['id']}/questions",
+                json={},
+                headers=auth(employer_token),
+            ).json()
+
+        client.put(
+            f"/api/assessments/jobs/{job['id']}/questions",
+            json={"question_ids": [questions[0]["id"]]},
+            headers=auth(employer_token),
+        )
+
+        client.post(
+            f"/api/assessments/applications/{application['id']}/start",
+            headers=auth(candidate_token),
+        )
+
+        with patch(
+            "app.services.evaluation_service.generate_json",
+            return_value={"score": 80},
+        ):
+            client.post(
+                f"/api/assessments/applications/{application['id']}/answers",
+                json={
+                    "answers": [
+                        {"question_id": questions[0]["id"], "answer_text": "Answer"},
+                    ]
+                },
+                headers=auth(candidate_token),
+            )
+
+        from app.models import Application as ApplicationModel
+
+        app_row = (
+            db.query(ApplicationModel)
+            .filter(ApplicationModel.id == application["id"])
+            .first()
+        )
+        app_row.assessment_started_at = app_row.assessment_started_at - timedelta(
+            minutes=30
+        )
+        db.commit()
+
+        response = client.get("/api/applications/mine", headers=auth(candidate_token))
+
+        assert response.status_code == 200
+        assert response.json()[0]["assessment_time_expired"] is False
+
 
 class TestAssessmentFlow:
     def _prepare(self, client, employer_token, candidate_token, skills):
